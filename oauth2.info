@@ -1,0 +1,8 @@
+; $Id$
+name = "OAuth2.0 Core"
+description = "Provides oauth2-php library linkage and default setup, etc."
+package = "OAuth2.0"
+dependencies[] = autoload
+dependencies[] = ctools
+core = 6.x
+php = 5.2

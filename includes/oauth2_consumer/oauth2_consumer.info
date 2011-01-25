@@ -1,0 +1,7 @@
+; $Id$
+name = "OAuth2.0 Consumer Support"
+description = "Extend OAuth2.0 Server Identifer with consumer support."
+package = "OAuth2.0"
+dependencies[] = oauth2_server
+core = 6.x
+php = 5.2

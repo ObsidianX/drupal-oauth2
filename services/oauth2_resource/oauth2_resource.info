@@ -1,0 +1,6 @@
+; $Id$
+name = "OAuth2.0 Service"
+description = "Provides oauth2.* service."
+package = "Services - services"
+dependencies[] = services
+core = 6.x

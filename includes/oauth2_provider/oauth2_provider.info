@@ -1,0 +1,7 @@
+; $Id$
+name = "OAuth2.0 Provider Support"
+description = "Provides functionality for OAuth2.0 when acting as a provider."
+package = "OAuth2.0"
+dependencies[] = oauth2
+core = 6.x
+php = 5.2
