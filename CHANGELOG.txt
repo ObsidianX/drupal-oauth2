@@ -1,5 +1,8 @@
 // $Id$
 
+OAuth2.0 6.x-1.x-dev, xxxx-xx-xx (development version)
+----------------------
+
 OAuth2.0 6.x-1.0-alpha1, 2011-01-25
 ----------------------
 - initial Alpha release.
