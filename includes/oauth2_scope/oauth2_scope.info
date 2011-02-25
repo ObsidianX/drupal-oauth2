@@ -1,4 +1,3 @@
-; $Id$
 name = "OAuth2.0 Scope Identifer"
 description = "Handle OAuth2.0 Scope Identifer as Drupal node."
 package = "OAuth2.0"

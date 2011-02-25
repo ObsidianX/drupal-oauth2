@@ -1,4 +1,3 @@
-; $Id$
 name = "OAuth2.0 Resource Server"
 description = "Provides OAuth2.0 resource server functionality"
 package = "OAuth2.0 - dummy"

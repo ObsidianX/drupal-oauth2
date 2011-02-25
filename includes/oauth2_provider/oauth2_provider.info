@@ -1,4 +1,3 @@
-; $Id$
 name = "OAuth2.0 Provider Support"
 description = "Provides functionality for OAuth2.0 when acting as a provider."
 package = "OAuth2.0"

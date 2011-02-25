@@ -1,4 +1,3 @@
-; $Id$
 name = "OAuth2.0 Consumer Support"
 description = "Extend OAuth2.0 Server Identifer with consumer support."
 package = "OAuth2.0"

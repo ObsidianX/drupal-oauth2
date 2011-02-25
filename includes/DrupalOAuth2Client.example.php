@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 function dprint_r($msg) {
   echo "<code><pre>";

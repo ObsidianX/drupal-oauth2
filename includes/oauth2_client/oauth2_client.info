@@ -1,4 +1,3 @@
-; $Id$
 name = "OAuth2.0 Client Identifer"
 description = "Handle OAuth2.0 Client Identifer as Drupal node."
 package = "OAuth2.0"
