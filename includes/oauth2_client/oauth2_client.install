@@ -6,33 +6,32 @@
  */
 
 /**
- * Implementation of hook_install().
+ * Implements hook_install().
  */
 function oauth2_client_install() {
-  drupal_install_schema('oauth2_client');
 }
 
 /**
- * Implementation of hook_uninstall().
+ * Implements hook_uninstall().
  */
 function oauth2_client_uninstall() {
-  drupal_uninstall_schema('oauth2_client');
 }
 
 /**
- * Implementation of hook_schema().
+ * Implements hook_schema().
  */
 function oauth2_client_schema() {
   $schema = array();
 
   $schema['oauth2_clients'] = array(
-    'description' => t('OAuth2.0 client indentifier information as Drupal node.'),
+    'description' => 'OAuth2.0 client indentifier information as Drupal node.',
     'fields' => array(
       'nid' => array(
         'description' => 'The primary identifier for a node.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
+        'default' => 0,
       ),
       'vid' => array(
         'description' => 'The current {node_revisions}.vid version identifier.',
@@ -42,23 +41,25 @@ function oauth2_client_schema() {
         'default' => 0,
       ),
       'client_id' => array(
-        'description' => t('The client identifier.'),
+        'description' => 'The client identifier.',
         'type' => 'varchar',
         'length' => 64,
         'not null' => TRUE,
+        'default' => '',
       ),
       'client_secret' => array(
-        'description' => t('The client password.'),
+        'description' => 'The client password.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
+        'default' => '',
       ),
       'redirect_uri' => array(
-        'description' => t('An absolute URI to which the authorization server will redirect the user-agent to when the end-user authorization step is completed.'),
+        'description' => 'An absolute URI to which the authorization server will redirect the user-agent to when the end-user authorization step is completed.',
         'type' => 'text',
       ),
       'base_domain' => array(
-        'description' => t('If set, Drupal will enable authentication on all subdomains (e.g., "example.com" will enable *.example.com).'),
+        'description' => 'If set, Drupal will enable authentication on all subdomains (e.g., "example.com" will enable *.example.com).',
         'type' => 'text',
       ),
     ),

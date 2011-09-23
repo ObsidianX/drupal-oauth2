@@ -1,5 +1,16 @@
 name = "OAuth2.0 Scope Identifer"
 description = "Handle OAuth2.0 Scope Identifer as Drupal node."
 package = "OAuth2.0"
-core = 6.x
+core = 7.x
 php = 5.2
+
+; Information added by drupal.org packaging script on January 1, 1970 - 00:00
+version = "7.x-1.0-alpha1"
+core = 7.x
+project = "oauth2"
+datestamp = "1295948016"
+
+files[] = oauth2_scope.admin.inc
+files[] = oauth2_scope.install
+files[] = oauth2_scope.module
+files[] = oauth2_scope.test

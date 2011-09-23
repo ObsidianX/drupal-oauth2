@@ -5,7 +5,11 @@
  * OAuth2.0 Admin interface.
  */
 
-function oauth2_admin_settings() {
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function oauth2_admin_settings($form, &$form_state) {
   $form = array();
 
   $form['oauth2_library_path'] = array(
@@ -80,8 +84,16 @@ function oauth2_admin_settings() {
     );
 
     $options = array();
-    $stmt = db_query("SELECT osrv.nid, osrv.server_id, n.title FROM {oauth2_servers} AS osrv INNER JOIN {node} AS n ON osrv.vid = n.vid WHERE n.status = 1");
-    while ($result = db_fetch_object($stmt)) {
+
+    $query = db_select('oauth2_servers', 'osrv');
+    $query->innerJoin('node', 'n', 'osrv.vid = n.vid');
+    $query->fields('osrv', array('nid', 'server_id'));
+    $query->fields('n', array('title'));
+    $query->condition('n.status', 1, '=');
+
+    $stmt = $query->execute();
+
+    foreach ($stmt as $result) {
       $options[$result->nid] = "{$result->title} ({$result->server_id})";
     }
     if (count($options) >= 1) {
@@ -96,9 +108,9 @@ function oauth2_admin_settings() {
     }
     else {
       $form['oauth2_provider_mode_proxy']['oauth2_proxy_server_identifier'] = array(
-        '#value' => t("<p>To use proxy mode you should first define at least one <a href='@oauth2_server'>OAuth2.0 server indentifier</a> and <a href='@admin'>publish it</a>.</p>", array(
+        '#markup' => t("<p>To use proxy mode you should first define at least one <a href='@oauth2_server'>OAuth2.0 server indentifier</a> and <a href='@admin'>publish it</a>.</p>", array(
           '@oauth2_server' => url('node/oauth2_server/add'),
-          '@admin' => url('admin/build/oauth2/oauth2_server'),
+          '@admin' => url('admin/structure/oauth2/oauth2_server'),
         )),
       );
     }
@@ -109,6 +121,10 @@ function oauth2_admin_settings() {
   return system_settings_form($form);
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function oauth2_admin_settings_validate($form, $form_state) {
   if (module_exists('oauth2_client') && module_exists('oauth2_scope')) {
     $form_state['values']['oauth2_access_token_lifetime'] = intval($form_state['values']['oauth2_access_token_lifetime']);
@@ -119,7 +135,7 @@ function oauth2_admin_settings_validate($form, $form_state) {
       form_set_error('oauth2_access_token_lifetime', t('The access token lifetime must be a non-zero integer value.'));
     }
     if ($form_state['values']['oauth2_auth_code_lifetime'] == 0) {
-        form_set_error('oauth2_auth_code_lifetime', t('The authorization code lifetime must be a non-zero integer value.'));
+      form_set_error('oauth2_auth_code_lifetime', t('The authorization code lifetime must be a non-zero integer value.'));
     }
     if ($form_state['values']['oauth2_refresh_token_lifetime'] == 0) {
       form_set_error('oauth2_refresh_token_lifetime', t('The refresh token lifetime must be a non-zero integer value.'));
@@ -137,12 +153,8 @@ function oauth2_admin_settings_validate($form, $form_state) {
 
 function _oauth2_admin_settings_check_library_path($form_element) {
   $library_path = $form_element['#value'];
-  if (!is_dir($library_path) || !(file_exists($library_path .'/lib/OAuth2.inc'))) {
+  if (!is_dir($library_path) || !(file_exists($library_path . '/lib/OAuth2.inc'))) {
     form_set_error($form_element['#parents'][0], t('The oauth2-php files <em>OAuth2.inc</em> could not be found in the %library_path directory.', array('%library_path' => $library_path)));
-  }
-  else {
-    // Flush the autoload caches so that our classes are registered.
-    autoload_flush_caches();
   }
   return $form_element;
 }

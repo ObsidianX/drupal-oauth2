@@ -6,25 +6,25 @@
  */
 
 /**
- * Implementation of hook_help().
+ * Implements hook_help().
  */
 function oauth2_scope_help($section, $arg) {
   switch ($section) {
-    case 'admin/build/oauth2/oauth2_scope':
-      $help = '<p>'. t("An <a href='!oauth_scope'>OAuth2.0 Scope Identifer</a> contain the scope information, including scope name, default for empty scope query and bypass end-user authorization, etc.", array(
+    case 'admin/structure/oauth2/oauth2_scope':
+      $help = '<p>' . t("An <a href='!oauth_scope'>OAuth2.0 Scope Identifer</a> contain the scope information, including scope name, default for empty scope query and bypass end-user authorization, etc.", array(
         '!oauth_scope' => url('node/add/oauth2-scope'),
-      )) .'</p>';
+      )) . '</p>';
       return $help;
   }
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function oauth2_scope_menu() {
   $items = array();
 
-  $items['admin/build/oauth2/oauth2_scope'] = array(
+  $items['admin/structure/oauth2/oauth2_scope'] = array(
     'title' => 'Scopes',
     'description' => 'List, add, and edit OAuth2.0 Scope Identifer.',
     'page callback' => 'oauth2_scope_admin_callback',
@@ -38,13 +38,13 @@ function oauth2_scope_menu() {
 }
 
 /**
- * Implementation of hook_node_info().
+ * Implements hook_node_info().
  */
 function oauth2_scope_node_info() {
   return array(
     'oauth2_scope' => array(
       'name' => t('OAuth2.0 Scope Identifer'),
-      'module' => 'oauth2_scope',
+      'base' => 'oauth2_scope',
       'description' => t('An <em>OAuth2.0 Scope Identifer</em> contain the scope information, including scope name, default for empty scope query and bypass end-user authorization, etc.'),
       'has_title' => TRUE,
       'title_label' => t('Scope Name'),
@@ -55,45 +55,60 @@ function oauth2_scope_node_info() {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implements hook_permission().
  */
-function oauth2_scope_perm() {
+function oauth2_scope_permission() {
   return array(
-    'create oauth2_scope',
-    'delete own oauth2_scope',
-    'delete any oauth2_scope',
-    'edit own oauth2_scope',
-    'edit any oauth2_scope',
+    'create oauth2_scope' => array(
+      'title' => t('create oauth2_scope'),
+      'description' => t('TODO Add a description for \'create oauth2_scope\''),
+    ),
+    'delete own oauth2_scope' => array(
+      'title' => t('delete own oauth2_scope'),
+      'description' => t('TODO Add a description for \'delete own oauth2_scope\''),
+    ),
+    'delete any oauth2_scope' => array(
+      'title' => t('delete any oauth2_scope'),
+      'description' => t('TODO Add a description for \'delete any oauth2_scope\''),
+    ),
+    'edit own oauth2_scope' => array(
+      'title' => t('edit own oauth2_scope'),
+      'description' => t('TODO Add a description for \'edit own oauth2_scope\''),
+    ),
+    'edit any oauth2_scope' => array(
+      'title' => t('edit any oauth2_scope'),
+      'description' => t('TODO Add a description for \'edit any oauth2_scope\''),
+    ),
   );
 }
 
 /**
- * Implementation of hook_access().
+ * Implements hook_node_access().
  */
-function oauth2_scope_access($op, $node, $account) {
+function oauth2_scope_node_access($node, $op, $account) {
   if ($op == 'create') {
     // Anonymous users cannot post even if they have the permission.
-    return user_access('create oauth2_scope', $account) && $account->uid ? TRUE : NULL;
+    return user_access('create oauth2_scope', $account) && $account->uid ? NODE_ACCESS_ALLOW : NODE_ACCESS_DENY;
   }
 
   if ($op == 'update') {
     if (user_access('edit any oauth2_scope', $account) || (user_access('edit own oauth2_scope', $account) && ($account->uid == $node->uid))) {
-      return TRUE;
+      return NODE_ACCESS_ALLOW;
     }
   }
 
   if ($op == 'delete') {
     if (user_access('delete any oauth2_scope', $account) || (user_access('delete own oauth2_scope', $account) && ($account->uid == $node->uid))) {
-      return TRUE;
+      return NODE_ACCESS_ALLOW;
     }
   }
 }
 
 /**
- * Implementation of hook_form().
+ * Implements hook_form().
  */
 function oauth2_scope_form(&$node) {
-  $type = node_get_types('type', $node);
+  $type = node_type_get_type($node);
 
   if ($type->has_title) {
     $form['title'] = array(
@@ -107,7 +122,10 @@ function oauth2_scope_form(&$node) {
   }
 
   if ($type->has_body) {
-    $form['body_field'] = node_body_field($node, $type->body_label, $type->min_word_count);
+    $node_array = get_object_vars($node);
+    if (array_key_exists('content', $node_array)) {
+      $form['body_field'] = $node->content['body'];
+    }
   }
 
   $form['oauth2_scope'] = array(
@@ -150,7 +168,7 @@ function oauth2_scope_form(&$node) {
 }
 
 /**
- * Implementation of hook_validate().
+ * Implements hook_validate().
  */
 function oauth2_scope_validate($node) {
   $pattern = '/^[a-z0-9-_]{3,64}$/i';
@@ -159,21 +177,29 @@ function oauth2_scope_validate($node) {
   }
 
   // Ensure no duplicate scope_id.
-  $result = db_result(db_query("SELECT COUNT(*) FROM {oauth2_scopes} AS os INNER JOIN {node} AS n ON os.vid = n.vid WHERE os.scope_id = '%s' AND n.nid <> %d", $node->scope_id, $node->nid));
+
+  $query = db_select('oauth2_scopes', 'os');
+  $query->innerJoin('node', 'n', 'os.vid = n.vid');
+  $query->fields('n', array('nid'));
+  $query->condition('os.scope_id', $node->scope_id, '=');
+  $query->condition('n.nid', $node->nid, '<>');
+
+  $result = $query->execute()->rowCount();
+
   if ($result != 0) {
     form_set_error('scope_id', t('This Scope ID had beed used by other scope.'));
   }
 }
 
 /**
- * Implementation of hook_insert().
+ * Implements hook_insert().
  */
 function oauth2_scope_insert($node) {
   drupal_write_record('oauth2_scopes', $node);
 }
 
 /**
- * Implementation of hook_update().
+ * Implements hook_update().
  */
 function oauth2_scope_update($node) {
   // if this is a new node or we're adding a new revision,
@@ -186,52 +212,61 @@ function oauth2_scope_update($node) {
 }
 
 /**
- * Implementation of hook_nodeapi().
+ * Implements hook_node_revision_delete().
  */
-function oauth2_scope_nodeapi(&$node, $op, $teaser, $page) {
-  switch ($op) {
-    case 'delete revision':
-      // Notice that we're matching a single revision based on the node's vid.
-      db_query("DELETE FROM {oauth2_scopes} WHERE vid = %d", $node->vid);
-      break;
+function oauth2_scope_node_revision_delete($node) {
+  // Notice that we're matching a single revision based on the node's vid.
+  // TODO Please review the conversion of this statement to the D7 database API syntax.
+  /* db_query("DELETE FROM {oauth2_scopes} WHERE vid = %d", $node->vid) */
+  db_delete('oauth2_scopes')
+  ->condition('vid', $node->vid)
+  ->execute();
+}
+
+/**
+ * Implements hook_delete().
+ */
+function oauth2_scope_delete(&$node) {
+  // Notice that we're matching all revision, by using the node's nid.
+  db_delete('oauth2_scopes')
+  ->condition('nid', $node->nid)
+  ->execute();
+}
+
+/**
+ * Implements hook_load().
+ */
+function oauth2_scope_load($nodes) {
+  foreach ($nodes as $nid => $node) {
+
+    $result = db_query("SELECT scope_id, hidden, bypass, required FROM {oauth2_scopes} WHERE vid = :vid", array(':vid' => $node->vid));
+
+    foreach ($result as $additions) {
+      foreach ($additions as $property => &$value) {
+        $nodes[$node->nid]->$property = $value;
+      }
+    }
   }
 }
 
 /**
- * Implementation of hook_delete().
- */
-function oauth2_scope_delete(&$node) {
-  // Notice that we're matching all revision, by using the node's nid.
-  db_query("DELETE FROM {oauth2_scopes} WHERE nid = %d", $node->nid);
-}
-
-/**
- * Implementation of hook_load().
- */
-function oauth2_scope_load(&$node) {
-  $additions = db_fetch_object(db_query("SELECT scope_id, hidden, bypass, required FROM {oauth2_scopes} WHERE vid = %d", $node->vid));
-  return $additions;
-}
-
-/**
- * Implementation of hook_view().
+ * Implements hook_view().
  */
 function oauth2_scope_view($node, $teaser = FALSE, $page = FALSE) {
-  $node = node_prepare($node, $teaser);
   $node->content['scope_id'] = array(
-    '#value' => theme('oauth2_scope_scope_id', $node->scope_id),
+    '#markup' => theme('oauth2_scope_scope_id', array('scope_id' => $node->scope_id)),
     '#weight' => -10,
   );
   $node->content['hidden'] = array(
-    '#value' => theme('oauth2_scope_hidden', $node->hidden),
+    '#markup' => theme('oauth2_scope_hidden', array('hidden' => $node->hidden)),
     '#weight' => -9,
   );
   $node->content['bypass'] = array(
-    '#value' => theme('oauth2_scope_bypass', $node->bypass),
+    '#markup' => theme('oauth2_scope_bypass', array('bypass' => $node->bypass)),
     '#weight' => -8,
   );
   $node->content['required'] = array(
-    '#value' => theme('oauth2_scope_required', $node->required),
+    '#markup' => theme('oauth2_scope_required', array('required' => $node->required)),
     '#weight' => -7,
   );
 
@@ -239,21 +274,21 @@ function oauth2_scope_view($node, $teaser = FALSE, $page = FALSE) {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function oauth2_scope_theme() {
   return array(
     'oauth2_scope_scope_id' => array(
-      'arguments' => array('scope_id' => '', 'teaser' => 0, 'page' => 0),
+      'variables' => array('scope_id' => '', 'teaser' => 0, 'page' => 0),
     ),
     'oauth2_scope_hidden' => array(
-      'arguments' => array('hidden' => '', 'teaser' => 0, 'page' => 0),
+      'variables' => array('hidden' => '', 'teaser' => 0, 'page' => 0),
     ),
     'oauth2_scope_bypass' => array(
-      'arguments' => array('bypass' => '', 'teaser' => 0, 'page' => 0),
+      'variables' => array('bypass' => '', 'teaser' => 0, 'page' => 0),
     ),
     'oauth2_scope_required' => array(
-      'arguments' => array('required' => '', 'teaser' => 0, 'page' => 0),
+      'variables' => array('required' => '', 'teaser' => 0, 'page' => 0),
     ),
   );
 }
@@ -263,7 +298,10 @@ function oauth2_scope_theme() {
  *
  * @ingroup themeable
  */
-function theme_oauth2_scope_scope_id($scope_id, $teaser = 0, $page = 0) {
+function theme_oauth2_scope_scope_id($variables) {
+  $scope_id = $variables['scope_id'];
+  $teaser = $variables['teaser'];
+  $page = $variables['page'];
   $output = '<div class="oauth2_scope-info scope_id">';
   $output .= t('Scope ID: @scope_id', array('@scope_id' => $scope_id));
   $output .= '</div>';
@@ -275,7 +313,10 @@ function theme_oauth2_scope_scope_id($scope_id, $teaser = 0, $page = 0) {
  *
  * @ingroup themeable
  */
-function theme_oauth2_scope_hidden($hidden, $teaser = 0, $page = 0) {
+function theme_oauth2_scope_hidden($variables) {
+  $hidden = $variables['hidden'];
+  $teaser = $variables['teaser'];
+  $page = $variables['page'];
   $output = '<div class="oauth2_scope-info hidden">';
   $output .= t('Hidden scope: @hidden', array('@hidden' => $hidden ? 'TRUE' : 'FALSE'));
   $output .= '</div>';
@@ -287,7 +328,10 @@ function theme_oauth2_scope_hidden($hidden, $teaser = 0, $page = 0) {
  *
  * @ingroup themeable
  */
-function theme_oauth2_scope_bypass($bypass, $teaser = 0, $page = 0) {
+function theme_oauth2_scope_bypass($variables) {
+  $bypass = $variables['bypass'];
+  $teaser = $variables['teaser'];
+  $page = $variables['page'];
   $output = '<div class="oauth2_scope-info bypass">';
   $output .= t('Bypass end-user authorization: @bypass', array('@bypass' => $bypass ? 'TRUE' : 'FALSE'));
   $output .= '</div>';
@@ -299,7 +343,10 @@ function theme_oauth2_scope_bypass($bypass, $teaser = 0, $page = 0) {
  *
  * @ingroup themeable
  */
-function theme_oauth2_scope_required($required, $teaser = 0, $page = 0) {
+function theme_oauth2_scope_required($variables) {
+  $required = $variables['required'];
+  $teaser = $variables['teaser'];
+  $page = $variables['page'];
   $output = '<div class="oauth2_scope-info required">';
   $output .= t('Required scope: @required', array('@required' => $required ? 'TRUE' : 'FALSE'));
   $output .= '</div>';

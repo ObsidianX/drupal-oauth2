@@ -3,4 +3,14 @@ description = "Provides OAuth2.0 authentication for the services module."
 package = Services - authentication
 dependencies[] = services
 dependencies[] = oauth2
-core = 6.x
+core = 7.x
+
+; Information added by drupal.org packaging script on January 1, 1970 - 00:00
+version = "7.x-1.0-dev"
+core = 7.x
+project = "oauth2"
+datestamp = "1295948016"
+
+
+files[] = services_oauth2.inc
+files[] = services_oauth2.module

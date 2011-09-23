@@ -11,16 +11,16 @@ function dprint_r($msg) {
  * Drupal OAuth2.0 client library platform independent testing console.
  */
 
-require_once '../../../libraries/oauth2-php/lib/OAuth2.inc';
-require_once '../../../libraries/oauth2-php/lib/OAuth2Client.inc';
-require_once '../../../libraries/oauth2-php/lib/OAuth2Exception.inc';
+require_once '../oauth2-php/lib/OAuth2.inc';
+require_once '../oauth2-php/lib/OAuth2Client.inc';
+require_once '../oauth2-php/lib/OAuth2Exception.inc';
 require_once 'DrupalOAuth2Client.inc';
 
 // Create our Application instance (replace this with your appId and secret).
 $drupal = new DrupalOAuth2Client(array(
-  'client_id' => '47ccb7dd69cbe74c5c1500df09b1a1ad',
-  'client_secret' => '53d5b39ecd23e2ea8c9c3a5c9d62907a',
-  'base_uri' => 'http://turner.com.dev.pantarei-design.com/',
+  'client_id' => '245881da2b29f25d0bf62de27993f299',
+  'client_secret' => '432342b9a7a96941b24fd06125cac71d',
+  'base_uri' => 'http://d7.oauth.se.rvic.es/',
   'authorize_uri' => 'oauth2/authorize',
   'access_token_uri' => 'oauth2/access_token',
   'services_uri' => 'o',

@@ -6,27 +6,25 @@
  */
 
 /**
- * Implementation of hook_install().
+ * Implements hook_install().
  */
 function oauth2_consumer_install() {
-  drupal_install_schema('oauth2_consumer');
 }
 
 /**
- * Implementation of hook_uninstall().
+ * Implements hook_uninstall().
  */
 function oauth2_consumer_uninstall() {
-  drupal_uninstall_schema('oauth2_consumer');
 }
 
 /**
- * Implementation of hook_schema().
+ * Implements hook_schema().
  */
 function oauth2_consumer_schema() {
   $schema = array();
 
   $schema['oauth2_consumers']  = array(
-    'description' => t('Stores information about OAuth2.0 consumers.'),
+    'description' => 'Stores information about OAuth2.0 consumers.',
     'fields' => array(
       'nid' => array(
         'description' => 'The primary identifier for a node.',
@@ -42,7 +40,7 @@ function oauth2_consumer_schema() {
         'default' => 0,
       ),
       'services_uri' => array(
-        'description' => t('The remote server\'s HTTP endpoint capable of Drupal Service 3.x services. Absolute path or path relative to base URI.'),
+        'description' => 'The remote server\'s HTTP endpoint capable of Drupal Service 3.x services. Absolute path or path relative to base URI.',
         'type' => 'text',
       ),
       'expires_in' => array(

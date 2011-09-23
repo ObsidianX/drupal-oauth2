@@ -2,5 +2,16 @@ name = "OAuth2.0 Consumer Support"
 description = "Extend OAuth2.0 Server Identifer with consumer support."
 package = "OAuth2.0"
 dependencies[] = oauth2_server
-core = 6.x
+core = 7.x
 php = 5.2
+
+; Information added by drupal.org packaging script on January 1, 1970 - 00:00
+version = "7.x-1.0-alpha1"
+core = 7.x
+project = "oauth2"
+datestamp = "1295948016"
+
+
+files[] = oauth2_consumer.install
+files[] = oauth2_consumer.module
+files[] = oauth2_consumer.test

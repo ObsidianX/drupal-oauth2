@@ -5,19 +5,27 @@
  * OAuth2.0 schema file.
  */
 
+/**
+ * @todo Please document this function.
+ *
+ * @see http://drupal.org/node/1354
+ */
 function oauth2_scope_install() {
-  drupal_install_schema('oauth2_scope');
 }
 
 function oauth2_uninstall() {
-  drupal_uninstall_schema('oauth2_scope');
 }
 
+/**
+ * @todo Please document this function.
+ *
+ * @see http://drupal.org/node/1354
+ */
 function oauth2_scope_schema() {
   $schema = array();
 
   $schema['oauth2_scopes'] = array(
-    'description' => t('OAuth2.0 scope information as Drupal node.'),
+    'description' => 'OAuth2.0 scope information as Drupal node.',
     'fields' => array(
       'nid' => array(
         'description' => 'The primary identifier for a node.',
@@ -33,7 +41,7 @@ function oauth2_scope_schema() {
         'default' => 0,
       ),
       'scope_id' => array(
-        'description' => t('The scope identifier.'),
+        'description' => 'The scope identifier.',
         'type' => 'varchar',
         'length' => 64,
         'not null' => TRUE,

@@ -8,7 +8,7 @@
 /**
  * Menu callback for authorization endpoint.
  */
-function oauth2_provider_authorize_form() {
+function oauth2_provider_authorize_form($form, &$form_state) {
   global $user;
   $form = array();
 
@@ -16,8 +16,8 @@ function oauth2_provider_authorize_form() {
   if ($user->uid == 0) {
     $params = $_GET;
     unset($params['q']);
-    $params['destination'] = 'oauth2/authorize';
-    drupal_goto('user', $params);
+    $params['destination'] = array('oauth2/authorize' => '');
+    drupal_goto('user', array('query' => $params));
   }
 
   $auth_params = oauth2_get_server()->getAuthorizeParams();
@@ -35,7 +35,7 @@ function oauth2_provider_authorize_form() {
   foreach ($extened_permissions as $permission) {
     if ($permission['bypass'] == 0) {
       $node = node_load($permission['nid']);
-      $form['scope_'. $permission['scope_id']]['#value'] = theme('oauth2_provider_scope', $node);
+      $form['scope_' . $permission['scope_id']]['#value'] = theme('oauth2_provider_scope', array('node' => $node));
       $request++;
     }
     $scope_ids[] = $permission['scope_id'];

@@ -6,25 +6,25 @@
  */
 
 /**
- * Implementation of hook_help().
+ * Implements hook_help().
  */
 function oauth2_client_help($section, $arg) {
   switch ($section) {
-    case 'admin/build/oauth2/oauth2_client':
-      $help = '<p>'. t("An <a href='!oauth2_client'>OAuth2.0 Client Identifer</a> contain the registed OAuth2.0 application information, including client_id, client_secret, redirect_uri and base_domain, etc.", array(
+    case 'admin/structure/oauth2/oauth2_client':
+      $help = '<p>' . t("An <a href='!oauth2_client'>OAuth2.0 Client Identifer</a> contain the registed OAuth2.0 application information, including client_id, client_secret, redirect_uri and base_domain, etc.", array(
         '!oauth2_client' => url('node/add/oauth2-client'),
-      )) .'</p>';
+      )) . '</p>';
       return $help;
   }
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function oauth2_client_menu() {
   $items = array();
 
-  $items['admin/build/oauth2/oauth2_client'] = array(
+  $items['admin/structure/oauth2/oauth2_client'] = array(
     'title' => 'Clients',
     'description' => 'List, add, and edit OAuth2.0 Client Identifer.',
     'page callback' => 'oauth2_client_admin_callback',
@@ -38,14 +38,14 @@ function oauth2_client_menu() {
 }
 
 /**
- * Implementation of hook_node_info().
+ * Implements hook_node_info().
  */
 function oauth2_client_node_info() {
   return array(
     'oauth2_client' => array(
       'name' => t('OAuth2.0 Client Identifer'),
-      'module' => 'oauth2_client',
-      'description' => t('An <em>OAuth2.0 Client Identifer</em> contain the registed OAuth2.0 application information, including client_id, client_secret, redirect_uri and base_domain, etc.'),
+      'base' => 'oauth2_client',
+      'description' => t('An <em>OAuth2.0 Client Identifier</em> containing the registered OAuth2.0 application information, including client_id, client_secret, redirect_uri, base_domain, etc.'),
       'has_title' => TRUE,
       'title_label' => t('Application Name'),
       'has_body' => TRUE,
@@ -55,45 +55,64 @@ function oauth2_client_node_info() {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implements hook_permission().
  */
-function oauth2_client_perm() {
+function oauth2_client_permission() {
   return array(
-    'create oauth2_client',
-    'delete own oauth2_client',
-    'delete any oauth2_client',
-    'edit own oauth2_client',
-    'edit any oauth2_client',
+    'create oauth2_client' => array(
+      'title' => t('create oauth2_client'),
+      'description' => t('TODO Add a description for \'create oauth2_client\''),
+    ),
+    'delete own oauth2_client' => array(
+      'title' => t('delete own oauth2_client'),
+      'description' => t('TODO Add a description for \'delete own oauth2_client\''),
+    ),
+    'delete any oauth2_client' => array(
+      'title' => t('delete any oauth2_client'),
+      'description' => t('TODO Add a description for \'delete any oauth2_client\''),
+    ),
+    'edit own oauth2_client' => array(
+      'title' => t('edit own oauth2_client'),
+      'description' => t('TODO Add a description for \'edit own oauth2_client\''),
+    ),
+    'edit any oauth2_client' => array(
+      'title' => t('edit any oauth2_client'),
+      'description' => t('TODO Add a description for \'edit any oauth2_client\''),
+    ),
   );
 }
 
 /**
- * Implementation of hook_access().
+ * Implements hook_node_access().
+ *
+ * This seems to have the parameters in the wrong order!?
+ * (And yet, it seems to receive them correctly)
+ *
  */
-function oauth2_client_access($op, $node, $account) {
+function oauth2_client_node_access($node, $op, $account) {
   if ($op == 'create') {
     // Anonymous users cannot post even if they have the permission.
-    return user_access('create oauth2_client', $account) && $account->uid ? TRUE : NULL;
+    return user_access('create oauth2_client', $account) && $account->uid ? NODE_ACCESS_ALLOW : NODE_ACCESS_DENY;
   }
 
   if ($op == 'update') {
     if (user_access('edit any oauth2_client', $account) || (user_access('edit own oauth2_client', $account) && ($account->uid == $node->uid))) {
-      return TRUE;
+      return NODE_ACCESS_ALLOW;
     }
   }
 
   if ($op == 'delete') {
     if (user_access('delete any oauth2_client', $account) || (user_access('delete own oauth2_client', $account) && ($account->uid == $node->uid))) {
-      return TRUE;
+      return NODE_ACCESS_ALLOW;
     }
   }
 }
 
 /**
- * Implementation of hook_form().
+ * Implements hook_form().
  */
 function oauth2_client_form(&$node) {
-  $type = node_get_types('type', $node);
+  $type = node_type_get_type($node);
 
   if ($type->has_title) {
     $form['title'] = array(
@@ -107,7 +126,10 @@ function oauth2_client_form(&$node) {
   }
 
   if ($type->has_body) {
-    $form['body_field'] = node_body_field($node, $type->body_label, $type->min_word_count);
+    $node_array = get_object_vars($node);
+    if (array_key_exists('content', $node_array)) {
+      $form['body_field'] = $node->content['body'];
+    }
   }
 
   $form['oauth2_client'] = array(
@@ -160,95 +182,103 @@ function oauth2_client_form(&$node) {
 }
 
 /**
- * Implementation of hook_insert().
+ * Implements hook_insert().
  */
-function oauth2_client_insert($node) {
-  drupal_write_record('oauth2_clients', $node);
+function oauth2_client_insert(&$node) {
+  drupal_write_record('oauth2_clients', &$node);
 }
 
 /**
- * Implementation of hook_update().
+ * Implements hook_update().
  */
-function oauth2_client_update($node) {
+function oauth2_client_update(&$node) {
   // if this is a new node or we're adding a new revision,
   if ($node->revision) {
-    oauth2_client_insert($node);
+    oauth2_client_insert(&$node);
   }
   else {
-    drupal_write_record('oauth2_clients', $node, 'vid');
+    drupal_write_record('oauth2_clients', &$node, 'vid');
   }
 }
 
 /**
- * Implementation of hook_nodeapi().
+ * Implements hook_node_revision_delete().
  */
-function oauth2_client_nodeapi(&$node, $op, $teaser, $page) {
-  switch ($op) {
-    case 'delete revision':
-      // Notice that we're matching a single revision based on the node's vid.
-      db_query("DELETE FROM {oauth2_clients} WHERE vid = %d", $node->vid);
-      break;
-  }
+function oauth2_client_node_revision_delete($node) {
+  // Notice that we're matching a single revision based on the node's vid.
+  db_delete('oauth2_clients')
+  ->condition('vid', $node->vid)
+  ->execute();
 }
 
+
 /**
- * Implementation of hook_delete().
+ * Implements hook_delete().
  */
 function oauth2_client_delete(&$node) {
   // Notice that we're matching all revision, by using the node's nid.
-  db_query("DELETE FROM {oauth2_clients} WHERE nid = %d", $node->nid);
+  db_delete('oauth2_clients')
+  ->condition('nid', $node->nid)
+  ->execute();
 }
 
 /**
- * Implementation of hook_load().
+ * Implements hook_load().
  */
-function oauth2_client_load(&$node) {
-  $additions = db_fetch_object(db_query("SELECT client_id, client_secret, redirect_uri, base_domain FROM {oauth2_clients} WHERE vid = %d", $node->vid));
-  return $additions;
+function oauth2_client_load($nodes) {
+  foreach ($nodes as $nid => $node) {
+
+    $result = db_query("SELECT client_id, client_secret, redirect_uri, base_domain FROM {oauth2_clients} WHERE vid = :vid", array(':vid' => $node->vid));
+
+    foreach ($result as $additions) {
+      foreach ($additions as $property => &$value) {
+        $nodes[$node->nid]->$property = $value;
+      }
+    }
+  }
 }
 
 /**
- * Implementation of hook_view().
+ * Implements hook_view().
  */
-function oauth2_client_view($node, $teaser = FALSE, $page = FALSE) {
-  $node = node_prepare($node, $teaser);
-
+function oauth2_client_view($node, $view_mode) {
   $node->content['client_id'] = array(
-    '#value' => theme('oauth2_client_client_id', $node->client_id),
+    '#markup' => theme('oauth2_client_client_id', array('client_id' => $node->client_id)),
     '#weight' => -10,
   );
   $node->content['client_secret'] = array(
-    '#value' => theme('oauth2_client_client_secret', $node->client_secret),
+    '#markup' => theme('oauth2_client_client_secret', array('client_secret' => $node->client_secret)),
     '#weight' => -9,
   );
   $node->content['redirect_uri'] = array(
-    '#value' => theme('oauth2_client_redirect_uri', $node->redirect_uri),
+    '#markup' => theme('oauth2_client_redirect_uri', array('redirect_uri' => $node->redirect_uri)),
     '#weight' => -8,
   );
   $node->content['base_domain'] = array(
-    '#value' => theme('oauth2_client_base_domain', $node->base_domain),
+    '#markup' => theme('oauth2_client_base_domain', array('base_domain' => $node->base_domain)),
     '#weight' => -7,
   );
 
   return $node;
 }
 
+
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function oauth2_client_theme() {
   return array(
     'oauth2_client_client_id' => array(
-      'arguments' => array('client_id' => '', 'teaser' => 0, 'page' => 0),
+      'variables' => array('client_id' => '', 'teaser' => 0, 'page' => 0),
     ),
     'oauth2_client_client_secret' => array(
-      'arguments' => array('client_secret' => '', 'teaser' => 0, 'page' => 0),
+      'variables' => array('client_secret' => '', 'teaser' => 0, 'page' => 0),
     ),
     'oauth2_client_redirect_uri' => array(
-      'arguments' => array('redirect_uri' => '', 'teaser' => 0, 'page' => 0),
+      'variables' => array('redirect_uri' => '', 'teaser' => 0, 'page' => 0),
     ),
     'oauth2_client_base_domain' => array(
-      'arguments' => array('base_domain' => '', 'teaser' => 0, 'page' => 0),
+      'variables' => array('base_domain' => '', 'teaser' => 0, 'page' => 0),
     ),
   );
 }
@@ -258,7 +288,10 @@ function oauth2_client_theme() {
  *
  * @ingroup themeable
  */
-function theme_oauth2_client_client_id($client_id, $teaser = 0, $page = 0) {
+function theme_oauth2_client_client_id($variables) {
+  $client_id = $variables['client_id'];
+  $teaser = $variables['teaser'];
+  $page = $variables['page'];
   $output = '<div class="oauth2_client-info client_id">';
   $output .= t('Application ID: @client_id', array('@client_id' => $client_id));
   $output .= '</div>';
@@ -270,7 +303,10 @@ function theme_oauth2_client_client_id($client_id, $teaser = 0, $page = 0) {
  *
  * @ingroup themeable
  */
-function theme_oauth2_client_client_secret($client_secret, $teaser = 0, $page = 0) {
+function theme_oauth2_client_client_secret($variables) {
+  $client_secret = $variables['client_secret'];
+  $teaser = $variables['teaser'];
+  $page = $variables['page'];
   $output = '<div class="oauth2_client-info client_secret">';
   $output .= t('Application Secret: @client_secret', array('@client_secret' => $client_secret));
   $output .= '</div>';
@@ -282,7 +318,10 @@ function theme_oauth2_client_client_secret($client_secret, $teaser = 0, $page = 
  *
  * @ingroup themeable
  */
-function theme_oauth2_client_redirect_uri($redirect_uri, $teaser = 0, $page = 0) {
+function theme_oauth2_client_redirect_uri($variables) {
+  $redirect_uri = $variables['redirect_uri'];
+  $teaser = $variables['teaser'];
+  $page = $variables['page'];
   $output = '<div class="oauth2_client-info redirect_uri">';
   $output .= t('Site URL: @redirect_uri', array('@redirect_uri' => $redirect_uri));
   $output .= '</div>';
@@ -294,7 +333,10 @@ function theme_oauth2_client_redirect_uri($redirect_uri, $teaser = 0, $page = 0)
  *
  * @ingroup themeable
  */
-function theme_oauth2_client_base_domain($base_domain, $teaser = 0, $page = 0) {
+function theme_oauth2_client_base_domain($variables) {
+  $base_domain = $variables['base_domain'];
+  $teaser = $variables['teaser'];
+  $page = $variables['page'];
   $output = '<div class="oauth2_client-info base_domain">';
   $output .= t('Site Domain: @base_domain', array('@base_domain' => empty($base_domain) ? t('<none>') : $base_domain));
   $output .= '</div>';

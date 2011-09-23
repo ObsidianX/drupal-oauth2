@@ -7,16 +7,18 @@
  */
 
 /**
- * Implementation of hook_init().
+ * Implements hook_init().
  */
 function oauth2_provider_init() {
   // The initialize of class will handle the hack of user base on
   // $_REQUEST['oauth_token'].
-  $server = oauth2_get_server();
+
+  global $base_url;
+  $server = oauth2_get_server(NULL, array('base_uri' => $base_url));
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function oauth2_provider_menu() {
   $items = array();
@@ -47,13 +49,13 @@ function oauth2_provider_menu() {
 function oauth2_provider_menu_alter(&$callbacks) {
   // Replace the login and logout menu callback.
   $callbacks['user']['page callback'] = 'oauth2_provider_page';
-  $callbacks['logout']['page callback'] = 'oauth2_provider_logout';
+  $callbacks['user/logout']['page callback'] = 'oauth2_provider_logout';
 }
 
 /**
  * Implements hook_form_alter().
  */
-function oauth2_provider_form_alter(&$form, $form_state, $form_id) {
+function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
   // Replace the submit handler of login form.
   if (isset($form['#submit']) && is_array($form['#submit']) && ($key = array_search('user_login_submit', $form['#submit'])) !== FALSE) {
     $form['#submit'][$key] = 'oauth2_provider_login_submit';
@@ -79,14 +81,15 @@ function oauth2_provider_form_alter(&$form, $form_state, $form_id) {
  */
 function oauth2_provider_page() {
   global $user;
-  if ($user->uid) {
+
+  if ($user->uid != 0) {
     // Redirect user to oauth2/authorize if from OAuth2.0 request pattern.
     if (isset($_GET['response_type']) && isset($_GET['client_id']) && isset($_GET['redirect_uri'])) {
       menu_set_active_item('oauth2/authorize');
       return menu_execute_active_handler();
     }
     else {
-      menu_set_active_item('user/'. $user->uid);
+      menu_set_active_item('user/' . $user->uid);
       return menu_execute_active_handler();
     }
   }
@@ -103,16 +106,20 @@ function oauth2_provider_page() {
  */
 function oauth2_provider_login_submit($form, &$form_state) {
   global $user;
+
+  $user = user_load($form_state['uid']);
+
   // Redirect user to oauth2/authorize if from OAuth2.0 request pattern.
   if (isset($_GET['response_type']) && isset($_GET['client_id']) && isset($_GET['redirect_uri'])) {
-    $query = drupal_query_string_encode($_GET, array('q'));
-    $form_state['redirect'] = array('oauth2/authorize', $query);
-    return;
+
+    $query = drupal_get_query_parameters();
+    $form_state['redirect'] = array('oauth2/authorize', array('query' => $query));
   }
-  elseif ($user->uid) {
-    $form_state['redirect'] = 'user/'. $user->uid;
-    return;
+  elseif ($user->uid !=0) {
+    $form_state['redirect'] = 'user/' . $user->uid;
   }
+
+  user_login_finalize($form_state);
 }
 
 /**
@@ -140,13 +147,23 @@ function oauth2_provider_logout() {
   watchdog('oauth2_provider', 'Session closed for %name.', array('%name' => $user->name));
 
   // Destroy the current session:
-  session_destroy();
+  //
+  // *** Not necessary? ***
+  //
+  // session_destroy();
+
   // Only variables can be passed by reference workaround.
   $null = NULL;
-  user_module_invoke('logout', $null, $user);
+
+// "Logout" is not a valid $type for user_module_invoke
+//
+//  user_module_invoke('logout', $null, $user);
 
   // Load the anonymous user
-  $user = drupal_anonymous_user();
+  //
+  // *** Not necessary? ***
+  //
+  // $user = drupal_anonymous_user();
 
   // There is no standard for expirse access token from remote site, so we
   // do a custom management here. If access /logout with POST plus
@@ -168,12 +185,12 @@ function oauth2_provider_logout() {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function oauth2_provider_theme() {
   return array(
     'oauth2_provider_scope' => array(
-      'arguments' => array('node' => '', 'teaser' => 0, 'page' => 0),
+      'variables' => array('node' => '', 'teaser' => 0, 'page' => 0),
     ),
   );
 }
@@ -183,9 +200,12 @@ function oauth2_provider_theme() {
  *
  * @ingroup themeable
  */
-function theme_oauth2_provider_scope($node, $teaser = 0, $page = 0) {
+function theme_oauth2_provider_scope($variables) {
+  $node = $variables['node'];
+  $teaser = $variables['teaser'];
+  $page = $variables['page'];
   $output = '<div class="oauth2_provider-info node">';
-  $output .= node_view($node, TRUE);
+  $output .= node_view($node, 'teaser');
   $output .= '</div>';
   return $output;
 }

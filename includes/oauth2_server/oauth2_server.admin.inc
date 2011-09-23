@@ -17,23 +17,28 @@ function oauth2_server_admin_callback() {
     array('data' => t('Operations'), 'colspan' => 2),
   );
 
-  $result = db_query("SELECT n.nid, n.title, osrv.server_id, n.status, n.changed FROM {node} AS n INNER JOIN {oauth2_servers} AS osrv ON n.vid = osrv.vid". tablesort_sql($header));
+  $query = db_select('node', 'n')->extend('TableSort');
+  $query->innerJoin('oauth2_servers', 'osrv', 'n.vid = osrv.vid');
+  $query->fields('n', array('nid', 'title', 'status', 'changed'));
+  $query->fields('osrv', array('server_id'));
+  $result = $query->execute();
 
   $rows = array();
-  while ($node = db_fetch_object($result)) {
+
+  foreach ($result as $node) {
     $rows[] = array(
-      l($node->title, 'node/'. $node->nid),
+      l($node->title, 'node/' . $node->nid),
       $node->server_id,
       $node->status ? t('Yes') : t('No'),
-      format_interval(time() - $node->changed),
-      l(t('edit'), 'node/'. $node->nid .'/edit', array('query' => array('destination' => 'admin/build/oauth2/oauth2_server'))),
-      l(t('delete'), 'node/'. $node->nid .'/delete', array('query' => array('destination' => 'admin/build/oauth2/oauth2_server'))),
+      format_interval(REQUEST_TIME - $node->changed),
+      l(t('edit'), 'node/' . $node->nid . '/edit', array('query' => array('destination' => 'admin/structure/oauth2/oauth2_server'))),
+      l(t('delete'), 'node/' . $node->nid . '/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2_server'))),
     );
   }
 
   if (empty($rows)) {
-    $rows[] = array(array('data' => '<em>'. t('There are currently no OAuth2.0 Server Identifer.') .'</em>', 'colspan' => 6));
+    $rows[] = array(array('data' => '<em>' . t('There are currently no OAuth2.0 Server Identifer.') . '</em>', 'colspan' => 6));
   }
 
-  return theme('table', $header, $rows);
+  return theme('table', array('header' => $header, 'rows' => $rows));
 }

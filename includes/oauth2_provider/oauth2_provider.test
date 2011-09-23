@@ -40,7 +40,7 @@ class OAuth2ProviderTestCase extends DrupalWebTestCase {
 
   function setUp() {
     // Enable the module.
-    parent::setUp('autoload', 'ctools', 'oauth2', 'oauth2_client', 'oauth2_server', 'oauth2_scope', 'oauth2_provider');
+    parent::setUp('ctools', 'oauth2', 'oauth2_client', 'oauth2_server', 'oauth2_scope', 'oauth2_provider');
     $this->admin_user = $this->drupalCreateUser(array('administer site configuration', 'administer nodes', 'create oauth2_client', 'create oauth2_server', 'create oauth2_scope', 'access content'));
   }
 
@@ -57,49 +57,54 @@ class OAuth2ProviderTestCase extends DrupalWebTestCase {
       'redirect_uri' => $redirect_uri,
     );
     $this->drupalPost('node/add/oauth2-client', $edit, t('Save'));
-    $node = node_load(array('title' => $title));
+
+    $query = db_select('oauth2_clients', 'oac');
+    $query->innerJoin('node', 'n', 'oac.nid = n.nid');
+    $query->fields('oac');
+    $query->condition('n.title', $title, '=');
+
+    $oauth2_client = $query->execute()->fetchObject();
 
     // Test response_type = code.
     $this->drupalGet($redirect_uri . "oauth2/authorize", array(
       'query' => array(
         'response_type' => 'code',
-        'client_id' => $node->client_id,
+        'client_id' => $oauth2_client->client_id,
       ),
     ));
     $this->assertResponse(200);
     $response = parse_url($this->getUrl());
-    $this->assertTrue(isset($response['query']), "'query' is found from return URL: ". $response['query']);
+    $this->assertTrue(isset($response['query']), "'query' is found from return URL: " . $response['query']);
     parse_str($response['query'], $query);
-    $this->assertTrue(isset($query['code']), "'code' is found from return 'query': ". $query['code']);
+    $this->assertTrue(isset($query['code']), "'code' is found from return 'query': " . $query['code']);
 
     // Test response_type = token.
     $this->drupalGet($redirect_uri . "oauth2/authorize", array(
       'query' => array(
         'response_type' => 'token',
-        'client_id' => $node->client_id,
+        'client_id' => $oauth2_client->client_id,
       ),
     ));
     $this->assertResponse(200);
     $response = parse_url($this->getUrl());
-    $this->assertTrue(isset($response['fragment']), "'fragment' is found from return URL: ". $response['fragment']);
-    parse_str($response['fragment'], $fragment);
-    $this->assertTrue(isset($fragment['access_token']), "'access_token' is found from return 'fragment': ". $fragment['access_token']);
+    $this->assertTrue(isset($response['fragment']), "'fragment' is found from return URL: " . $response['fragment']);
+    parse_str($response['fragment'], $fragment);    $this->assertTrue(isset($fragment['access_token']), "'access_token' is found from return 'fragment': " . $fragment['access_token']);
 
     // Test response_type = code-and-token.
     $this->drupalGet($redirect_uri . "oauth2/authorize", array(
       'query' => array(
         'response_type' => 'code-and-token',
-        'client_id' => $node->client_id,
+        'client_id' => $oauth2_client->client_id,
       ),
     ));
     $this->assertResponse(200);
     $response = parse_url($this->getUrl());
-    $this->assertTrue(isset($response['query']), "'query' is found from return URL: ". $response['query']);
+    $this->assertTrue(isset($response['query']), "'query' is found from return URL: " . $response['query']);
     parse_str($response['query'], $query);
-    $this->assertTrue(isset($query['code']), "'code' is found from return 'query': ". $query['code']);
-    $this->assertTrue(isset($response['fragment']), "'fragment' is found from return URL: ". $response['fragment']);
+    $this->assertTrue(isset($query['code']), "'code' is found from return 'query': " . $query['code']);
+    $this->assertTrue(isset($response['fragment']), "'fragment' is found from return URL: " . $response['fragment']);
     parse_str($response['fragment'], $fragment);
-    $this->assertTrue(isset($fragment['access_token']), "'access_token' is found from return 'fragment': ". $fragment['access_token']);
+    $this->assertTrue(isset($fragment['access_token']), "'access_token' is found from return 'fragment': " . $fragment['access_token']);
   }
 
   /**
@@ -116,7 +121,13 @@ class OAuth2ProviderTestCase extends DrupalWebTestCase {
       'redirect_uri' => $redirect_uri,
     );
     $this->drupalPost('node/add/oauth2-client', $edit, t('Save'));
-    $oauth2_client = node_load(array('title' => $title));
+
+    $query = db_select('oauth2_clients', 'oac');
+    $query->innerJoin('node', 'n', 'oac.nid = n.nid');
+    $query->fields('oac');
+    $query->condition('n.title', $title, '=');
+
+    $oauth2_client = $query->execute()->fetchObject();
 
     // Test response_type = code.
     $this->drupalGet($redirect_uri . "oauth2/authorize", array(
@@ -139,7 +150,7 @@ class OAuth2ProviderTestCase extends DrupalWebTestCase {
       'redirect_uri' => $oauth2_client->redirect_uri,
     )), TRUE);
     $this->assertResponse(200);
-    $this->assertTrue(isset($result['access_token']), "'access_token' is found from grant_type = authorization_code: ". $result['access_token']);
+    $this->assertTrue(isset($result['access_token']), "'access_token' is found from grant_type = authorization_code: " . $result['access_token']);
 
     // Test grant_type = password.
     $result = json_decode($this->drupalRawPost($oauth2_client->redirect_uri . 'oauth2/access_token', array(
@@ -150,6 +161,7 @@ class OAuth2ProviderTestCase extends DrupalWebTestCase {
       'password' => $this->admin_user->pass_raw,
     )), TRUE);
     $this->assertResponse(200);
-    $this->assertTrue(isset($result['access_token']), "'access_token' is found from grant_type = password: ". $result['access_token']);
+    $this->assertTrue(isset($result['access_token']), "'access_token' is found from grant_type = password: " . $result['access_token']);
   }
+
 }

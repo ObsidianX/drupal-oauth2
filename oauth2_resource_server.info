@@ -6,5 +6,35 @@ dependencies[] = oauth2_server
 dependencies[] = rest_server
 dependencies[] = services
 dependencies[] = services_oauth2
-core = 6.x
+core = 7.x
 php = 5.2
+
+; Information added by drupal.org packaging script on January 1, 1970 - 00:00
+version = "7.x-1.0-dev"
+core = 7.x
+project = "oauth2"
+datestamp = "1295948016"
+
+
+files[] = oauth2.admin.inc
+files[] = oauth2.module
+files[] = oauth2.test
+files[] = oauth2_authorize_server.module
+files[] = oauth2_resource_server.module
+files[] = includes/DrupalOAuth2.inc
+files[] = includes/DrupalOAuth2Client.example.php
+files[] = includes/DrupalOAuth2Client.inc
+files[] = includes/DrupalOAuth2Proxy.inc
+files[] = lib/OAuth2.inc
+files[] = lib/OAuth2Client.inc
+files[] = lib/OAuth2Exception.inc
+files[] = mongo/addclient.php
+files[] = mongo/authorize.php
+files[] = mongo/protected_resource.php
+files[] = mongo/token.php
+files[] = lib/MongoOAuth2.inc
+files[] = pdo/addclient.php
+files[] = pdo/authorize.php
+files[] = pdo/protected_resource.php
+files[] = pdo/token.php
+files[] = lib/PDOOAuth2.inc

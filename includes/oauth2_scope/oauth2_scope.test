@@ -59,12 +59,12 @@ class OAuth2ScopeTestCase extends DrupalWebTestCase {
     $nodes['oauth2_scope_2'] = $this->drupalCreateNode(array('type' => 'oauth2_scope', 'scope_id' => $this->randomName()));
 
     // Verify view, edit, and delete links for any content.
-    $this->drupalGet('admin/build/oauth2/oauth2_scope');
+    $this->drupalGet('admin/structure/oauth2/oauth2_scope');
     $this->assertResponse(200);
     foreach ($nodes as $node) {
-      $this->assertRaw('<a href="'. url('node/'. $node->nid) .'">');
-      $this->assertRaw('<a href="'. url('node/'. $node->nid .'/edit', array('query' => array('destination' => 'admin/build/oauth2/oauth2_scope'))) .'">');
-      $this->assertRaw('<a href="'. url('node/'. $node->nid .'/delete', array('query' => array('destination' => 'admin/build/oauth2/oauth2_scope'))) .'">');
+      $this->assertRaw('<a href="' . url('node/' . $node->nid) . '">');
+      $this->assertRaw('<a href="' . url('node/' . $node->nid . '/edit', array('query' => array('destination' => 'admin/structure/oauth2/oauth2_scope'))) . '">');
+      $this->assertRaw('<a href="' . url('node/' . $node->nid . '/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2_scope'))) . '">');
     }
   }
 }

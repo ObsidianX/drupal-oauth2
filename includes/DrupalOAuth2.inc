@@ -60,7 +60,16 @@ class DrupalOAuth2 extends OAuth2 {
       // token tables but not yet a real user account, typically
       // happened when server running in proxy mode. Can't use
       // drupal_write_record() as uid is serial.
-      db_query("INSERT INTO {users} (uid, name, created, access, login, status) VALUES (%d, '%s', %d, %d, %d, 1)", $uid, $name, time(), time(), time());
+      $id = db_insert('users')
+  ->fields(array(
+        'uid' => $uid,
+        'name' => $name,
+        'created' => REQUEST_TIME,
+        'access' => REQUEST_TIME,
+        'login' => REQUEST_TIME,
+        'status' => 1,
+      ))
+  ->execute();
       $account = user_load($uid);
     }
     $user = $account;
@@ -94,16 +103,20 @@ class DrupalOAuth2 extends OAuth2 {
     $authorized_scope = $this->getAuthorizedScopes($client_id, $uid);
     $hidden_scope = $this->getHiddenScopes();
 
-    if (!is_array($required_scope))
+    if (!is_array($required_scope)) {
       $required_scope = explode(" ", $required_scope);
+    }
     $required_scope = array_unique(array_merge($required_scope, $hidden_scope));
 
     $scopes = $this->checkExtendedPermissions($required_scope, $authorized_scope);
 
     $extended_permissions = array();
     foreach ($scopes as $scope) {
-      $stmt = db_query("SELECT os.nid, os.scope_id, os.hidden, os.bypass FROM {node} AS n INNER JOIN {oauth2_scopes} AS os ON n.vid = os.vid WHERE os.scope_id = '%s' AND n.status = 1", $scope);
-      $extended_permissions[] = db_fetch_array($stmt);
+      $stmt = db_query("SELECT os.nid, os.scope_id, os.hidden, os.bypass FROM {node} AS n INNER JOIN {oauth2_scopes} AS os ON n.vid = os.vid WHERE os.scope_id = :os.scope_id AND n.status = :n.status", array(':os.scope_id' => $scope, ':n.status' => 1));
+
+      foreach ($stmt as $result) {
+        $extended_permissions[] = get_object_vars($result);
+      }
     }
 
     return array_filter($extended_permissions);
@@ -117,9 +130,16 @@ class DrupalOAuth2 extends OAuth2 {
    *   A list for all hidden scopes.
    */
   public function getHiddenScopes() {
-    $stmt = db_query("SELECT os.scope_id FROM {node} AS n INNER JOIN {oauth2_scopes} AS os ON n.vid = os.vid WHERE os.hidden = %d AND n.status = 1", 1);
+
     $scopes = array();
-    while ($result = db_fetch_array($stmt)) {
+
+    $temp  = "SELECT os.scope_id FROM {node} AS n INNER JOIN {oauth2_scopes} AS os ON n.vid = os.vid ";
+    $temp .= " WHERE os.hidden = 1";
+    $temp .= " AND n.status = 1";
+
+    $stmt = db_query($temp);
+    foreach ($stmt as $result) {
+      $result = get_object_vars($result);
       $scopes[] = $result['scope_id'];
     }
     return $scopes;
@@ -137,9 +157,17 @@ class DrupalOAuth2 extends OAuth2 {
    *   A list for all authorized scopes for this end-user.
    */
   public function getAuthorizedScopes($client_id, $uid) {
-    $stmt = db_query("SELECT scope_id FROM {oauth2_authorize} WHERE client_id = '%s' AND uid = %d", $client_id, $uid);
+
     $scopes = array();
-    while ($result = db_fetch_array($stmt)) {
+
+    $temp  = "SELECT scope_id FROM {oauth2_authorize} ";
+    $temp .= " WHERE client_id = '" . $client_id . "'";
+    $temp .= " AND uid = " . $uid;
+
+    $stmt = db_query($temp);
+
+    foreach ($stmt as $result) {
+      $results = get_object_vars($result);
       $scopes[] = $result['scope_id'];
     }
     return $scopes;
@@ -158,7 +186,13 @@ class DrupalOAuth2 extends OAuth2 {
   public function setAuthorizedScopes($client_id, $scopes, $uid) {
     $scope_ids = explode(" ", $scopes);
     foreach ($scope_ids as $scope_id) {
-      db_query("INSERT INTO {oauth2_authorize} (client_id, uid, scope_id) VALUES ('%s', %d, '%s')", $client_id, $uid, $scope_id);
+      $id = db_insert('oauth2_authorize')
+  ->fields(array(
+        'client_id' => $client_id,
+        'uid' => $uid,
+        'scope_id' => $scope_id,
+      ))
+  ->execute();
     }
   }
 
@@ -175,7 +209,11 @@ class DrupalOAuth2 extends OAuth2 {
   public function unsetAuthorizedScopes($client_id, $scopes, $uid) {
     $scope_ids = explode(" ", $scopes);
     foreach ($scope_ids as $scope_id) {
-      db_query("DELETE FROM {oauth2_authorize} WHERE client_id = '%s' AND uid = %d AND scope_id = '%s'", $client_id, $uid, $scope_id);
+      db_delete('oauth2_authorize')
+  ->condition('client_id', $client_id)
+  ->condition('uid', $uid)
+  ->condition('scope_id', $scope_id)
+  ->execute();
     }
   }
 
@@ -192,11 +230,13 @@ class DrupalOAuth2 extends OAuth2 {
    */
   private function checkExtendedPermissions($required_scope, $authorized_scope) {
     // The required scope should match or be a subset of the available scope
-    if (!is_array($required_scope))
+    if (!is_array($required_scope)) {
       $required_scope = explode(" ", $required_scope);
+    }
 
-    if (!is_array($authorized_scope))
+    if (!is_array($authorized_scope)) {
       $authorized_scope = explode(" ", $authorized_scope);
+    }
 
     return array_filter(array_diff($required_scope, $authorized_scope));
   }
@@ -211,33 +251,54 @@ class DrupalOAuth2 extends OAuth2 {
    *   TRUE if successful, and FALSE if it isn't.
    */
   public function expireSession($sid) {
+    $oauth_sid = '';
+
     // Purge tokens based on oauth_token if provided.
     if (isset($_REQUEST['oauth_token']) && !empty($_REQUEST['oauth_token'])) {
       $result = $this->getAccessToken($_REQUEST['oauth_token']);
       if ($result) {
-        $sid = $result['sid'];
+        $oauth_sid = $result['sid'];
       }
     }
 
     // Purge tokens if session found.
-    if ($sid) {
+    if ($oauth_sid != '') {
       if (!isset($_GET['redirect_uri'])) {
         // We hack $_REQUEST['redirect_uri'] so handle it custom logout.
-        $result = db_fetch_array(db_query("SELECT oc.redirect_uri
+
+        $sql = "SELECT oc.redirect_uri
           FROM {oauth2_access_tokens} AS oat
             INNER JOIN {oauth2_clients} AS oc ON oat.client_id = oc.client_id
             INNER JOIN {node} AS n ON oc.vid = n.vid
-          WHERE oat.sid = '%s' AND n.status = 1", $sid));
+            WHERE oat.sid = '" . $oauth_sid . "' AND n.status = 1";
+
+        $temp = db_query($sql, array(), array());
+
+        foreach ($temp as $result) {
+          $result = get_object_vars($result);
+        }
+
         $_GET['redirect_uri'] = $result['redirect_uri'];
       }
 
-      // Expirse all tokens base on this session_id.
-      db_query("DELETE FROM {oauth2_access_tokens} WHERE sid = '%s'", $sid);
-      db_query("DELETE FROM {oauth2_auth_codes} WHERE sid = '%s'", $sid);
-      db_query("DELETE FROM {oauth2_refresh_tokens} WHERE sid = '%s'", $sid);
+      // Expire all tokens base on this session_id
+
+      db_delete('oauth2_access_tokens')
+  ->condition('sid', $oauth_sid)
+  ->execute();
+
+      db_delete('oauth2_auth_codes')
+  ->condition('sid', $oauth_sid)
+  ->execute();
+
+      db_delete('oauth2_refresh_tokens')
+  ->condition('sid', $oauth_sid)
+  ->execute();
 
       // Also manually destroy user session.
-      if (session_id($sid) != $sid) {
+
+//      if (session_id($sid) != $sid) {
+      if (session_id() != $sid) {
         session_start();
         session_id($sid);
       }
@@ -252,29 +313,46 @@ class DrupalOAuth2 extends OAuth2 {
    * Implements OAuth2::checkClientCredentials().
    */
   public function checkClientCredentials($client_id, $client_secret = NULL) {
-    $stmt = db_query("SELECT oc.client_secret FROM {node} AS n INNER JOIN {oauth2_clients} AS oc ON n.vid = oc.vid WHERE oc.client_id = '%s' AND n.status = 1", $client_id);
-    $result = db_fetch_array($stmt);
-    return ($client_secret !== NULL && $result['client_secret'] == $client_secret) ? TRUE : FALSE;
+
+    $query = db_select('node', 'n');
+    $query->innerJoin('oauth2_clients', 'oac', 'n.vid = oac.vid');
+    $query->fields('oac', array('client_secret'));
+    $query->condition('oac.client_id', $client_id, '=');
+    $query->condition('n.status', 1, '=');
+
+    $secret = $query->execute()->fetchField();
+
+    return ($client_secret !== NULL && $secret == $client_secret) ? TRUE : FALSE;
   }
 
   /**
    * Implements OAuth2::getRedirectUri().
    */
   public function getRedirectUri($client_id) {
-    $stmt = db_query("SELECT oc.redirect_uri FROM {node} AS n INNER JOIN {oauth2_clients} AS oc ON n.vid = oc.vid WHERE oc.client_id = '%s' AND n.status = 1", $client_id);
-    $result = db_fetch_array($stmt);
-    return $result['redirect_uri'] !== FALSE ? $result['redirect_uri'] : NULL;
+
+    $query = db_select('node', 'n');
+    $query->innerJoin('oauth2_clients', 'oc', 'n.vid = oc.vid');
+    $query->fields('oc', array('redirect_uri'));
+    $query->condition('oc.client_id', $client_id, '=');
+    $query->condition('n.status', 1, '=');
+
+    $redirect_uri = $query->execute()->fetchField();
+
+    return $redirect_uri !== FALSE ? $redirect_uri : NULL;
   }
 
   /**
    * Implements OAuth2::getAccessToken().
    */
   public function getAccessToken($oauth_token) {
-    $stmt = db_query("SELECT oat.client_id, oat.sid, oat.expires, oat.scope, u.uid, u.name
-      FROM {oauth2_access_tokens} AS oat
-        INNER JOIN {users} AS u ON oat.uid = u.uid
-      WHERE oat.oauth_token = '%s'", $oauth_token);
-    return db_fetch_array($stmt);
+
+    $query = db_select('oauth2_access_tokens', 'oat');
+    $query->innerJoin('user', 'u', 'oat.uid = u.uid');
+    $query->fields('oac', array('client_id', 'sid', 'expires'));
+    $query->fields('u', array('uid', 'name'));
+    $query->condition('oat.oauth_token', $oauth_token, '=');
+
+    return (object) $query->execute()->fetchAssoc();
   }
 
   /**
@@ -284,7 +362,17 @@ class DrupalOAuth2 extends OAuth2 {
     global $user;
     $uid = ($uid == 0 && $user->uid != 0) ? $user->uid : $uid;
     $sid = ($sid == '' && session_id()) ? session_id() : $sid;
-    return db_query("INSERT INTO {oauth2_access_tokens} (oauth_token, client_id, expires, scope, uid, sid) VALUES ('%s', '%s', %d, '%s', %d, '%s')", $oauth_token, $client_id, $expires, $scope, $uid, $sid);
+
+    return $id = db_insert('oauth2_access_tokens')
+  ->fields(array(
+      'oauth_token' => $oauth_token,
+      'client_id' => $client_id,
+      'expires' => $expires,
+      'scope' => $scope,
+      'uid' => $uid,
+      'sid' => $sid,
+    ))
+  ->execute();
   }
 
   /**
@@ -302,23 +390,37 @@ class DrupalOAuth2 extends OAuth2 {
    * Overrides OAuth2::getSupportedScopes().
    */
   public function getSupportedScopes() {
-    $stmt = db_query("SELECT os.scope_id FROM {node} AS n INNER JOIN {oauth2_scopes} AS os ON n.vid = os.vid WHERE n.status = 1");
-    $scope_ids = array();
-    while ($result = db_fetch_array($stmt)) {
-      $scope_ids[] = $result['scope_id'];
-    }
-    return $scope_ids;
+
+    $query = db_select('node', 'n');
+    $query->innerJoin('oauth2_scopes', 'os', 'n.vid = os.vid');
+    $query->fields('os', array('scope_id'));
+    $query->condition('n.status', 1, '=');
+
+    return $query->execute()->fetchAll();
+
   }
 
   /**
    * Overrides OAuth2::getAuthCode().
    */
   public function getAuthCode($code) {
-    $stmt = db_query("SELECT oac.client_id, oac.sid, oac.redirect_uri, oac.expires, oac.scope, u.uid, u.name
-      FROM {oauth2_auth_codes} AS oac
-        INNER JOIN {users} AS u ON oac.uid = u.uid
-      WHERE oac.code = '%s'", $code);
-    return db_fetch_array($stmt);
+
+    $query = db_select('oauth2_auth_codes', 'oac');
+
+    $query->innerJoin('users', 'u', 'oac.uid = u.uid');
+
+    $query->fields('oac', array('client_id', 'sid', 'redirect_uri', 'expires', 'scope'))
+          ->fields('u', array('uid', 'name'));
+
+    $query->condition('oac.code', $code, '=');
+
+    $stmt = $query->execute();
+
+    foreach ($stmt as $result) {
+      $result = get_object_vars($result);
+    }
+
+    return $result;
   }
 
   /**
@@ -328,7 +430,18 @@ class DrupalOAuth2 extends OAuth2 {
     global $user;
     $uid = ($uid == 0 && $user->uid != 0) ? $user->uid : $uid;
     $sid = ($sid == '' && session_id()) ? session_id() : $sid;
-    return db_query("INSERT INTO {oauth2_auth_codes} (code, client_id, redirect_uri, expires, scope, uid, sid) VALUES ('%s', '%s', '%s', %d, '%s', %d, '%s')", $code, $client_id, $redirect_uri, $expires, $scope, $uid, $sid);
+
+    return $id = db_insert('oauth2_auth_codes')
+  ->fields(array(
+      'code' => $code,
+      'client_id' => $client_id,
+      'redirect_uri' => $redirect_uri,
+      'expires' => $expires,
+      'scope' => $scope,
+      'uid' => $uid,
+      'sid' => $sid,
+    ))
+  ->execute();
   }
 
   /**
@@ -336,20 +449,21 @@ class DrupalOAuth2 extends OAuth2 {
    */
   public function checkUserCredentials($client_id, $username, $password) {
     // Clone from user_service_login().
-    $account = user_authenticate(array('name' => $username, 'pass' => $password));
+    $account = user_authenticate($username, $password);
 
     $result = NULL;
-    if ($account->uid) {
+
+    if ($account) {
       // Regenerate the session ID to prevent against session fixation attacks.
-      sess_regenerate();
+      drupal_session_regenerate();
       $array = array();
       user_module_invoke('login', $array, $account);
 
       $result = array(
-        'uid' => $account->uid,
-        'name' => $account->name,
+        'uid' => $account,
+        'name' => $username,
         'sid' => session_id(),
-        'scope' => trim(implode(' ', $this->getAuthorizedScopes($client_id, $account->uid))),
+        'scope' => trim(implode(' ', $this->getAuthorizedScopes($client_id, $account))),
       );
     }
 
@@ -363,8 +477,13 @@ class DrupalOAuth2 extends OAuth2 {
     $stmt = db_query("SELECT ort.client_id, ort.sid, ort.expires, ort.scope, u.uid, u.name
       FROM {oauth2_refresh_tokens} AS ort
         INNER JOIN {users} AS u ON ort.uid = u.uid
-      WHERE ort.refresh_token ='%s'", $refresh_token);
-    return db_fetch_array($stmt);
+      WHERE ort.refresh_token = :ort.refresh_token", array(':ort.refresh_token' => $refresh_token));
+
+    foreach ($stmt as $result) {
+      $result = get_object_vars($result);
+    }
+
+    return $result;
   }
 
   /**
@@ -374,13 +493,25 @@ class DrupalOAuth2 extends OAuth2 {
     global $user;
     $uid = ($uid == 0 && $user->uid != 0) ? $user->uid : $uid;
     $sid = ($sid == '' && session_id()) ? session_id() : $sid;
-    return db_query("INSERT INTO {oauth2_refresh_tokens} (refresh_token, client_id, expires, scope, uid, sid) VALUES ('%s', '%s', %d, '%s', %d, '%s')", $refresh_token, $client_id, $expires, $scope, $uid, $sid);
+
+    return $id = db_insert('oauth2_refresh_tokens')
+  ->fields(array(
+      'refresh_token' => $refresh_token,
+      'client_id' => $client_id,
+      'expires' => $expires,
+      'scope' => $scope,
+      'uid' => $uid,
+      'sid' => $sid,
+    ))
+  ->execute();
   }
 
   /**
    * Overrides OAuth2::unsetRefreshToken().
    */
   public function unsetRefreshToken($refresh_token) {
-    return db_query("DELETE FROM {oauth2_refresh_tokens} WHERE refresh_token = '%s'", $refresh_token);
+    return db_delete('oauth2_refresh_tokens')
+  ->condition('refresh_token', $refresh_token)
+  ->execute();
   }
 }

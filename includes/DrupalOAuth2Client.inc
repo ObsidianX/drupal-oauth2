@@ -45,7 +45,7 @@ class DrupalOAuth2Client extends OAuth2Client {
    */
   public function getLogoutUri($params = array()) {
     return $this->getUri(
-      $this->getVariable('base_uri') . 'logout',
+      $this->getVariable('base_uri') . 'user/logout',
       array_merge(array(
         'oauth_token' => $this->getAccessToken(),
         'redirect_uri' => $this->getCurrentUri(),

@@ -27,6 +27,10 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
     // $client is used within getAccessToken() so we MUST first
     // initialize it.
     $opts = self::$DrupalOAuth2Client_OPTS;
+
+    global $base_url;
+    $opts['base_uri'] = $base_url;
+
     $client = oauth2_get_client(
       variable_get('oauth2_proxy_server_identifier', NULL),
       $opts
@@ -65,14 +69,14 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
     $cache_params = $params;
     $cache_params['path'] = $path;
     $cache_params['method'] = $method;
-    $cache_key = "oauth2:". md5(serialize($cache_params));
+    $cache_key = "oauth2:" . md5(serialize($cache_params));
 
     $cache_result = new stdClass();
     $cache_result = cache_get($cache_key, 'cache_oauth2');
 
     if (!isset($cache_result->data)) {
       $result = $this->getVariable('_client')->api($path, $method, $params);
-      cache_set($cache_key, $result, 'cache_oauth2', time() + $this->getVariable('_client')->getVariable('expires_in', OAUTH2_DEFAULT_EXPIRES_IN));
+      cache_set($cache_key, $result, 'cache_oauth2', REQUEST_TIME + $this->getVariable('_client')->getVariable('expires_in', OAUTH2_DEFAULT_EXPIRES_IN));
       return $result;
     }
     else {

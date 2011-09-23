@@ -7,13 +7,19 @@
  */
 
 /**
- * Implementation of hook_form_alter().
+ * Implements hook_form_alter().
+ *
+ * Note: this should be converted into a hook_form_node_form_alter(),
+ *       which will simplify the logic and be called less frequently
+ *
+ * @see http://drupal.org/node/224333#hook_form_BASE_FORM_ID_alter
+ *
  */
-function oauth2_consumer_form_alter(&$form, $form_state, $form_id) {
-
+function oauth2_consumer_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form['type']) && isset($form['#node'])) {
     $node = $form['#node'];
-    if ($form['type']['#value'] .'_node_form' == $form_id && $node->type == 'oauth2_server') {
+
+    if ($form['type']['#value'] . '_node_form' == $form_id && $node->type == 'oauth2_server') {
       $form['oauth2_server']['oauth2_consumer'] = array(
         '#type' => 'fieldset',
         '#title' => t('Consumer settings'),
@@ -65,106 +71,169 @@ function oauth2_consumer_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
- * Implementation of hook_nodeapi().
+ * Implements hook_node_load().
  */
-function oauth2_consumer_nodeapi(&$node, $op, $teaser, $page) {
-  switch ($op) {
-    case 'load':
-      oauth2_consumer_load($node);
-      break;
-    case 'insert':
-      oauth2_consumer_insert($node);
-      break;
-    case 'update':
-      oauth2_consumer_update($node);
-      break;
-    case 'delete':
-      oauth2_consumer_delete($node);
-      break;
-    case 'delete revision':
-      // Notice that we're matching a single revision based on the node's vid.
-      db_query("DELETE FROM {oauth2_consumers} WHERE vid = %d", $node->vid);
-      break;
-    case 'view':
-      oauth2_consumer_view($node, $teaser, $page);
-      break;
+function oauth2_consumer_node_load($node, $types) {
+  oauth2_consumer_load($node);
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function oauth2_consumer_node_insert($node) {
+  oauth2_consumer_insert($node);
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function oauth2_consumer_node_update($node) {
+  oauth2_consumer_update($node);
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function oauth2_consumer_node_delete($node) {
+  oauth2_consumer_delete($node);
+}
+
+/**
+ * Implements hook_node_revision_delete().
+ */
+function oauth2_consumer_node_revision_delete($node) {
+  // Notice that we're matching a single revision based on the node's vid.
+  db_delete('oauth2_consumers')
+  ->condition('vid', $node->vid)
+  ->execute();
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function oauth2_consumer_node_view($node, $view_mode = 'full') {
+  //
+  // Note: not redundant, as oauth2_consumer nodes are only displayed as part of oauth2_server nodes
+  //
+  oauth2_consumer_view($node, $view_mode);
+}
+
+
+/**
+ * Implements hook_insert().
+ */
+function oauth2_consumer_insert($compound_node) {
+
+  if ($compound_node->type == 'oauth2_server') {
+  
+    $node = new stdClass();
+    $node->password = $compound_node->password;
+    $node->password_orig = $compound_node->password_orig;
+    $node->username = $compound_node->username;
+    $node->nid = $compound_node->nid;
+    $node->vid = $compound_node->vid;
+    $node->revision = $compound_node->revision;
+    $node->services_uri = $compound_node->services_uri;
+    $node->expires_in = $compound_node->expires_in;
+
+    // Reuse original password if no new password.
+    $node->password = (!empty($node->password) && $node->password !== $node->password_orig)
+      ? $node->password
+      : $node->password_orig;
+    // We pack username and password as it may be SQL reservered words.
+    $node->data = serialize(array(
+      'username' => $node->username,
+      'password' => $node->password,
+    ));
+    drupal_write_record('oauth2_consumers', &$node);
+
   }
 }
 
 /**
- * Implementation of hook_insert().
+ * Implements hook_update().
  */
-function oauth2_consumer_insert($node) {
-  // Reuse original password if no new password.
-  $node->password = (!empty($node->password) && $node->password !== $node->password_orig)
-    ? $node->password
-    : $node->password_orig;
-  // We pack username and password as it may be SQL reservered words.
-  $node->data = serialize(array(
-    'username' => $node->username,
-    'password' => $node->password,
-  ));
-  drupal_write_record('oauth2_consumers', $node);
+function oauth2_consumer_update($compound_node) {
+
+  if ($compound_node->type == 'oauth2_server') {
+
+    $node = new stdClass();
+    $node->password = $compound_node->password;
+    $node->password_orig = $compound_node->password_orig;
+    $node->username = $compound_node->username;
+    $node->nid = $compound_node->nid;
+    $node->vid = $compound_node->vid;
+    $node->revision = $compound_node->revision;
+    $node->services_uri = $compound_node->services_uri;
+    $node->expires_in = $compound_node->expires_in;
+
+    // Reuse original password if no new password.
+    $node->password = (!empty($node->password) && $node->password !== $node->password_orig)
+      ? $node->password
+      : $node->password_orig;
+    // We pack username and password as it may be SQL reservered words.
+    $node->data = serialize(array(
+      'username' => $node->username,
+      'password' => $node->password,
+    ));
+    if ($node->revision) {
+      drupal_write_record('oauth2_consumers', &$node, array('nid', 'vid'));
+    }
+
+    // We should not reach this point unless something has gotten out of sync!
+    else {
+      drupal_write_record('oauth2_consumers', &$node);
+    }
+
+  }
 }
 
 /**
- * Implementation of hook_update().
- */
-function oauth2_consumer_update($node) {
-  // Reuse original password if no new password.
-  $node->password = (!empty($node->password) && $node->password !== $node->password_orig)
-    ? $node->password
-    : $node->password_orig;
-  // We pack username and password as it may be SQL reservered words.
-  $node->data = serialize(array(
-    'username' => $node->username,
-    'password' => $node->password,
-  ));
-  if ($node->revision) {
-    drupal_write_record('oauth2_consumers', $node);
-  }
-  else {
-    drupal_write_record('oauth2_consumers', $node, array('nid', 'vid'));
-  }
-}
-
-/**
- * Implementation of hook_delete().
+ * Implements hook_delete().
  */
 function oauth2_consumer_delete($node) {
   // Notice that we're matching all revision, by using the node's nid.
-  db_query("DELETE FROM {oauth2_consumers} WHERE nid = %d", $node->nid);
+  db_delete('oauth2_consumers')
+  ->condition('nid', $node->nid)
+  ->execute();
 }
 
 /**
- * Implementation of hook_load().
+ * Implements hook_load().
  */
-function oauth2_consumer_load($node) {
-  $stmt = db_query("SELECT * FROM {oauth2_consumers} WHERE vid = %d", $node->vid);
-  foreach (db_fetch_array($stmt) as $k => $v) {
-    $node->$k = $v;
+function oauth2_consumer_load($nodes) {
+  foreach ($nodes as $nid => $node) {
+
+    $result = db_query("SELECT * FROM {oauth2_consumers} WHERE vid = :vid", array(':vid' => $node->vid));
+
+    foreach ($result as $stmt) {   
+      foreach ($stmt as $property => &$value) {
+        $nodes[$node->nid]->$property = $value;
+      }
+      // Remember to unpack username and password.
+      $temp = drupal_unpack($stmt);
+      $nodes[$node->nid]->username = $temp->username;
+      $nodes[$node->nid]->password = $temp->password;
+    }
   }
-  // Remember to unpack username and password.
-  $node = drupal_unpack($node);
 }
 
 /**
- * Implementation of hook_view().
+ * Implements hook_view().
  */
-function oauth2_consumer_view($node, $teaser = FALSE, $page = FALSE) {
+function oauth2_consumer_view($node, $view_mode = NULL) {
   if ($node->type == 'oauth2_server') {
-    $node = node_prepare($node, $teaser);
 
     $node->content['username'] = array(
-      '#value' => theme('oauth2_consumer_username', $node->username),
+      '#markup' => theme('oauth2_consumer_username', array('username' => $node->username)),
       '#weight' => 10,
     );
     $node->content['services_uri'] = array(
-      '#value' => theme('oauth2_consumer_services_uri', $node->services_uri),
+      '#markup' => theme('oauth2_consumer_services_uri', array('services_uri' => $node->services_uri)),
       '#weight' => 11,
     );
     $node->content['expires_in'] = array(
-      '#value' => theme('oauth2_consumer_expires_in', $node->expires_in),
+      '#markup' => theme('oauth2_consumer_expires_in', array('expires_in' => $node->expires_in)),
       '#weight' => 12,
     );
 
@@ -173,18 +242,18 @@ function oauth2_consumer_view($node, $teaser = FALSE, $page = FALSE) {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function oauth2_consumer_theme() {
   return array(
     'oauth2_consumer_username' => array(
-      'arguments' => array('username' => '', 'teaser' => 0, 'page' => 0),
+      'variables' => array('username' => '', 'teaser' => 0, 'page' => 0),
     ),
     'oauth2_consumer_services_uri' => array(
-      'arguments' => array('services_uri' => '', 'teaser' => 0, 'page' => 0),
+      'variables' => array('services_uri' => '', 'teaser' => 0, 'page' => 0),
     ),
     'oauth2_consumer_expires_in' => array(
-      'arguments' => array('expires_in' => '', 'teaser' => 0, 'page' => 0),
+      'variables' => array('expires_in' => '', 'teaser' => 0, 'page' => 0),
     ),
   );
 }
@@ -194,7 +263,10 @@ function oauth2_consumer_theme() {
  *
  * @ingroup themeable
  */
-function theme_oauth2_consumer_username($username, $teaser = 0, $page = 0) {
+function theme_oauth2_consumer_username($variables) {
+  $username = $variables['username'];
+  $teaser = $variables['teaser'];
+  $page = $variables['page'];
   $output = '<div class="oauth2_consumer-info username">';
   $output .= t('Username: @username', array('@username' => $username));
   $output .= '</div>';
@@ -206,7 +278,10 @@ function theme_oauth2_consumer_username($username, $teaser = 0, $page = 0) {
  *
  * @ingroup themeable
  */
-function theme_oauth2_consumer_services_uri($services_uri, $teaser = 0, $page = 0) {
+function theme_oauth2_consumer_services_uri($variables) {
+  $services_uri = $variables['services_uri'];
+  $teaser = $variables['teaser'];
+  $page = $variables['page'];
   $output = '<div class="oauth2_consumer-info services_uri">';
   $output .= t('Services endpoint: @services_uri', array('@services_uri' => $services_uri));
   $output .= '</div>';
@@ -218,7 +293,10 @@ function theme_oauth2_consumer_services_uri($services_uri, $teaser = 0, $page = 
  *
  * @ingroup themeable
  */
-function theme_oauth2_consumer_expires_in($expires_in, $teaser = 0, $page = 0) {
+function theme_oauth2_consumer_expires_in($variables) {
+  $expires_in = $variables['expires_in'];
+  $teaser = $variables['teaser'];
+  $page = $variables['page'];
   $output = '<div class="oauth2_consumer-info expires_in">';
   $output .= t('Cache lifetime (in seconds): @expires_in', array('@expires_in' => $expires_in));
   $output .= '</div>';
