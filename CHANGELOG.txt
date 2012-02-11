@@ -1,8 +1,8 @@
 // 
 
-OAuth2.0 6.x-1.0-alpha1, 2011-01-25
+OAuth2.0 7.x-1.0-alpha2, 2012-01-25
 ----------------------
-- initial Alpha release.
+- improved Alpha release.
 - integrate OAuth2.0 library oauth2-php with Services 3.x.
 - support Services 3.x with OAuth2.0 authentication.
 - support standalone authorization server mode.
