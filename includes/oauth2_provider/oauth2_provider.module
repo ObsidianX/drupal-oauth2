@@ -148,9 +148,7 @@ function oauth2_provider_logout() {
 
   // Destroy the current session:
   //
-  // *** Not necessary? ***
-  //
-  // session_destroy();
+  session_destroy();
 
   // Only variables can be passed by reference workaround.
   $null = NULL;
@@ -161,9 +159,7 @@ function oauth2_provider_logout() {
 
   // Load the anonymous user
   //
-  // *** Not necessary? ***
-  //
-  // $user = drupal_anonymous_user();
+  $user = drupal_anonymous_user();
 
   // There is no standard for expirse access token from remote site, so we
   // do a custom management here. If access /logout with POST plus

@@ -9,7 +9,7 @@
  * Implements hook_authentication_info().
  */
 function services_oauth2_services_authentication_info() {
-  return array(
+  $return_array = array(
     'file' => 'services_oauth2.inc',
     'title' => t('OAuth2.0 authentication'),
     'description' => t('An open protocol to allow secure API authorization'),
@@ -17,4 +17,6 @@ function services_oauth2_services_authentication_info() {
     'authenticate_call' => '_services_oauth2_authenticate_call',
     'controller_settings' => '_services_oauth2_controller_settings',
   );
+
+  return $return_array;
 }

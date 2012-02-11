@@ -33,6 +33,10 @@ class DrupalOAuth2 extends OAuth2 {
       }
 
       if ($result) {
+
+        // Convert object to array
+        $result = (array) $result;
+
         $this->loadUserCredentials($result['uid'], $result['name'], $result['sid']);
       }
     }
@@ -347,12 +351,28 @@ class DrupalOAuth2 extends OAuth2 {
   public function getAccessToken($oauth_token) {
 
     $query = db_select('oauth2_access_tokens', 'oat');
-    $query->innerJoin('user', 'u', 'oat.uid = u.uid');
-    $query->fields('oac', array('client_id', 'sid', 'expires'));
+//    $query->innerJoin('user', 'u', 'oat.uid = u.uid');
+    $query->innerJoin('users', 'u', 'oat.uid = u.uid');
+//    $query->fields('oac', array('client_id', 'sid', 'expires'));
+    $query->fields('oat', array('client_id', 'sid', 'expires'));
     $query->fields('u', array('uid', 'name'));
     $query->condition('oat.oauth_token', $oauth_token, '=');
 
-    return (object) $query->execute()->fetchAssoc();
+//
+// Note: oauth2-php wants token as an array, not an object
+//
+//    return (object) $query->execute()->fetchAssoc();
+    $return_value = (array) $query->execute()->fetchAssoc();
+
+// Note: cannot simply return the fecthAssoc(), because this will not match
+//       "===NULL" in OAuth2.inc:verifyAccessToken() when
+//       the token is not found
+//
+    if (!$return_value['uid']) {
+      $return_value = NULL;
+    }
+
+    return $return_value;
   }
 
   /**
