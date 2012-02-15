@@ -164,7 +164,11 @@ section. For more information please visit Simpletest's official documents.
 LIST OF MAINTAINERS
 ----------------------
 
-PROJECT OWNER
+PROJECT OWNER & 6.x Maintainer
 M: Edison Wong <hswong3i@pantarei-design.com.com>
 S: maintained
 W: http://pantarei-design.com/
+
+7.x Maintainer
+Robert Spencer, Binary Culture
+http://binaryculture.com.au
