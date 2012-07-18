@@ -1,5 +1,4 @@
 name = "OAuth2.0 Server Identifer"
 description = "Handle OAuth2.0 Server Identifer as Drupal node."
 package = "OAuth2.0"
-core = 6.x
-php = 5.2
+core = 7.x

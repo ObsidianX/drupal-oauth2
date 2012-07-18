@@ -7,6 +7,7 @@
 
 function oauth2_admin_settings() {
   $form = array();
+  $oauth2_mode_options = array();
 
   $form['oauth2_library_path'] = array(
     '#type' => 'textfield',
@@ -141,8 +142,7 @@ function _oauth2_admin_settings_check_library_path($form_element) {
     form_set_error($form_element['#parents'][0], t('The oauth2-php files <em>OAuth2.inc</em> could not be found in the %library_path directory.', array('%library_path' => $library_path)));
   }
   else {
-    // Flush the autoload caches so that our classes are registered.
-    autoload_flush_caches();
+
   }
   return $form_element;
 }

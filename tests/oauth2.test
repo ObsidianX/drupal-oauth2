@@ -23,7 +23,7 @@ class OAuth2TestCase extends DrupalWebTestCase {
 
   function setUp() {
     // Enable the module.
-    parent::setUp('autoload', 'ctools', 'oauth2', 'oauth2_client', 'oauth2_server', 'oauth2_scope');
+    parent::setUp('ctools', 'oauth2', 'oauth2_client', 'oauth2_server', 'oauth2_scope');
     $this->admin_user = $this->drupalCreateUser(array('administer site configuration', 'administer nodes', 'create oauth2_client', 'create oauth2_server', 'create oauth2_scope', 'access content'));
   }
 

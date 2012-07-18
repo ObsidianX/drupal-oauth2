@@ -37,9 +37,9 @@ function oauth2_help($section, $arg) {
 }
 
 /**
- * Implementation hook_autoload_info().
+ * Implementation of hook_init()
  */
-function oauth2_autoload_info() {
+function oauth2_init() {
   $library_path = NULL;
 
   $oauth2_path = variable_get('oauth2_library_path', OAUTH2_DEFAULT_LIBRARY_PATH);
@@ -62,28 +62,22 @@ function oauth2_autoload_info() {
   if ($library_path) {
     // Save the library path search result.
     variable_set('oauth2_library_path', $library_path);
+    require_once $library_path.'/lib/OAuth2.inc';
+    require_once $library_path.'/lib/OAuth2Client.inc';
+    require_once $library_path.'/lib/OAuth2Exception.inc';
 
-    return array(
-      'OAuth2' => array('file' => 'lib/OAuth2.inc', 'file path' => $library_path),
-      'OAuth2Client' => array('file' => 'lib/OAuth2Client.inc', 'file path' => $library_path),
-      'OAuth2Exception' => array('file' => 'lib/OAuth2Exception.inc', 'file path' => $library_path),
-      'DrupalOAuth2' => array('file' => 'includes/DrupalOAuth2.inc'),
-      'DrupalOAuth2Client' => array('file' => 'includes/DrupalOAuth2Client.inc'),
-      'DrupalOAuth2Proxy' => array('file' => 'includes/DrupalOAuth2Proxy.inc'),
-    );
-  }
-  else {
+  } else {
     drupal_set_message(t("The oauth2 module cannot find the oauth2-php library used to handle OAuth2.0 request. The site administrator will need to verify that it is installed and then update the <a href='!admin-settings-oauth2-php'>settings</a>.", array('!admin-settings-oauth2-php' => url('admin/build/oauth2'))), 'error', FALSE);
-    return FALSE;
   }
 }
+
+
 
 /**
  * Implementation of hook_enable().
  */
 function oauth2_enable() {
-  // Flush the autoload caches so that our classes are registered.
-  autoload_flush_caches();
+
 }
 
 /**
@@ -92,7 +86,7 @@ function oauth2_enable() {
 function oauth2_menu() {
   $items = array();
 
-  $items['admin/build/oauth2'] = array(
+  $items['admin/structure/oauth2'] = array(
     'title' => 'OAuth2.0',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('oauth2_admin_settings'),
@@ -100,7 +94,7 @@ function oauth2_menu() {
     'file' => 'oauth2.admin.inc',
   );
 
-  $items['admin/build/oauth2/settings'] = array(
+  $items['admin/structure/oauth2/settings'] = array(
     'title' => 'Settings',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -99,
