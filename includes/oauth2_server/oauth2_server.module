@@ -2,7 +2,7 @@
 
 /**
  * @file
- * The OAuth2.0 Server Identifer as Drupal node.
+ * The OAuth2.0 Server Identifer as Drupal entity.
  */
 
 /**
@@ -10,7 +10,7 @@
  */
 function oauth2_server_help($section, $arg) {
   switch ($section) {
-    case 'admin/build/oauth2/oauth2_server':
+    case 'admin/structure/oauth2/oauth2_server':
       $help = '<p>'. t("An <a href='!oauth2_server'>OAuth2.0 Server Identifer</a> contain the target OAuth2.0 provider information, including client_id, client_secret, authorize_uri and access_token_uri, etc.", array(
         '!oauth2_server' => url('node/add/oauth2-server'),
       )) .'</p>';
@@ -24,7 +24,7 @@ function oauth2_server_help($section, $arg) {
 function oauth2_server_menu() {
   $items = array();
 
-  $items['admin/build/oauth2/oauth2_server'] = array(
+  $items['admin/structure/oauth2/oauth2_server'] = array(
     'title' => 'Servers',
     'description' => 'List, add, and edit OAuth2.0 Server Identifer.',
     'page callback' => 'oauth2_server_admin_callback',
@@ -33,31 +33,59 @@ function oauth2_server_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => -10,
   );
+  
+  $items['oauth2_server/%'] = array(
+      'title' => 'View Server',
+      'page callback' => 'oauth2_server_view_callback',
+      'page arguments' => array(1),
+      'access callback' => 'oauth2_server_access',
+      'access arguments' => array('edit',1),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 0,
+  );
 
   return $items;
 }
 
 /**
- * Implementation of hook_node_info().
+ * Implementation of hook_entity_info().
  */
-function oauth2_server_node_info() {
+
+function oauth2_server_entity_info() {
   return array(
-    'oauth2_server' => array(
-      'name' => t('OAuth2.0 Server Identifer'),
-      'module' => 'oauth2_server',
-      'description' => t('An <em>OAuth2.0 Server Identifer</em> contain the target OAuth2.0 provider information, including client_id, client_secret, authorize_uri and access_token_uri, etc.'),
-      'has_title' => TRUE,
-      'title_label' => t('Server Name'),
-      'has_body' => TRUE,
-      'body_label' => t('Description'),
-    ),
+      'oauth2_server' => array(
+          'label' => t('OAuth2.0 Server Identifer'),
+          'base table' => 'oauth2_server',
+          'uri callback' => 'oauth2_server_uri',
+          'fieldable' => FALSE,
+          'entity keys' => array(
+            'id' => 'sid',
+          ),
+          'buddles' => array(),
+          'view modes' => array(
+            'full' => array(
+                'label' => t('Servers'),
+                'custom settings' => FALSE,
+            ),
+          ),
+      ),
   );
 }
 
 /**
- * Implementation of hook_perm().
+ * Entity uri callback
  */
-function oauth2_server_perm() {
+function oauth2_server_uri($server) {
+  return array(
+     'path' => 'oauth2_server/' . $server->sid
+  );
+}
+
+
+/**
+ * Implementation of hook_permission().
+ */
+function oauth2_server_permission() {
   return array(
     'create oauth2_server',
     'delete own oauth2_server',
@@ -68,25 +96,32 @@ function oauth2_server_perm() {
 }
 
 /**
- * Implementation of hook_access().
+ * @param $op
+ *   The operation that is to be performed on the server. 
+ * @param $server
+ *   The server object.
+ * @return
+ *   TRUE if the current user has access to the server, FALSE otherwise.
  */
-function oauth2_server_access($op, $node, $account) {
+function oauth2_server_access($op, $server) {
+  global $user;
   if ($op == 'create') {
     // Anonymous users cannot post even if they have the permission.
-    return user_access('create oauth2_server', $account) && $account->uid ? TRUE : NULL;
+    return user_access('create oauth2_server', $user) && $user->uid ? TRUE : NULL;
   }
 
   if ($op == 'update') {
-    if (user_access('edit any oauth2_server', $account) || (user_access('edit own oauth2_server', $account) && ($account->uid == $node->uid))) {
+    if (user_access('edit any oauth2_server', $user) || (user_access('edit own oauth2_server', $user) && ($user->uid == $server->uid))) {
       return TRUE;
     }
   }
 
   if ($op == 'delete') {
-    if (user_access('delete any oauth2_server', $account) || (user_access('delete own oauth2_server', $account) && ($account->uid == $node->uid))) {
+    if (user_access('delete any oauth2_server', $user) || (user_access('delete own oauth2_server', $user) && ($user->uid == $server->uid))) {
       return TRUE;
     }
   }
+  return false;
 }
 
 /**
@@ -230,6 +265,8 @@ function oauth2_server_load(&$node) {
   $additions = db_fetch_object(db_query("SELECT server_id, client_id, client_secret, base_uri, authorize_uri, access_token_uri FROM {oauth2_servers} WHERE vid = %d", $node->vid));
   return $additions;
 }
+
+
 
 /**
  * Implementation of hook_view().
