@@ -80,6 +80,18 @@ function oauth2_provider_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
+ * Implementation of hook_cron().
+ */
+function oauth2_provider_cron() {
+  if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2') {
+    // Clear legacy tokens.
+    db_query("DELETE FROM {oauth2_access_tokens} WHERE expires < %d", time());
+    db_query("DELETE FROM {oauth2_auth_codes} WHERE expires < %d", time());
+    db_query("DELETE FROM {oauth2_refresh_tokens} WHERE expires < %d", time());
+  }
+}
+
+/**
  * Access callback for path /user.
  *
  * Displays user profile if user is logged in, or login form for anonymous

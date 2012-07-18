@@ -9,5 +9,4 @@ dependencies[] = oauth2_scope
 dependencies[] = rest_server
 dependencies[] = services
 dependencies[] = services_oauth2
-core = 6.x
-php = 5.2
+core = 7.x
