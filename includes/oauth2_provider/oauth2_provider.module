@@ -52,8 +52,16 @@ function oauth2_provider_menu_alter(&$callbacks) {
 
 /**
  * Implements hook_form_alter().
+ *
+ *  Cannot use hook_form_FORM_ID_alter because login block and /user have different form_id
  */
 function oauth2_provider_form_alter(&$form, $form_state, $form_id) {
+
+  // Only for login block and /user
+  if ($form_id != 'user_login_block' && $form_id != 'user_login') {
+    return;
+  }
+  //$form['#action'] = '/node?destination=node&response_type=token&client_id=b4912c08928a405de37bbc7c4ab69d73&redirect_uri=node';//dirty code for testing 
   // Replace the submit handler of login form.
   if (isset($form['#submit']) && is_array($form['#submit']) && ($key = array_search('user_login_submit', $form['#submit'])) !== FALSE) {
     $form['#submit'][$key] = 'oauth2_provider_login_submit';
