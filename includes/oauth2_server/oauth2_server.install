@@ -5,28 +5,14 @@
  * OAuth2.0 Server Identifer install and uninstall code.
  */
 
-/**
- * Implementation of hook_install().
- */
-function oauth2_server_install() {
-  drupal_install_schema('oauth2_server');
-}
-
-/**
- * Implementation of hook_uninstall().
- */
-function oauth2_server_uninstall() {
-  drupal_uninstall_schema('oauth2_server');
-}
 
 /**
  * Implementation of hook_schema().
  */
 function oauth2_server_schema() {
-  $schema = array();
 
   $schema['oauth2_servers'] = array(
-    'description' => t('OAuth2.0 server indentifier information as Drupal node.'),
+    'description' => 'OAuth2.0 server indentifier information as Drupal node.',
       'fields' => array(
           'sid' => array(
             'description' => 'Primary Key: Unique server ID',
@@ -39,6 +25,12 @@ function oauth2_server_schema() {
             'type' => 'varchar',
             'length' => 64,
             'not null' => TRUE,
+          ),
+          'title' => array(
+              'description' => t('title.'),
+              'type' => 'varchar',
+              'length' => 64,
+              'not null' => TRUE,
           ),
           'client_id' => array(
             'description' => t('Your registered client identifier.'),
@@ -64,9 +56,26 @@ function oauth2_server_schema() {
             'description' => t('The authorization server\'s HTTP endpoint capable of issuing tokens and refreshing expired tokens. Absolute path or path relative to base URI.'),
             'type' => 'text',
           ),
+          'status' => array(
+            'type' => 'int',
+            'unsigned' => TRUE,
+            'not null' => TRUE,
+            'default' => 1,
+            'size' => 'tiny',
+            'description' => 'status',
+          ),
+          'changed' => array(
+            'type' => 'int',
+            'unsigned' => TRUE,
+            'not null' => TRUE,
+            'default' => 1,
+            'size' => 'tiny',
+            'description' => 'changed',
+          ),
       ),
     'indexes' => array(
       'oauth2_server_name' => array('server_id'),
+      'oauth2_server_status' => array('status'),
     ),
     'primary key' => array('sid'),
   );

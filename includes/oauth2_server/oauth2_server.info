@@ -3,3 +3,5 @@ description = "Handle OAuth2.0 Server Identifer as Drupal node."
 package = "OAuth2.0"
 dependencies[] = oauth2
 core = 7.x
+
+files[] = oauth2_server.admin.inc

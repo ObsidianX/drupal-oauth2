@@ -24,7 +24,7 @@ function oauth2_server_help($section, $arg) {
 function oauth2_server_menu() {
   $items = array();
 
-  $items['admin/structure/oauth2/oauth2_server'] = array(
+  $items['admin/structure/oauth2/oauth2-server'] = array(
     'title' => 'Servers',
     'description' => 'List, add, and edit OAuth2.0 Server Identifer.',
     'page callback' => 'oauth2_server_admin_callback',
@@ -33,13 +33,43 @@ function oauth2_server_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => -10,
   );
-  
-  $items['oauth2_server/%'] = array(
-      'title' => 'View Server',
+
+  $items['oauth2-server/%oauth2_server'] = array(
+      'title' => 'View OAuth2 Server Identifier',
       'page callback' => 'oauth2_server_view_callback',
       'page arguments' => array(1),
       'access callback' => 'oauth2_server_access',
       'access arguments' => array('edit',1),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 0,
+  );
+
+  $items['oauth2-server/add'] = array(
+      'title' => 'Adit OAuth2 Server Identifier',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('oauth2_server_edit_form'),
+      'access callback' => 'oauth2_server_access',
+      'access arguments' => array('create',1),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 0,
+  );
+
+  $items['oauth2-server/%oauth2_server/edit'] = array(
+      'title' => 'Edit OAuth2 Server Identifier',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('oauth2_server_edit_form', 1),
+      'access callback' => 'oauth2_server_access',
+      'access arguments' => array('edit',1),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 0,
+  );
+  
+  $items['oauth2-server/%oauth2_server/delete'] = array(
+      'title' => 'Edit OAuth2 Server Identifier',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('oauth2_server_delete_form', 1),
+      'access callback' => 'oauth2_server_access',
+      'access arguments' => array('delete',1),
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
@@ -87,11 +117,21 @@ function oauth2_server_uri($server) {
  */
 function oauth2_server_permission() {
   return array(
-    'create oauth2_server',
-    'delete own oauth2_server',
-    'delete any oauth2_server',
-    'edit own oauth2_server',
-    'edit any oauth2_server',
+    'create oauth2_server' => array(
+        'title' => t('Create new server')
+     ),
+    'delete own oauth2_server' => array(
+        'title' => t('Delete own server')
+     ),
+    'delete any oauth2_server' => array(
+        'title' => t('Delete any server')
+     ),
+    'edit own oauth2_server' => array(
+        'title' => t('Edit own server')
+     ),
+    'edit any oauth2_server' => array(
+        'title' => t('Edit any server')
+     ),
   );
 }
 
@@ -127,7 +167,7 @@ function oauth2_server_access($op, $server) {
 /**
  * Implementation of hook_form().
  */
-function oauth2_server_form(&$node) {
+/*function oauth2_server_form(&$node) {
   $type = node_get_types('type', $node);
 
   if ($type->has_title) {
@@ -201,12 +241,12 @@ function oauth2_server_form(&$node) {
   );
 
   return $form;
-}
+}*/
 
 /**
  * Implementation of hook_validate().
  */
-function oauth2_server_validate($node) {
+/*function oauth2_server_validate($node) {
   $pattern = '/^[a-z0-9-_]{3,64}$/i';
   if (!empty($node->server_id) && !preg_match($pattern, $node->server_id)) {
     form_set_error('server_id', t('Server ID should be alphanumeric strings with hyphens and underscores, 3-64 characters long.'));
@@ -217,60 +257,48 @@ function oauth2_server_validate($node) {
   if ($result != 0) {
     form_set_error('server_id', t('This Server ID had beed used by other server identifer.'));
   }
-}
+}*/
 
 /**
- * Implementation of hook_insert().
+ * Add a record
  */
-function oauth2_server_insert($node) {
-  drupal_write_record('oauth2_servers', $node);
-}
+/*
+function oauth2_server_insert($oauth2_server) {
+  drupal_write_record('oauth2_servers', $oauth2_server);
+}*/
 
 /**
- * Implementation of hook_update().
+ * Update/Add a record
  */
-function oauth2_server_update($node) {
-  if ($node->revision) {
-    oauth2_server_insert($node);
-  }
-  else {
-    drupal_write_record('oauth2_servers', $node, 'vid');
-  }
-}
-
-/**
- * Implementation of hook_nodeapi().
- */
-function oauth2_server_nodeapi(&$node, $op, $teaser, $page) {
-  switch ($op) {
-    case 'delete revision':
-      // Notice that we're matching a single revision based on the node's vid.
-      db_query("DELETE FROM {oauth2_servers} WHERE vid = %d", $node->vid);
-      break;
+function oauth2_server_update($oauth2_server) {
+  if ($oauth2_server['sid'] == NULL) {
+    drupal_write_record('oauth2_servers', $oauth2_server);
+  } else {
+    drupal_write_record('oauth2_servers', $oauth2_server, 'sid');
   }
 }
 
 /**
  * Implementation of hook_delete().
  */
-function oauth2_server_delete(&$node) {
-  // Notice that we're matching all revision, by using the node's nid.
-  db_query("DELETE FROM {oauth2_servers} WHERE nid = %d", $node->nid);
+function oauth2_server_delete($sid) {
+  db_query("DELETE FROM {oauth2_servers} WHERE sid = %d", $sid);
 }
 
 /**
  * Implementation of hook_load().
  */
-function oauth2_server_load(&$node) {
-  $additions = db_fetch_object(db_query("SELECT server_id, client_id, client_secret, base_uri, authorize_uri, access_token_uri FROM {oauth2_servers} WHERE vid = %d", $node->vid));
-  return $additions;
+function oauth2_server_load($sid) {
+  //$additions = db_fetch_object(db_query("SELECT server_id, client_id, client_secret, base_uri, authorize_uri, access_token_uri FROM {oauth2_servers} WHERE vid = %d", $node->vid));
+  //return $additions;
+  return entity_load('oauth2_server',$sid);
 }
-
 
 
 /**
  * Implementation of hook_view().
  */
+/*
 function oauth2_server_view($node, $teaser = FALSE, $page = FALSE) {
   $node = node_prepare($node, $teaser);
 
@@ -300,7 +328,7 @@ function oauth2_server_view($node, $teaser = FALSE, $page = FALSE) {
   );
 
   return $node;
-}
+}*/
 
 /**
  * Implementation of hook_theme().

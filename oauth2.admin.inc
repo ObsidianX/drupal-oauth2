@@ -81,9 +81,10 @@ function oauth2_admin_settings() {
     );
 
     $options = array();
-    $stmt = db_query("SELECT osrv.nid, osrv.server_id, n.title FROM {oauth2_servers} AS osrv INNER JOIN {node} AS n ON osrv.vid = n.vid WHERE n.status = 1");
-    while ($result = db_fetch_object($stmt)) {
-      $options[$result->nid] = "{$result->title} ({$result->server_id})";
+    $results = db_query("SELECT osrv.sid, osrv.server_id FROM {oauth2_servers} AS osrv  WHERE osrv.status = 1");
+
+    foreach ($results as $result) {
+      $options[$result->sid] = "{$result->title} ({$result->server_id})";
     }
     if (count($options) >= 1) {
       $form['oauth2_provider_mode_proxy']['oauth2_proxy_server_identifier'] = array(
