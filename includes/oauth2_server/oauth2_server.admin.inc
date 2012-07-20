@@ -66,8 +66,8 @@ function oauth2_server_admin_callback() {
       $server->server_id,
       $server->status ? t('Yes') : t('No'),
       format_interval(time() - $server->changed),
-      l(t('edit'), 'oauth2-server/'. $server->sid .'/edit', array('query' => array('destination' => 'admin/build/oauth2/oauth2_server'))),
-      l(t('delete'), 'oauth2-server/'. $server->sid .'/delete', array('query' => array('destination' => 'admin/build/oauth2/oauth2_server'))),
+      l(t('edit'), 'oauth2-server/'. $server->sid .'/edit', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-server'))),
+      l(t('delete'), 'oauth2-server/'. $server->sid .'/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-server'))),
     );
   }
   $output['server_list']['#rows'] = $rows;
@@ -92,13 +92,23 @@ function oauth2_server_admin_callback() {
  */
 function oauth2_server_view_callback($oauth2_server) {
   $header = array(
-   array('data' => t('Key'), 'field' => 'Value')
+   array('data' => t('Key'), 'field' => 'Value'),
+   array('data' => t('Value'), 'field' => 'Value')
   );
   $rows = array();
   foreach ($oauth2_server as $key => $value) {
+    if ($key == 'sid') {
+      continue;
+    }
     $rows[] = array($key,$value);
   }
-  return theme('table', $header, $rows);
+  $output = array(
+    '#header' => $header,
+    '#rows' => $rows,
+    '#theme' => 'table'
+  );
+  return $output;
+  //return theme('table', $header, $rows);
 }
 
 /**
@@ -216,7 +226,11 @@ function oauth2_server_edit_form_validate($form, &$form_state) {
   }
   
   // Ensure no duplicate server_id.
-  $result = db_query("SELECT COUNT(*) AS count FROM {oauth2_servers} AS osrv  WHERE osrv.server_id = :s ", array(':s' => $form_state['values']['server_id']));
+  if ($form_state['values']['sid'] != NULL) {
+    $result = db_query("SELECT COUNT(*) AS count FROM {oauth2_servers} AS osrv  WHERE osrv.server_id = :s AND osrv.sid != :t ", array(':s' => $form_state['values']['server_id'],':t' => $form_state['values']['sid']));
+  } else {
+    $result = db_query("SELECT COUNT(*) AS count FROM {oauth2_servers} AS osrv  WHERE osrv.server_id = :s ", array(':s' => $form_state['values']['server_id']));
+  }
   foreach($result as $record)
   if ($record->count != 0) {
     form_set_error('server_id', t('This Server ID had beed used by other server identifer.'));
@@ -229,11 +243,12 @@ function oauth2_server_edit_form_validate($form, &$form_state) {
 function oauth2_server_delete_form($form, &$form_state, $oauth2_server) {
   $destination = drupal_get_destination();
   
+  //confirm_form($form, $question, $path, $description = NULL, $yes = NULL, $no = NULL, $name = 'confirm')
   return confirm_form(
       array(
           'oauth2_server' => array(
               '#type' => 'value',
-              '#value' => $oauth2_server['sid'],
+              '#value' => $oauth2_server->sid,
           ),
       ),
       t('Are you sure you want to delete this Server Identifier?'),

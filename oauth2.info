@@ -8,4 +8,4 @@ files[] = includes/DrupalOAuth2.inc
 files[] = includes/DrupalOAuth2Client.inc
 files[] = includes/DrupalOAuth2Proxy.inc
 
-files[] = tests/oauth2.test
+files[] = oauth2.test
