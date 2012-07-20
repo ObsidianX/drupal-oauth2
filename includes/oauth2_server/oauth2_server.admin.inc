@@ -18,14 +18,23 @@ function oauth2_server_admin_callback() {
   );
 
   $result = db_query("SELECT osrv.sid, osrv.title, osrv.server_id, osrv.status, osrv.changed FROM {oauth2_servers} AS osrv ");
+
   $output = array();
   $rows = array();
-  $output['add'] = array(
-      '#type' => 'markup',
-      '#markup' => l(t('Add server'),'oauth2-server/add'),
+  $output['add_link'] = array(
+      '#theme'    => 'link',
+      '#text'     => 'Add Server Identifier',
+      '#path'     => 'oauth2-server/add',
+      '#options' => array(
+            'attributes' => array('class' => array('oauth2-server-add-link'), 'id' => 'oauth2-server-add-link'),
+              //REQUIRED:
+            'html' => FALSE,
+   ),
   );
+  $output['server_list'] = array();
+  $output['server_list']['#header'] = $header;
   foreach($result as $server) {
-    $output[$entity->sid] = array(
+    /*$output[$server->sid] = array(
         'link' => array(
           '#type' => 'markup',
           '#markup' => l($server->title, 'oauth2-server/'. $server->sid),
@@ -50,22 +59,31 @@ function oauth2_server_admin_callback() {
           '#type' => 'markup',
           '#markup' => l(t('delete'), 'oauth2-server/'. $server->sid .'/delete', array('query' => array('destination' => 'admin/build/oauth2/oauth2_server'))),
         ),
-    );
-    /*$rows[] = array(
+        //'#theme' => 'table',
+    );*/
+    $rows[] = array(
       l($server->title, 'oauth2-server/'. $server->sid),
       $server->server_id,
       $server->status ? t('Yes') : t('No'),
       format_interval(time() - $server->changed),
       l(t('edit'), 'oauth2-server/'. $server->sid .'/edit', array('query' => array('destination' => 'admin/build/oauth2/oauth2_server'))),
       l(t('delete'), 'oauth2-server/'. $server->sid .'/delete', array('query' => array('destination' => 'admin/build/oauth2/oauth2_server'))),
-    );*/
+    );
   }
+  $output['server_list']['#rows'] = $rows;
+  $output['server_list']['#theme'] = 'table';
+  
 
   /*if (empty($rows)) {
     $rows[] = array(array('data' => '<em>'. t('There are currently no OAuth2.0 Server Identifer.') .'</em>', 'colspan' => 6));
   }*/
-  return $output;
-  //return theme('table', $header, $rows);
+  return $output;/*.theme('table',array(
+      'header'         => $header, 
+      'rows'           => $rows,
+      'attributes'     => array(),
+  ));*/
+  //return $output;
+
 }
 
 
@@ -91,6 +109,7 @@ function oauth2_server_view_callback($oauth2_server) {
  */
 function oauth2_server_edit_form($form, &$form_state, $oauth2_server = NULL) {
 
+  $form['#oauth2_server'] = $oauth2_server;
   $form['oauth2_server'] = array(
     '#type' => 'fieldset',
     '#title' => t('OAuth2.0 settings'),
@@ -160,7 +179,7 @@ function oauth2_server_edit_form($form, &$form_state, $oauth2_server = NULL) {
   );
 
   return $form;
-  
+
 }
 
 /**
@@ -170,15 +189,17 @@ function oauth2_server_edit_form($form, &$form_state, $oauth2_server = NULL) {
  */
 function oauth2_server_edit_form_submit($form, &$form_state) {
   $oauth2_server =  array(
-    'sid'               => $form_state['values']['sid'],
     'server_id'         => $form_state['values']['server_id'],
     'base_uri'          => $form_state['values']['base_uri'],
     'client_id'         => $form_state['values']['client_id'],
     'client_secret'     => $form_state['values']['client_secret'],
     'authorize_uri'     => $form_state['values']['authorize_uri'],
     'access_token_uri'  => $form_state['values']['access_token_uri'],
-    
+    'title'             => $form_state['values']['base_uri'],
   );
+  if ($form_state['values']['sid'] != NULL) {
+    $oauth2_server['sid'] = $form_state['values']['sid'];
+  }
   oauth2_server_update($oauth2_server);
 }
 
@@ -195,8 +216,9 @@ function oauth2_server_edit_form_validate($form, &$form_state) {
   }
   
   // Ensure no duplicate server_id.
-  $result = db_result(db_query("SELECT COUNT(*) FROM {oauth2_servers} AS osrv  WHERE osrv.server_id = '%s' ", $form_state['values']['server_id']));
-  if ($result != 0) {
+  $result = db_query("SELECT COUNT(*) AS count FROM {oauth2_servers} AS osrv  WHERE osrv.server_id = :s ", array(':s' => $form_state['values']['server_id']));
+  foreach($result as $record)
+  if ($record->count != 0) {
     form_set_error('server_id', t('This Server ID had beed used by other server identifer.'));
   }
 }
@@ -208,18 +230,18 @@ function oauth2_server_delete_form($form, &$form_state, $oauth2_server) {
   $destination = drupal_get_destination();
   
   return confirm_form(
-  array(
-      'oauth2_server' => array(
-          '#type' => 'value',
-          '#value' => $oauth2_server['sid'],
+      array(
+          'oauth2_server' => array(
+              '#type' => 'value',
+              '#value' => $oauth2_server['sid'],
+          ),
       ),
-  ),
-  t('Are you sure you want to delete this Server Identifier?'),
-  $destination['destination'],
-  t('This action cannot be undone.'),
-  t('Delete Server Identifier'),
-  t('Cancel')
-  );
+      t('Are you sure you want to delete this Server Identifier?'),
+      $destination['destination'],
+      t('This action cannot be undone.'),
+      t('Delete Server Identifier'),
+      t('Cancel')
+   );
 }
 /**
  * Confirm form submit for the deletetion

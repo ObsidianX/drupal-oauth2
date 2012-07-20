@@ -2,7 +2,7 @@
 
 /**
  * @file
- * OAuth2.0 Server Identifer install and uninstall code.
+ * OAuth2.0 Server Identifer schema
  */
 
 
@@ -16,7 +16,7 @@ function oauth2_server_schema() {
       'fields' => array(
           'sid' => array(
             'description' => 'Primary Key: Unique server ID',
-            'type' => 'int',
+            'type' => 'serial',
             'unsigned' => TRUE,
             'not null' => TRUE,
           ),

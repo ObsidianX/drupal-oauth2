@@ -81,7 +81,7 @@ function oauth2_admin_settings() {
     );
 
     $options = array();
-    $results = db_query("SELECT osrv.sid, osrv.server_id FROM {oauth2_servers} AS osrv  WHERE osrv.status = 1");
+    $results = db_query("SELECT osrv.* FROM {oauth2_servers} AS osrv  WHERE osrv.status = 1");
 
     foreach ($results as $result) {
       $options[$result->sid] = "{$result->title} ({$result->server_id})";

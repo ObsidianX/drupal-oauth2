@@ -40,16 +40,18 @@ function oauth2_server_menu() {
       'page arguments' => array(1),
       'access callback' => 'oauth2_server_access',
       'access arguments' => array('edit',1),
+      'file' => 'oauth2_server.admin.inc',
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
 
   $items['oauth2-server/add'] = array(
-      'title' => 'Adit OAuth2 Server Identifier',
+      'title' => 'Add OAuth2 Server Identifier',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('oauth2_server_edit_form'),
       'access callback' => 'oauth2_server_access',
       'access arguments' => array('create',1),
+      'file' => 'oauth2_server.admin.inc',
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
@@ -60,6 +62,7 @@ function oauth2_server_menu() {
       'page arguments' => array('oauth2_server_edit_form', 1),
       'access callback' => 'oauth2_server_access',
       'access arguments' => array('edit',1),
+      'file' => 'oauth2_server.admin.inc',
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
@@ -70,6 +73,7 @@ function oauth2_server_menu() {
       'page arguments' => array('oauth2_server_delete_form', 1),
       'access callback' => 'oauth2_server_access',
       'access arguments' => array('delete',1),
+      'file' => 'oauth2_server.admin.inc',
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
@@ -85,13 +89,21 @@ function oauth2_server_entity_info() {
   return array(
       'oauth2_server' => array(
           'label' => t('OAuth2.0 Server Identifer'),
-          'base table' => 'oauth2_server',
+          'base table' => 'oauth2_servers',
           'uri callback' => 'oauth2_server_uri',
           'fieldable' => FALSE,
           'entity keys' => array(
             'id' => 'sid',
           ),
-          'buddles' => array(),
+          'buddles' => array(
+            'oauth2_server' => array(
+               'label' => 'OAuth2 Server Identifier',
+                'admin' => array(
+                  'path' => 'admin/structure/oauth2/oauth2-server',
+                  'access arguments' =>  array('administer site configuration')
+                )
+             )
+          ),
           'view modes' => array(
             'full' => array(
                 'label' => t('Servers'),
@@ -150,7 +162,7 @@ function oauth2_server_access($op, $server) {
     return user_access('create oauth2_server', $user) && $user->uid ? TRUE : NULL;
   }
 
-  if ($op == 'update') {
+  if ($op == 'edit') {
     if (user_access('edit any oauth2_server', $user) || (user_access('edit own oauth2_server', $user) && ($user->uid == $server->uid))) {
       return TRUE;
     }
@@ -271,7 +283,7 @@ function oauth2_server_insert($oauth2_server) {
  * Update/Add a record
  */
 function oauth2_server_update($oauth2_server) {
-  if ($oauth2_server['sid'] == NULL) {
+  if (!isset($oauth2_server['sid'])) {
     drupal_write_record('oauth2_servers', $oauth2_server);
   } else {
     drupal_write_record('oauth2_servers', $oauth2_server, 'sid');
@@ -286,14 +298,22 @@ function oauth2_server_delete($sid) {
 }
 
 /**
- * Implementation of hook_load().
+ * Load 1
  */
-function oauth2_server_load($sid) {
+function oauth2_server_load($sid = NULL, $reset = FALSE) {
   //$additions = db_fetch_object(db_query("SELECT server_id, client_id, client_secret, base_uri, authorize_uri, access_token_uri FROM {oauth2_servers} WHERE vid = %d", $node->vid));
   //return $additions;
-  return entity_load('oauth2_server',$sid);
+  $sids = (isset($sid) ? array($sid) : array());
+  $oauth2_server = oauth2_server_load_multiple($sids,$reset);
+  return $oauth2_server ? reset ($oauth2_server) : FALSE;
 }
 
+/**
+ * Load multiple
+ */
+function oauth2_server_load_multiple($sids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('oauth2_server',$sids,$conditions,$reset);
+}
 
 /**
  * Implementation of hook_view().
