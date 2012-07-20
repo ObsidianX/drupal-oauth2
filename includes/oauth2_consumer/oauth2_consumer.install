@@ -5,19 +5,7 @@
  * OAuth2.0 Consumer Support install and uninstall code.
  */
 
-/**
- * Implementation of hook_install().
- */
-function oauth2_consumer_install() {
-  drupal_install_schema('oauth2_consumer');
-}
 
-/**
- * Implementation of hook_uninstall().
- */
-function oauth2_consumer_uninstall() {
-  drupal_uninstall_schema('oauth2_consumer');
-}
 
 /**
  * Implementation of hook_schema().
@@ -28,18 +16,11 @@ function oauth2_consumer_schema() {
   $schema['oauth2_consumers']  = array(
     'description' => t('Stores information about OAuth2.0 consumers.'),
     'fields' => array(
-      'nid' => array(
-        'description' => 'The primary identifier for a node.',
+      'sid' => array(
+        'description' => 'The primary identifier for a server identifier.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
-      ),
-      'vid' => array(
-        'description' => 'The current {node_revisions}.vid version identifier.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
       ),
       'services_uri' => array(
         'description' => t('The remote server\'s HTTP endpoint capable of Drupal Service 3.x services. Absolute path or path relative to base URI.'),
@@ -60,7 +41,7 @@ function oauth2_consumer_schema() {
       ),
     ),
     'indexes' => array(
-      'nid' => array('nid'),
+      'sid' => array('sid'),
     ),
   );
 
