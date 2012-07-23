@@ -6,20 +6,6 @@
  */
 
 /**
- * Implementation of hook_install().
- */
-function oauth2_provider_install() {
-  drupal_install_schema('oauth2_provider');
-}
-
-/**
- * Implementation of hook_uninstall().
- */
-function oauth2_provider_uninstall() {
-  drupal_uninstall_schema('oauth2_provider');
-}
-
-/**
  * Implementation of hook_schema().
  */
 function oauth2_provider_schema() {

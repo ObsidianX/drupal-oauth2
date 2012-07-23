@@ -60,7 +60,7 @@ class DrupalOAuth2 extends OAuth2 {
       // token tables but not yet a real user account, typically
       // happened when server running in proxy mode. Can't use
       // drupal_write_record() as uid is serial.
-      db_query("INSERT INTO {users} (uid, name, created, access, login, status) VALUES (%d, '%s', %d, %d, %d, 1)", $uid, $name, time(), time(), time());
+      db_query("INSERT INTO {users} (uid, name, created, access, login, status) VALUES (:uid, :name, :created, :access, :login, 1)", array(':uid' => $uid, ':name' => $name, ':created' => time(), ':access' => time(), ':login' => time()));
       $account = user_load($uid);
     }
     $user = $account;

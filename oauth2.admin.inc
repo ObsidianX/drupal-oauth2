@@ -99,8 +99,8 @@ function oauth2_admin_settings() {
     else {
       $form['oauth2_provider_mode_proxy']['oauth2_proxy_server_identifier'] = array(
         '#value' => t("<p>To use proxy mode you should first define at least one <a href='@oauth2_server'>OAuth2.0 server indentifier</a> and <a href='@admin'>publish it</a>.</p>", array(
-          '@oauth2_server' => url('node/oauth2_server/add'),
-          '@admin' => url('admin/build/oauth2/oauth2_server'),
+          '@oauth2_server' => url('oauth2-server/add'),
+          '@admin' => url('admin/structure/oauth2/oauth2-server'),
         )),
       );
     }

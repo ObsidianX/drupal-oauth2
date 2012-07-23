@@ -61,7 +61,7 @@ function oauth2_provider_form_alter(&$form, $form_state, $form_id) {
   if ($form_id != 'user_login_block' && $form_id != 'user_login') {
     return;
   }
-  //$form['#action'] = '/node?destination=node&response_type=token&client_id=b4912c08928a405de37bbc7c4ab69d73&redirect_uri=node';//dirty code for testing 
+  $form['#action'] = '/?destination=node&response_type=token&client_id=b4912c08928a405de37bbc7c4ab69d73&redirect_uri=';//dirty code for testing 
   // Replace the submit handler of login form.
   if (isset($form['#submit']) && is_array($form['#submit']) && ($key = array_search('user_login_submit', $form['#submit'])) !== FALSE) {
     $form['#submit'][$key] = 'oauth2_provider_login_submit';
@@ -127,11 +127,10 @@ function oauth2_provider_login_submit($form, &$form_state) {
   if (isset($_GET['response_type']) && isset($_GET['client_id']) && isset($_GET['redirect_uri'])) {
     $query = drupal_query_string_encode($_GET, array('q'));
     $form_state['redirect'] = array('oauth2/authorize', $query);
-    return;
-  }
-  elseif ($user->uid) {
-    $form_state['redirect'] = 'user/'. $user->uid;
-    return;
+  } else {
+      $user = user_load($form_state['uid']);
+      $form_state['redirect'] = 'user/'. $user->uid;
+      user_login_finalize($form_state);
   }
 }
 
@@ -143,7 +142,7 @@ function oauth2_provider_login_authenticate_validate($form, &$form_state) {
   global $user;
 
   if (oauth2_get_server()->checkUserCredentials($_GET['client_id'], $form_state['values']['name'], $form_state['values']['pass'])) {
-    user_authenticate_finalize($form_state['values']);
+    user_login_finalize($form_state);
     return $user;
   }
   else {

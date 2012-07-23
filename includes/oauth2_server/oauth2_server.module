@@ -316,40 +316,6 @@ function oauth2_server_load_multiple($sids = array(), $conditions = array(), $re
   return entity_load('oauth2_server',$sids,$conditions,$reset);
 }
 
-/**
- * Implementation of hook_view().
- */
-/*
-function oauth2_server_view($node, $teaser = FALSE, $page = FALSE) {
-  $node = node_prepare($node, $teaser);
-
-  $node->content['server_id'] = array(
-    '#value' => theme('oauth2_server_server_id', $node->server_id),
-    '#weight' => -10,
-  );
-  $node->content['base_uri'] = array(
-    '#value' => theme('oauth2_server_base_uri', $node->base_uri),
-    '#weight' => -9,
-  );
-  $node->content['client_id'] = array(
-    '#value' => theme('oauth2_server_client_id', $node->client_id),
-    '#weight' => -8,
-  );
-  $node->content['client_secret'] = array(
-    '#value' => theme('oauth2_server_client_secret', $node->client_secret),
-    '#weight' => -7,
-  );
-  $node->content['authorize_uri'] = array(
-    '#value' => theme('oauth2_server_authorize_uri', $node->authorize_uri),
-    '#weight' => -6,
-  );
-  $node->content['access_token_uri'] = array(
-    '#value' => theme('oauth2_server_access_token_uri', $node->access_token_uri),
-    '#weight' => -5,
-  );
-
-  return $node;
-}*/
 
 /**
  * Implementation of hook_theme().

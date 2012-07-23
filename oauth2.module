@@ -154,24 +154,26 @@ function oauth2_get_server($class_name = NULL, $params = array()) {
 }
 
 /**
- * Get an OAuth2.0 client-side instance with given node id.
+ * Get an OAuth2.0 client-side instance with given client id.
+ * This function requires module: oauth2_server!
  *
- * @param $nid
- *   The node id of target OAuth2.0 client-side class setup.
+ * @param $cid
+ *   The client id of target OAuth2.0 client-side class setup.
  * @param $params
  *   (optional) Additional parameters to pass to class construct.
  *
  * @return
  *   The OAuth2.0 client-side instance based on $nid.
  */
-function oauth2_get_client($nid, $params = array()) {
+function oauth2_get_client($sid, $params = array()) {
   static $_oauth2_clients;
 
-  if (!isset($_oauth2_clients[$nid]) || !$_oauth2_clients[$nid] instanceof DrupalOAuth2Client) {
-    $info = (array) node_load($nid);
-    $params = array_merge($info, $params);
-    $_oauth2_clients[$nid] = new DrupalOAuth2Client($params);
+  if (!isset($_oauth2_clients[$sid]) || !$_oauth2_clients[$sid] instanceof DrupalOAuth2Client) {
+    $server_info = (array) oauth2_server_load($sid);
+    $consumer_info = (array) oauth2_consumer_load($sid);
+    $params = array_merge($server_info,$consumer_info, $params);//error_log(print_r($params,true));
+    $_oauth2_clients[$sid] = new DrupalOAuth2Client($params);
   }
 
-  return $_oauth2_clients[$nid];
+  return $_oauth2_clients[$sid];
 }
