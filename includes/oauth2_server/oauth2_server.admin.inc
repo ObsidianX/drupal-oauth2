@@ -34,33 +34,6 @@ function oauth2_server_admin_callback() {
   $output['server_list'] = array();
   $output['server_list']['#header'] = $header;
   foreach($result as $server) {
-    /*$output[$server->sid] = array(
-        'link' => array(
-          '#type' => 'markup',
-          '#markup' => l($server->title, 'oauth2-server/'. $server->sid),
-        ),
-        'server_id' => array(
-          '#type' => 'markup',
-          '#markup' => $server->server_id,
-        ),
-        'status' => array(
-          '#type' => 'markup',
-          '#markup' => $server->status ? t('Yes') : t('No'),
-        ),
-        'updated' => array(
-          '#type' => 'markup',
-          '#markup' => format_interval(time() - $server->changed),
-        ),
-        'edit' => array(
-          '#type' => 'markup',
-          '#markup' => l(t('edit'), 'oauth2-server/'. $server->sid .'/edit', array('query' => array('destination' => 'admin/build/oauth2/oauth2_server'))),
-        ),
-        'delete' => array(
-          '#type' => 'markup',
-          '#markup' => l(t('delete'), 'oauth2-server/'. $server->sid .'/delete', array('query' => array('destination' => 'admin/build/oauth2/oauth2_server'))),
-        ),
-        //'#theme' => 'table',
-    );*/
     $rows[] = array(
       l($server->title, 'oauth2-server/'. $server->sid),
       $server->server_id,
@@ -210,7 +183,8 @@ function oauth2_server_edit_form_submit($form, &$form_state) {
   if ($form_state['values']['sid'] != NULL) {
     $oauth2_server['sid'] = $form_state['values']['sid'];
   }
-  oauth2_server_update($oauth2_server);
+  $return_sid = oauth2_server_update($oauth2_server);
+  $form_state['values']['sid'] = $return_sid;
 }
 
 /**

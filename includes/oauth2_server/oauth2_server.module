@@ -288,6 +288,7 @@ function oauth2_server_update($oauth2_server) {
   } else {
     drupal_write_record('oauth2_servers', $oauth2_server, 'sid');
   }
+  return $oauth2_server['sid'];
 }
 
 /**

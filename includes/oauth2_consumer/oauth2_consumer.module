@@ -7,9 +7,42 @@
  */
 
 /**
+ * Implementation of hook_entity_info().
+ */
+
+function oauth2_consumer_entity_info() {
+  return array(
+      'oauth2_consumer' => array(
+          'label' => t('OAuth2.0 Consumer'),
+          'base table' => 'oauth2_consumers',
+          //'uri callback' => 'oauth2_consumer_uri',
+          'fieldable' => FALSE,
+          'entity keys' => array(
+              'id' => 'sid',
+          ),
+          /*'buddles' => array(
+              'oauth2_server' => array(
+                  'label' => 'OAuth2 Server Identifier',
+                  'admin' => array(
+                      'path' => 'admin/structure/oauth2/oauth2-server',
+                      'access arguments' =>  array('administer site configuration')
+                  )
+              )
+          ),*/
+          'view modes' => array(
+              'full' => array(
+                  'label' => t('Consumers'),
+                  'custom settings' => FALSE,
+              ),
+          ),
+      ),
+  );
+}
+
+/**
  * Implementation of hook_form_FORM_ID_alter().
  */
-function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, $form_state, $form_id) {
+function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, &$form_state, $form_id) {
 
   $oauth2_server = $form['#oauth2_server'];
 
@@ -59,7 +92,50 @@ function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, $form_state,
       '#default_value' => isset($oauth2_server->expires_in) ? $oauth2_server->expires_in : 0,
       '#required' => TRUE,
   );
+  
+  $form['#validate'][] = 'oauth2_consumer_form_oauth2_server_edit_form_validate';
+  $form['#submit'][] = 'oauth2_consumer_form_oauth2_server_edit_form_submit';
 
+}
+/**
+ * validate oauth2_consumer_form_oauth2_server_edit_form_alter
+ */
+function oauth2_consumer_form_oauth2_server_edit_form_validate(&$form, &$form_state) {
+  
+}
+/**
+ * submit oauth2_consumer_form_oauth2_server_edit_form_alter
+ */
+function oauth2_consumer_form_oauth2_server_edit_form_submit(&$form, &$form_state) {
+  // Reuse original password if no new password.
+  if (empty($form_state['values']['password'])) {
+    $form_state['values']['password'] =  $form_state['values']['password_orig'];
+  }
+
+  $consumer = array(
+      'username'       => $form_state['values']['username'],
+      'password'       => $form_state['values']['password'],
+      'services_uri'   => $form_state['values']['services_uri'],
+      'expires_in'     => $form_state['values']['expires_in'],
+  );
+  if ($form_state['values']['sid'] != NULL) {
+    $consumer['sid'] = $form_state['values']['sid'];
+  }
+  oauth2_consumer_update($consumer);
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ */
+function oauth2_consumer_form_oauth2_server_delete_form_alter(&$form, &$form_state) {
+  $form['#submit'][] = 'oauth2_consumer_form_oauth2_server_delete_form_submit';
+}
+
+/**
+ * form delete
+ */
+function oauth2_consumer_form_oauth2_server_delete_form_submit(&$form, &$form_state) {
+  oauth2_consumer_delete($form_state['values']['sid']);
 }
 
 /**
@@ -89,67 +165,58 @@ function oauth2_consumer_nodeapi(&$node, $op, $teaser, $page) {
   }
 }
 
+
+
 /**
- * Implementation of hook_insert().
+ * Update/Add a record
  */
-function oauth2_consumer_insert($node) {
-  // Reuse original password if no new password.
-  $node->password = (!empty($node->password) && $node->password !== $node->password_orig)
-  ? $node->password
-  : $node->password_orig;
+function oauth2_consumer_update($consumer) {
+
   // We pack username and password as it may be SQL reservered words.
-  $node->data = serialize(array(
-      'username' => $node->username,
-      'password' => $node->password,
+  $consumer['data'] = serialize(array(
+      'username' => $consumer['username'],
+      'password' => $consumer['password'],
   ));
-  drupal_write_record('oauth2_consumers', $node);
-}
-
-/**
- * Implementation of hook_update().
- */
-function oauth2_consumer_update($node) {
-  // Reuse original password if no new password.
-  $node->password = (!empty($node->password) && $node->password !== $node->password_orig)
-  ? $node->password
-  : $node->password_orig;
-  // We pack username and password as it may be SQL reservered words.
-  $node->data = serialize(array(
-      'username' => $node->username,
-      'password' => $node->password,
-  ));
-  if ($node->revision) {
-    drupal_write_record('oauth2_consumers', $node);
-  }
-  else {
-    drupal_write_record('oauth2_consumers', $node, array('nid', 'vid'));
+  if (!isset($consumer['sid'])) {
+    //Should not be here
+  } else {
+    drupal_write_record('oauth2_consumers', $consumer, 'sid');
   }
 }
 
 /**
- * Implementation of hook_delete().
+ * Delete a record
  */
-function oauth2_consumer_delete($node) {
-  // Notice that we're matching all revision, by using the node's nid.
-  db_query("DELETE FROM {oauth2_consumers} WHERE nid = %d", $node->nid);
+function oauth2_consumer_delete($sid) {
+
+  db_query("DELETE FROM {oauth2_consumers} WHERE sid = :s", array(':s' => $sid));
 }
 
 /**
- * Implementation of hook_load().
+ * Load a record
  */
-function oauth2_consumer_load($node) {
-  $stmt = db_query("SELECT * FROM {oauth2_consumers} WHERE vid = %d", $node->vid);
-  foreach (db_fetch_array($stmt) as $k => $v) {
-    $node->$k = $v;
+function oauth2_consumer_load($sid = NULL, $reset = FALSE) {
+  $sids = (isset($sid) ? array($sid) : array());
+  $oauth2_consumer = oauth2_consumer_load_multiple($sids,$reset);
+  return $oauth2_consumer ? reset ($oauth2_consumer) : FALSE;
+  
+}
+/**
+ * Load multiple
+ */
+function oauth2_consumer_load_multiple($sids = array(), $conditions = array(), $reset = FALSE) {
+  $consumers =  entity_load('oauth2_consumer',$sids,$conditions,$reset);
+  foreach ($consumers as &$consumer) {
+    // Remember to unpack username and password.
+    $consumer = drupal_unpack($consumer);
   }
-  // Remember to unpack username and password.
-  $node = drupal_unpack($node);
+  unset($consumer);
+  return $consumers;
 }
-
 /**
- * Implementation of hook_view().
+ * Useless. view not implemented for now
  */
-function oauth2_consumer_view($node, $teaser = FALSE, $page = FALSE) {
+/*function oauth2_consumer_view($node, $teaser = FALSE, $page = FALSE) {
   if ($node->type == 'oauth2_server') {
     $node = node_prepare($node, $teaser);
 
@@ -168,7 +235,7 @@ function oauth2_consumer_view($node, $teaser = FALSE, $page = FALSE) {
 
     return $node;
   }
-}
+}*/
 
 /**
  * Implementation of hook_theme().

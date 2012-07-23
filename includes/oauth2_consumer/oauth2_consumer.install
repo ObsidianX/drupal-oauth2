@@ -40,9 +40,7 @@ function oauth2_consumer_schema() {
         'description' => 'A serialized array of name value pairs that are related to the consumer username and password.',
       ),
     ),
-    'indexes' => array(
-      'sid' => array('sid'),
-    ),
+    'primary key' => array('sid'),
   );
 
   return $schema;
