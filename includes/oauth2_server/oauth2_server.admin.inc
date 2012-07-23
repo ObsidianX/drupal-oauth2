@@ -161,6 +161,7 @@ function oauth2_server_edit_form($form, &$form_state, $oauth2_server = NULL) {
     )
   );
 
+
   return $form;
 
 }
@@ -185,6 +186,9 @@ function oauth2_server_edit_form_submit($form, &$form_state) {
   }
   $return_sid = oauth2_server_update($oauth2_server);
   $form_state['values']['sid'] = $return_sid;
+  
+  $form_state['redirect'] = 'oauth2-server/' . $form_state['values']['sid'] . '/edit';
+  drupal_set_message(t('Settings saved.'));
 }
 
 /**

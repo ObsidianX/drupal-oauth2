@@ -44,8 +44,12 @@ function oauth2_consumer_entity_info() {
  */
 function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, &$form_state, $form_id) {
 
-  $oauth2_server = $form['#oauth2_server'];
-
+  if (isset($form['#oauth2_server'])) {
+    $oauth2_consumer = oauth2_consumer_load($form['#oauth2_server']->sid);
+  } else {
+    $oauth2_consumer = new StdClass(); //nothing
+  }
+  
   $form['oauth2_server']['oauth2_consumer'] = array(
       '#type' => 'fieldset',
       '#title' => t('Consumer settings'),
@@ -59,7 +63,7 @@ function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, &$form_state
       '#type' => 'textfield',
       '#title' => t('Username'),
       '#description' => t('Your registered consumer account username.'),
-      '#default_value' => isset($oauth2_server->username) ? $oauth2_server->username : '',
+      '#default_value' => isset($oauth2_consumer->username) ? $oauth2_consumer->username : '',
       '#required' => FALSE,
   );
 
@@ -74,14 +78,14 @@ function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, &$form_state
   );
   $form['password_orig'] = array(
       '#type' => 'hidden',
-      '#value' => isset($oauth2_server->password) ? $oauth2_server->password : '',
+      '#value' => isset($oauth2_consumer->password) ? $oauth2_consumer->password : '',
   );
 
   $form['oauth2_server']['oauth2_consumer']['services_uri'] = array(
       '#type' => 'textfield',
       '#title' => t('Services endpoint'),
       '#description' => t('The remote server\'s HTTP endpoint capable of Drupal Service 3.x services. Absolute path or path relative to base URI.'),
-      '#default_value' => isset($oauth2_server->services_uri) ? $oauth2_server->services_uri : '',
+      '#default_value' => isset($oauth2_consumer->services_uri) ? $oauth2_consumer->services_uri : '',
       '#required' => FALSE,
   );
 
@@ -89,7 +93,7 @@ function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, &$form_state
       '#type' => 'textfield',
       '#title' => t('Cache lifetime (in seconds)'),
       '#description' => t('How long will OAuth2.0 cache query result within local cache. With a long cache lifetime can greatly reduce the loading of remote OAuth2.0 authorization server; by the way with a short cache lifetime can ensure the synchronize of access_token. To disable cache functionality, simply set this as 0.'),
-      '#default_value' => isset($oauth2_server->expires_in) ? $oauth2_server->expires_in : 0,
+      '#default_value' => isset($oauth2_consumer->expires_in) ? $oauth2_consumer->expires_in : 0,
       '#required' => TRUE,
   );
   
@@ -128,7 +132,7 @@ function oauth2_consumer_form_oauth2_server_edit_form_submit(&$form, &$form_stat
  * Implementation of hook_form_FORM_ID_alter().
  */
 function oauth2_consumer_form_oauth2_server_delete_form_alter(&$form, &$form_state) {
-  $form['#submit'][] = 'oauth2_consumer_form_oauth2_server_delete_form_submit';
+  $form['#submit'][] = 'oauth2_consumer_form_oauth2_server_delete_form_submit';error_log('hihi');
 }
 
 /**
@@ -137,35 +141,6 @@ function oauth2_consumer_form_oauth2_server_delete_form_alter(&$form, &$form_sta
 function oauth2_consumer_form_oauth2_server_delete_form_submit(&$form, &$form_state) {
   oauth2_consumer_delete($form_state['values']['sid']);
 }
-
-/**
- * Implementation of hook_nodeapi().
- */
-function oauth2_consumer_nodeapi(&$node, $op, $teaser, $page) {
-  switch ($op) {
-    case 'load':
-      oauth2_consumer_load($node);
-      break;
-    case 'insert':
-      oauth2_consumer_insert($node);
-      break;
-    case 'update':
-      oauth2_consumer_update($node);
-      break;
-    case 'delete':
-      oauth2_consumer_delete($node);
-      break;
-    case 'delete revision':
-      // Notice that we're matching a single revision based on the node's vid.
-      db_query("DELETE FROM {oauth2_consumers} WHERE vid = %d", $node->vid);
-      break;
-    case 'view':
-      oauth2_consumer_view($node, $teaser, $page);
-      break;
-  }
-}
-
-
 
 /**
  * Update/Add a record
@@ -177,10 +152,18 @@ function oauth2_consumer_update($consumer) {
       'username' => $consumer['username'],
       'password' => $consumer['password'],
   ));
+  unset($consumer['username']);
+  unset($consumer['password']);
   if (!isset($consumer['sid'])) {
     //Should not be here
+    error_log('sid not set!');
   } else {
-    drupal_write_record('oauth2_consumers', $consumer, 'sid');
+
+    db_merge('oauth2_consumers')
+        ->key(array('sid' => $consumer['sid']))
+        ->fields($consumer)
+        ->execute();
+
   }
 }
 
