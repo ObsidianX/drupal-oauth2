@@ -18,9 +18,9 @@ require_once 'DrupalOAuth2Client.inc';
 
 // Create our Application instance (replace this with your appId and secret).
 $drupal = new DrupalOAuth2Client(array(
-  'client_id' => '47ccb7dd69cbe74c5c1500df09b1a1ad',
-  'client_secret' => '53d5b39ecd23e2ea8c9c3a5c9d62907a',
-  'base_uri' => 'http://turner.com.dev.pantarei-design.com/',
+  'client_id' => 'b4912c08928a405de37bbc7c4ab69d73',
+  'client_secret' => '8a4d25929b68141891f3b8010ffba025',
+  'base_uri' => 'http://dev.client7.oauth2.pantarei-design.com/',
   'authorize_uri' => 'oauth2/authorize',
   'access_token_uri' => 'oauth2/access_token',
   'services_uri' => 'o',
@@ -87,13 +87,13 @@ else {
 
     <?php if ($me): ?>
     <a href="<?php echo $logout_uri; ?>">
-      <img src="http://static.ak.fbcdn.net/rsrc.php/z2Y31/hash/cxrz4k7j.gif">
+      Logout
     </a>
     <?php else: ?>
     <div>
       Without using JavaScript &amp; XFBML:
       <a href="<?php echo $login_uri; ?>">
-        <img src="http://static.ak.fbcdn.net/rsrc.php/zB6N8/hash/4li2k73z.gif">
+        Login
       </a>
     </div>
     <div>
