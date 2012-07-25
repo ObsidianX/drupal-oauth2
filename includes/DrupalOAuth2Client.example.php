@@ -20,7 +20,7 @@ require_once 'DrupalOAuth2Client.inc';
 $drupal = new DrupalOAuth2Client(array(
   'client_id' => 'b4912c08928a405de37bbc7c4ab69d73',
   'client_secret' => '8a4d25929b68141891f3b8010ffba025',
-  'base_uri' => 'http://dev.client7.oauth2.pantarei-design.com/',
+  'base_uri' => 'http://oauth2test.pantarei-design.com/',//http://dev.client7.oauth2.pantarei-design.com/',
   'authorize_uri' => 'oauth2/authorize',
   'access_token_uri' => 'oauth2/access_token',
   'services_uri' => 'o',

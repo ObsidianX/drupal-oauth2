@@ -26,7 +26,7 @@ define('OAUTH2_DEFAULT_PROVIDER_MODE', 'DrupalOAuth2');
  */
 function oauth2_help($section, $arg) {
   switch ($section) {
-    case 'admin/build/oauth2':
+    case 'admin/structure/oauth2':
       $help = '<p>'. t("To use this module you'll need to <a href='!download-link'>download the library</a> from the <a href='!info-link'>oauth2-php website</a> and extract the contents into the  module's oauth2-php directory. Currently, the recommended version of the oauth2-php library is %recommended-version.", array(
         '!download-link' => url('http://code.google.com/p/oauth2-php/downloads/list'),
         '!info-link' => url('http://code.google.com/p/oauth2-php/'),

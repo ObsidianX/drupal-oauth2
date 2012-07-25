@@ -177,109 +177,6 @@ function oauth2_server_access($op, $server) {
 }
 
 /**
- * Implementation of hook_form().
- */
-/*function oauth2_server_form(&$node) {
-  $type = node_get_types('type', $node);
-
-  if ($type->has_title) {
-    $form['title'] = array(
-      '#type' => 'textfield',
-      '#title' => check_plain($type->title_label),
-      '#required' => TRUE,
-      '#default_value' => $node->title,
-      '#maxlength' => 255,
-      '#weight' => -5,
-    );
-  }
-
-  if ($type->has_body) {
-    $form['body_field'] = node_body_field($node, $type->body_label, $type->min_word_count);
-  }
-
-  $form['oauth2_server'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('OAuth2.0 settings'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-  );
-
-  $form['oauth2_server']['server_id'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Server ID'),
-    '#description' => t('The OAuth2.0 <em>server_id</em>.'),
-    '#default_value' => isset($node->server_id) ? $node->server_id : '',
-    '#required' => TRUE,
-  );
-
-  $form['oauth2_server']['base_uri'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Base URI'),
-    '#description' => t('The authorization server\'s HTTP base URI, typically to the front page.'),
-    '#default_value' => isset($node->base_uri) ? $node->base_uri : '',
-    '#required' => TRUE,
-  );
-
-  $form['oauth2_server']['client_id'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Application ID'),
-    '#description' => t('Your registered OAuth2.0 <em>client_id</em>.'),
-    '#default_value' => isset($node->client_id) ? $node->client_id : '',
-    '#required' => FALSE,
-  );
-
-  $form['oauth2_server']['client_secret'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Application Secret'),
-    '#description' => t('Your registered OAuth2.0 <em>client_secret</em>.'),
-    '#default_value' => isset($node->client_secret) ? $node->client_secret : '',
-    '#required' => FALSE,
-  );
-
-  $form['oauth2_server']['authorize_uri'] = array(
-    '#type' => 'textfield',
-    '#title' => t('End-user authorization endpoint'),
-    '#description' => t('The authorization server\'s HTTP endpoint capable of authenticating the end-user and obtaining authorization. Absolute path or path relative to base URI.'),
-    '#default_value' => isset($node->authorize_uri) ? $node->authorize_uri : '',
-    '#required' => FALSE,
-  );
-
-  $form['oauth2_server']['access_token_uri'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Token endpoint'),
-    '#description' => t('The authorization server\'s HTTP endpoint capable of issuing tokens and refreshing expired tokens. Absolute path or path relative to base URI.'),
-    '#default_value' => isset($node->access_token_uri) ? $node->access_token_uri : '',
-    '#required' => FALSE,
-  );
-
-  return $form;
-}*/
-
-/**
- * Implementation of hook_validate().
- */
-/*function oauth2_server_validate($node) {
-  $pattern = '/^[a-z0-9-_]{3,64}$/i';
-  if (!empty($node->server_id) && !preg_match($pattern, $node->server_id)) {
-    form_set_error('server_id', t('Server ID should be alphanumeric strings with hyphens and underscores, 3-64 characters long.'));
-  }
-
-  // Ensure no duplicate server_id.
-  $result = db_result(db_query("SELECT COUNT(*) FROM {oauth2_servers} AS osrv INNER JOIN {node} AS n ON osrv.vid = n.vid WHERE osrv.server_id = '%s' AND n.nid <> %d", $node->server_id, $node->nid));
-  if ($result != 0) {
-    form_set_error('server_id', t('This Server ID had beed used by other server identifer.'));
-  }
-}*/
-
-/**
- * Add a record
- */
-/*
-function oauth2_server_insert($oauth2_server) {
-  drupal_write_record('oauth2_servers', $oauth2_server);
-}*/
-
-/**
  * Update/Add a record
  */
 function oauth2_server_update($oauth2_server) {
@@ -299,11 +196,9 @@ function oauth2_server_delete($sid) {
 }
 
 /**
- * Load 1
+ * Load a record
  */
 function oauth2_server_load($sid = NULL, $reset = FALSE) {
-  //$additions = db_fetch_object(db_query("SELECT server_id, client_id, client_secret, base_uri, authorize_uri, access_token_uri FROM {oauth2_servers} WHERE vid = %d", $node->vid));
-  //return $additions;
   $sids = (isset($sid) ? array($sid) : array());
   $oauth2_server = oauth2_server_load_multiple($sids,$reset);
   return $oauth2_server ? reset ($oauth2_server) : FALSE;

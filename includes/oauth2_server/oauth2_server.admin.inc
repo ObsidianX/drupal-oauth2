@@ -85,7 +85,7 @@ function oauth2_server_view_callback($oauth2_server) {
 }
 
 /**
- * Edit Server Identifier
+ * Add/Edit Server Identifier form
  * 
  * @see oauth2_server_edit_form_validate()
  * @see oauth2_server_edit_form_submit()
@@ -188,7 +188,7 @@ function oauth2_server_edit_form_submit($form, &$form_state) {
   $form_state['values']['sid'] = $return_sid;
   
   $form_state['redirect'] = 'oauth2-server/' . $form_state['values']['sid'] . '/edit';
-  drupal_set_message(t('Settings saved.'));
+  drupal_set_message($form_state['values']['server_id'].t(' saved.'));
 }
 
 /**
