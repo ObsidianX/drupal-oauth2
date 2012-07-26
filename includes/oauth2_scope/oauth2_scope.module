@@ -121,15 +121,15 @@ function oauth2_scope_permission() {
     'create oauth2_scope' => array(
         'title' => t('Create new scope')
     ),
-    'delete own oauth2_scope' => array(
+    /*'delete own oauth2_scope' => array(
         'title' => t('Delete own scope')
-    ),
+    ),*/
     'delete any oauth2_scope' => array(
         'title' => t('Delete any scope')
     ),
-    'edit own oauth2_scope' => array(
+    /*'edit own oauth2_scope' => array(
         'title' => t('Edit own scope')
-    ),
+    ),*/
     'edit any oauth2_scope' => array(
         'title' => t('Edit any scope')
     ),
@@ -151,17 +151,18 @@ function oauth2_scope_access($op, $scope) {
     return user_access('create oauth2_scope', $user) && $user->uid ? TRUE : NULL;
   }
 
-  if ($op == 'update') {
-    if (user_access('edit any oauth2_scope', $user) || (user_access('edit own oauth2_scope', $user) && ($user->uid == $scope->uid))) {
+  if ($op == 'edit') {
+    if (user_access('edit any oauth2_scope', $user)) {// || (user_access('edit own oauth2_scope', $user) && ($user->uid == $scope->uid))) {
       return TRUE;
     }
   }
 
   if ($op == 'delete') {
-    if (user_access('delete any oauth2_scope', $user) || (user_access('delete own oauth2_scope', $user) && ($user->uid == $scope->uid))) {
+    if (user_access('delete any oauth2_scope', $user)) {// || (user_access('delete own oauth2_scope', $user) && ($user->uid == $scope->uid))) {
       return TRUE;
     }
   }
+  return FALSE;
 }
 
 

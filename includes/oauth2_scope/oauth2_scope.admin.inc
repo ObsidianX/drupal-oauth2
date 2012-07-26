@@ -69,6 +69,8 @@ function oauth2_scope_view_callback($oauth2_scope){
       '#theme' => 'table'
   );
   return $output;
+  
+  
 }
 
 /**
