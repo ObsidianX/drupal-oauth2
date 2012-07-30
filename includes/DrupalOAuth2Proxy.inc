@@ -55,7 +55,7 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
    *
    * @throws OAuth2Exception
    */
-  protected function proxyApi($path, $method = 'POST', $params = array()) {
+  protected function proxyApi($path, $method = 'POST', $params = array()) {error_log(print_r($params,true));
     // Similar as original api() but we default with POST.
     if (is_array($method) && empty($params)) {
       $params = $method;
@@ -246,7 +246,7 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
       'username' => $username,
       'password' => $password,
     ));
-
+error_log(print_r($result,true));
     if ($result) {
       $user = $this->loadUserCredentials($result['uid'], $result['name'], $result['sid']);
     }
