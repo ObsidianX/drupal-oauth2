@@ -337,8 +337,8 @@ class DrupalOAuth2 extends OAuth2 {
    */
   public function checkUserCredentials($client_id, $username, $password) {
     // Clone from user_service_login().
-    $account = user_authenticate($username, $password);
-
+    $uid = user_authenticate($username, $password);
+    $account = user_load($uid);
     $result = NULL;
     if ($account->uid) {
       // Regenerate the session ID to prevent against session fixation attacks.
