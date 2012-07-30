@@ -99,7 +99,7 @@ function oauth2_provider_cron() {
  * users.
  */
 function oauth2_provider_page() {
-  global $user;error_log('inside '.__FUNCTION__);
+  global $user;
   if ($user->uid) {
     // Redirect user to oauth2/authorize if from OAuth2.0 request pattern.
     if (isset($_GET['response_type']) && isset($_GET['client_id']) && isset($_GET['redirect_uri'])) {
@@ -123,7 +123,7 @@ function oauth2_provider_page() {
  * the query string (as done by the user login block) overrides the redirect.
  */
 function oauth2_provider_login_submit($form, &$form_state) {
-  global $user;error_log('inside '.__FUNCTION__);
+  global $user;
   // Redirect user to oauth2/authorize if from OAuth2.0 request pattern.
   if (isset($_GET['response_type']) && isset($_GET['client_id']) && isset($_GET['redirect_uri'])) {
 
@@ -143,7 +143,7 @@ function oauth2_provider_login_submit($form, &$form_state) {
  * against local users table. If successful, sets the global $user object.
  */
 function oauth2_provider_login_authenticate_validate($form, &$form_state) {
-  global $user;error_log('inside '.__FUNCTION__);
+  global $user;
   $result = oauth2_get_server()->checkUserCredentials($_GET['client_id'], $form_state['values']['name'], $form_state['values']['pass']);
   if ($result) {
     //$user = user_load($form_state['uid']);

@@ -9,7 +9,7 @@
  * Menu callback for authorization endpoint.
  */
 function oauth2_provider_authorize_form() {
-  global $user;error_log('inside '.__FUNCTION__);
+  global $user;
   $form = array();
 
   // Redirect anonymous user to login page, and come back later.
