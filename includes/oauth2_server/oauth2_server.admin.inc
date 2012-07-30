@@ -103,7 +103,7 @@ function oauth2_server_edit_form($form, &$form_state, $oauth2_server = NULL) {
       '#type' => 'textfield',
       '#title' => t('Title'),
       '#required' => TRUE,
-      '#default_value' => $oauth2_server->title,
+      '#default_value' => isset($oauth2_server->title) ? $oauth2_server->title : '',
       '#maxlength' => 255,
       '#weight' => -5,
   );
@@ -144,7 +144,7 @@ function oauth2_server_edit_form($form, &$form_state, $oauth2_server = NULL) {
     '#type' => 'textfield',
     '#title' => t('End-user authorization endpoint'),
     '#description' => t('The authorization server\'s HTTP endpoint capable of authenticating the end-user and obtaining authorization. Absolute path or path relative to base URI.'),
-    '#default_value' => isset($oauth2_server->authorize_uri) ? $oauth2_server->authorize_uri : '',
+    '#default_value' => isset($oauth2_server->authorize_uri) ? $oauth2_server->authorize_uri : 'oauth2/authorize',
     '#required' => FALSE,
   );
 
@@ -152,7 +152,7 @@ function oauth2_server_edit_form($form, &$form_state, $oauth2_server = NULL) {
     '#type' => 'textfield',
     '#title' => t('Token endpoint'),
     '#description' => t('The authorization server\'s HTTP endpoint capable of issuing tokens and refreshing expired tokens. Absolute path or path relative to base URI.'),
-    '#default_value' => isset($oauth2_server->access_token_uri) ? $oauth2_server->access_token_uri : '',
+    '#default_value' => isset($oauth2_server->access_token_uri) ? $oauth2_server->access_token_uri : 'oauth2/access_token',
     '#required' => FALSE,
   );
   

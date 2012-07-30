@@ -62,7 +62,7 @@ function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id != 'user_login_block' && $form_id != 'user_login') {
     return;
   }
-  $form['#action'] = '/?destination=user&response_type=code&client_id=b4912c08928a405de37bbc7c4ab69d73&redirect_uri=user';//dirty code for testing 
+  $form['#action'] = '/?destination=user&response_type=code&client_id=2a0d4c44690fbae5c94871686fb9408d&redirect_uri=user';//dirty code for testing 
   // Replace the submit handler of login form.
   if (isset($form['#submit']) && is_array($form['#submit']) && ($key = array_search('user_login_submit', $form['#submit'])) !== FALSE) {
     $form['#submit'][$key] = 'oauth2_provider_login_submit';
@@ -86,9 +86,9 @@ function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
 function oauth2_provider_cron() {
   if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2') {
     // Clear legacy tokens.
-    db_query("DELETE FROM {oauth2_access_tokens} WHERE expires < %d", time());
-    db_query("DELETE FROM {oauth2_auth_codes} WHERE expires < %d", time());
-    db_query("DELETE FROM {oauth2_refresh_tokens} WHERE expires < %d", time());
+    db_query("DELETE FROM {oauth2_access_tokens} WHERE expires < :time",array(':time' => time()));
+    db_query("DELETE FROM {oauth2_auth_codes} WHERE expires < :time", array(':time' => time()));
+    db_query("DELETE FROM {oauth2_refresh_tokens} WHERE expires < :time", array(':time' => time()));
   }
 }
 
