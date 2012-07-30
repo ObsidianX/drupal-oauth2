@@ -10,9 +10,9 @@
  */
 function oauth2_server_help($section, $arg) {
   switch ($section) {
-    case 'admin/structure/oauth2/oauth2_server':
+    case 'admin/structure/oauth2/oauth2-server':
       $help = '<p>'. t("An <a href='!oauth2_server'>OAuth2.0 Server Identifer</a> contain the target OAuth2.0 provider information, including client_id, client_secret, authorize_uri and access_token_uri, etc.", array(
-        '!oauth2_server' => url('node/add/oauth2-server'),
+        '!oauth2_server' => url('oauth2-server/add'),
       )) .'</p>';
       return $help;
   }
@@ -119,7 +119,7 @@ function oauth2_server_entity_info() {
  */
 function oauth2_server_uri($server) {
   return array(
-     'path' => 'oauth2_server/' . $server->sid
+     'path' => 'oauth2-server/' . $server->sid
   );
 }
 
@@ -132,15 +132,15 @@ function oauth2_server_permission() {
     'create oauth2_server' => array(
         'title' => t('Create new server')
      ),
-    'delete own oauth2_server' => array(
+    /*'delete own oauth2_server' => array(
         'title' => t('Delete own server')
-     ),
+     ),*/
     'delete any oauth2_server' => array(
         'title' => t('Delete any server')
      ),
-    'edit own oauth2_server' => array(
+    /*'edit own oauth2_server' => array(
         'title' => t('Edit own server')
-     ),
+     ),*/
     'edit any oauth2_server' => array(
         'title' => t('Edit any server')
      ),
@@ -163,13 +163,13 @@ function oauth2_server_access($op, $server) {
   }
 
   if ($op == 'edit') {
-    if (user_access('edit any oauth2_server', $user) || (user_access('edit own oauth2_server', $user) && ($user->uid == $server->uid))) {
+    if (user_access('edit any oauth2_server', $user)) { // || (user_access('edit own oauth2_server', $user) && ($user->uid == $server->uid))) {
       return TRUE;
     }
   }
 
   if ($op == 'delete') {
-    if (user_access('delete any oauth2_server', $user) || (user_access('delete own oauth2_server', $user) && ($user->uid == $server->uid))) {
+    if (user_access('delete any oauth2_server', $user)) { // || (user_access('delete own oauth2_server', $user) && ($user->uid == $server->uid))) {
       return TRUE;
     }
   }

@@ -5,19 +5,6 @@
  * OAuth2.0 Client Identifer install and uninstall code.
  */
 
-/**
- * Implementation of hook_install().
- */
-function oauth2_client_install() {
-  drupal_install_schema('oauth2_client');
-}
-
-/**
- * Implementation of hook_uninstall().
- */
-function oauth2_client_uninstall() {
-  drupal_uninstall_schema('oauth2_client');
-}
 
 /**
  * Implementation of hook_schema().
@@ -28,18 +15,17 @@ function oauth2_client_schema() {
   $schema['oauth2_clients'] = array(
     'description' => t('OAuth2.0 client indentifier information as Drupal node.'),
     'fields' => array(
-      'nid' => array(
-        'description' => 'The primary identifier for a node.',
-        'type' => 'int',
+      'cid' => array(
+        'description' => 'The primary identifier for a client.',
+        'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'vid' => array(
-        'description' => 'The current {node_revisions}.vid version identifier.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
+      'title' => array(
+          'description' => t('title.'),
+          'type' => 'varchar',
+          'length' => 64,
+          'not null' => TRUE,
       ),
       'client_id' => array(
         'description' => t('The client identifier.'),
@@ -61,11 +47,27 @@ function oauth2_client_schema() {
         'description' => t('If set, Drupal will enable authentication on all subdomains (e.g., "example.com" will enable *.example.com).'),
         'type' => 'text',
       ),
+      'status' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+        'size' => 'tiny',
+        'description' => 'status',
+      ),
+      'changed' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+        'size' => 'tiny',
+        'description' => 'changed',
+      ),
     ),
     'indexes' => array(
-      'nid' => array('nid'),
+      'client_id' => array('client_id'),
     ),
-    'primary key' => array('vid'),
+    'primary key' => array('cid'),
   );
 
   return $schema;

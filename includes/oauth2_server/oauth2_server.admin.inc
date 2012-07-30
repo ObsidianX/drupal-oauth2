@@ -99,6 +99,14 @@ function oauth2_server_edit_form($form, &$form_state, $oauth2_server = NULL) {
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
+  $form['oauth2_server']['title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Title'),
+      '#required' => TRUE,
+      '#default_value' => $oauth2_server->title,
+      '#maxlength' => 255,
+      '#weight' => -5,
+  );
 
   $form['oauth2_server']['server_id'] = array(
     '#type' => 'textfield',
@@ -179,7 +187,7 @@ function oauth2_server_edit_form_submit($form, &$form_state) {
     'client_secret'     => $form_state['values']['client_secret'],
     'authorize_uri'     => $form_state['values']['authorize_uri'],
     'access_token_uri'  => $form_state['values']['access_token_uri'],
-    'title'             => $form_state['values']['base_uri'],
+    'title'             => $form_state['values']['title'],
   );
   if ($form_state['values']['sid'] != NULL) {
     $oauth2_server['sid'] = $form_state['values']['sid'];
@@ -237,7 +245,7 @@ function oauth2_server_delete_form($form, &$form_state, $oauth2_server) {
    );
 }
 /**
- * Confirm form submit for the deletetion
+ * Confirm form submit for the deletion
  */
 function oauth2_server_delete_form_submit($form, &$form_state) {
   oauth2_server_delete($form_state['values']['oauth2_server']);
