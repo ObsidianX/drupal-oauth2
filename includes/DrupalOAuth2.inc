@@ -226,8 +226,7 @@ class DrupalOAuth2 extends OAuth2 {
         $result = db_query("SELECT oc.redirect_uri
           FROM {oauth2_access_tokens} AS oat
             INNER JOIN {oauth2_clients} AS oc ON oat.client_id = oc.client_id
-            INNER JOIN {node} AS n ON oc.vid = n.vid
-          WHERE oat.sid = :sid AND n.status = 1", array(':sid' =>$sid));
+          WHERE oat.sid = :sid ", array(':sid' =>$sid));
         $record = $result->fetchObject();
           $_GET['redirect_uri'] = $record['redirect_uri'];
         
@@ -254,7 +253,7 @@ class DrupalOAuth2 extends OAuth2 {
    * Implements OAuth2::checkClientCredentials().
    */
   public function checkClientCredentials($client_id, $client_secret = NULL) {
-    $result = db_query("SELECT oc.client_secret FROM {oauth2_clients} AS oc WHERE oc.client_id = :client_id AND n.status = 1", array(':client_id' => $client_id));
+    $result = db_query("SELECT oc.client_secret FROM {oauth2_clients} AS oc WHERE oc.client_id = :client_id ", array(':client_id' => $client_id));
     $record_client_secret = $result->fetchField();
     return ($client_secret !== NULL && $record_client_secret == $client_secret) ? TRUE : FALSE;
   }
@@ -263,7 +262,7 @@ class DrupalOAuth2 extends OAuth2 {
    * Implements OAuth2::getRedirectUri().
    */
   public function getRedirectUri($client_id) {
-    $result = db_query("SELECT oc.redirect_uri FROM {node} AS n INNER JOIN {oauth2_clients} AS oc ON n.vid = oc.vid WHERE oc.client_id = :client_id AND n.status = 1", array(':client_id' => $client_id ));
+    $result = db_query("SELECT oc.redirect_uri FROM {oauth2_clients} AS oc  WHERE oc.client_id = :client_id ", array(':client_id' => $client_id ));
     $record_redirect_uri = $result->fetchField();
     return $result['redirect_uri'] !== FALSE ? $record_redirect_uri : NULL;
   }
