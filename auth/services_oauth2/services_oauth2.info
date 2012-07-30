@@ -3,4 +3,6 @@ description = "Provides OAuth2.0 authentication for the services module."
 package = Services - authentication
 dependencies[] = services
 dependencies[] = oauth2
-core = 6.x
+core = 7.x
+
+files[] = services_oauth2.inc
