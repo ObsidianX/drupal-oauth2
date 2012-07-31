@@ -130,7 +130,7 @@ function oauth2_provider_login_submit($form, &$form_state) {
     $query = array('query' => $_GET);
     unset($query['query']['q']);
     $form_state['redirect'] = array('oauth2/authorize', $query);
-    error_log(print_r($query,true));
+
   } else {
       $user = user_load($form_state['uid']);
       $form_state['redirect'] = 'user/'. $user->uid;

@@ -61,7 +61,7 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
       $params = $method;
       $method = 'POST';
     }
-error_log($path);
+
     $cache_params = $params;
     $cache_params['path'] = $path;
     $cache_params['method'] = $method;
@@ -246,7 +246,7 @@ error_log($path);
       'username' => $username,
       'password' => $password,
     ));
-error_log(print_r($result,true));
+
     if ($result) {
       $user = $this->loadUserCredentials($result['uid'], $result['name'], $result['sid']);
     }

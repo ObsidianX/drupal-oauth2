@@ -171,7 +171,7 @@ function oauth2_get_client($sid, $params = array()) {
   if (!isset($_oauth2_clients[$sid]) || !$_oauth2_clients[$sid] instanceof DrupalOAuth2Client) {
     $server_info = (array) oauth2_server_load($sid);
     $consumer_info = (array) oauth2_consumer_load($sid);
-    $params = array_merge($server_info,$consumer_info, $params);//error_log(print_r($params,true));
+    $params = array_merge($server_info,$consumer_info, $params);
     $_oauth2_clients[$sid] = new DrupalOAuth2Client($params);
   }
 
