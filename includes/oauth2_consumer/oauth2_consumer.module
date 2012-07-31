@@ -15,20 +15,10 @@ function oauth2_consumer_entity_info() {
       'oauth2_consumer' => array(
           'label' => t('OAuth2.0 Consumer'),
           'base table' => 'oauth2_consumers',
-          //'uri callback' => 'oauth2_consumer_uri',
           'fieldable' => FALSE,
           'entity keys' => array(
               'id' => 'sid',
           ),
-          /*'buddles' => array(
-              'oauth2_server' => array(
-                  'label' => 'OAuth2 Server Identifier',
-                  'admin' => array(
-                      'path' => 'admin/structure/oauth2/oauth2-server',
-                      'access arguments' =>  array('administer site configuration')
-                  )
-              )
-          ),*/
           'view modes' => array(
               'full' => array(
                   'label' => t('Consumers'),
@@ -242,33 +232,33 @@ function oauth2_consumer_theme() {
  *
  * @ingroup themeable
  */
-function theme_oauth2_consumer_username($username, $teaser = 0, $page = 0) {
+/*function theme_oauth2_consumer_username($username, $teaser = 0, $page = 0) {
   $output = '<div class="oauth2_consumer-info username">';
   $output .= t('Username: @username', array('@username' => $username));
   $output .= '</div>';
   return $output;
-}
+}*/
 
 /**
  * Returns HTML for field service_uri.
  *
  * @ingroup themeable
  */
-function theme_oauth2_consumer_services_uri($services_uri, $teaser = 0, $page = 0) {
+/*function theme_oauth2_consumer_services_uri($services_uri, $teaser = 0, $page = 0) {
   $output = '<div class="oauth2_consumer-info services_uri">';
   $output .= t('Services endpoint: @services_uri', array('@services_uri' => $services_uri));
   $output .= '</div>';
   return $output;
-}
+}*/
 
 /**
  * Returns HTML for field expires_in.
  *
  * @ingroup themeable
  */
-function theme_oauth2_consumer_expires_in($expires_in, $teaser = 0, $page = 0) {
+/*function theme_oauth2_consumer_expires_in($expires_in, $teaser = 0, $page = 0) {
   $output = '<div class="oauth2_consumer-info expires_in">';
   $output .= t('Cache lifetime (in seconds): @expires_in', array('@expires_in' => $expires_in));
   $output .= '</div>';
   return $output;
-}
+}*/

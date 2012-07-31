@@ -58,25 +58,31 @@ function oauth2_provider_menu_alter(&$callbacks) {
  */
 function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
 
-  // Only for login block and /user
+//for test only...should not alter login form in future
   if ($form_id != 'user_login_block' && $form_id != 'user_login') {
     return;
   }
-  $form['#action'] = '/?destination=user&response_type=code&client_id=2a0d4c44690fbae5c94871686fb9408d&redirect_uri=user';//dirty code for testing 
-  // Replace the submit handler of login form.
-  if (isset($form['#submit']) && is_array($form['#submit']) && ($key = array_search('user_login_submit', $form['#submit'])) !== FALSE) {
-    $form['#submit'][$key] = 'oauth2_provider_login_submit';
-  }
+  $server_id = variable_get('oauth2_proxy_server_identifier');
+  if (module_exists('oauth2_server') && isset($server_id)) {
 
-  // Replace the drupal authenticate function is it's used as validation.
-  if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Proxy'
-    && isset($_GET['response_type'])
-    && isset($_GET['client_id'])
-    && isset($_GET['redirect_uri'])
-    && isset($form['#validate'])
-    && is_array($form['#validate'])
-    && ($key = array_search('user_login_authenticate_validate', $form['#validate']))) {
-    $form['#validate'][$key] = 'oauth2_provider_login_authenticate_validate';
+      $oauth2_server = oauth2_server_load($server_id);
+      $form['#action'] = '/?destination=user&response_type=code&client_id='.$oauth2_server->client_id.'&redirect_uri=user'; 
+      // Replace the submit handler of login form.
+      if (isset($form['#submit']) && is_array($form['#submit']) && ($key = array_search('user_login_submit', $form['#submit'])) !== FALSE) {
+        $form['#submit'][$key] = 'oauth2_provider_login_submit';
+      }
+
+      // Replace the drupal authenticate function is it's used as validation.
+      if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Proxy'
+        && isset($_GET['response_type'])
+        && isset($_GET['client_id'])
+        && isset($_GET['redirect_uri'])
+        && isset($form['#validate'])
+        && is_array($form['#validate'])
+        && ($key = array_search('user_login_authenticate_validate', $form['#validate']))) {
+        $form['#validate'][$key] = 'oauth2_provider_login_authenticate_validate';
+      }
+
   }
 }
 
@@ -143,16 +149,20 @@ function oauth2_provider_login_submit($form, &$form_state) {
  * against local users table. If successful, sets the global $user object.
  */
 function oauth2_provider_login_authenticate_validate($form, &$form_state) {
-  global $user;
-  $result = oauth2_get_server()->checkUserCredentials($_GET['client_id'], $form_state['values']['name'], $form_state['values']['pass']);
-  if ($result) {
-    //$user = user_load($form_state['uid']);
-    //
-    $form_state['uid'] = $result['uid'];
-  }
-  else {
-    watchdog('oauth2_provider', 'Login attempt failed for %user.', array('%user' => $form_state['values']['name']));
-  }
+  /*$root_user = user_load(1);
+
+  if (trim($form_state['values']['name']) == $root_user->name) {
+      user_login_authenticate_validate($form,$form_state);
+    } else {*/
+
+      $result = oauth2_get_server()->checkUserCredentials($_GET['client_id'], $form_state['values']['name'], $form_state['values']['pass']);
+      if ($result) {
+        $form_state['uid'] = $result['uid'];
+      }
+      else {
+        watchdog('oauth2_provider', 'Login attempt failed for %user.', array('%user' => $form_state['values']['name']));
+      }
+  //}
 }
 
 /**

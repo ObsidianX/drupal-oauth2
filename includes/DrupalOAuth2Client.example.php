@@ -18,9 +18,9 @@ require_once 'DrupalOAuth2Client.inc';
 
 // Create our Application instance (replace this with your appId and secret).
 $drupal = new DrupalOAuth2Client(array(
-  'client_id' => 'b4912c08928a405de37bbc7c4ab69d73',
-  'client_secret' => '8a4d25929b68141891f3b8010ffba025',
-  'base_uri' => 'http://oauth2test.pantarei-design.com/',//http://dev.client7.oauth2.pantarei-design.com/',
+  'client_id' => '2a0d4c44690fbae5c94871686fb9408d',
+  'client_secret' => '2c407366f8c5d28d67bf836d4c5c369e',
+  'base_uri' => 'http://server7.oauth2test.pantarei-design.com/',//http://dev.client7.oauth2.pantarei-design.com/',
   'authorize_uri' => 'oauth2/authorize',
   'access_token_uri' => 'oauth2/access_token',
   'services_uri' => 'o',

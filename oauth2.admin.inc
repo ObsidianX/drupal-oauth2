@@ -91,7 +91,7 @@ function oauth2_admin_settings() {
         '#type' => 'select',
         '#title' => t('OAuth2.0 authorization server indentifier'),
         '#options' => $options,
-        '#default_value' => variable_get('oauth2_proxy_server_identifier', NULL),
+        '#default_value' => variable_get('oauth2_proxy_server_identifier'),
         '#description' => t('The OAuth2.0 authorization server indentifier. This server MUST enable Drupal Services 3.x oauth2_resource, and optionally enable oauth2_auth for additional security.'),
         '#required' => FALSE,
       );
