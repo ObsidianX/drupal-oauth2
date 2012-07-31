@@ -57,8 +57,8 @@ function oauth2_resource_set_auth_code($code, $client_id, $redirect_uri, $expire
   return oauth2_get_server()->setAuthCode($code, $client_id, $redirect_uri, $expires, $scope, $uid, $sid);
 }
 
-function oauth2_resource_check_user_credentials($client_id, $username, $password) {
-  return oauth2_get_server()->checkUserCredentials($client_id, $username, $password);
+function oauth2_resource_check_user_credentials($user_data) {
+  return oauth2_get_server()->checkUserCredentials($user_data['client_id'], $user_data['username'], $user_data['password']);
 }
 
 function oauth2_resource_get_refresh_token($refresh_token) {

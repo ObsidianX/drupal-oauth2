@@ -294,12 +294,12 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'client_id',
+              'name' => 'user_data',
               'type' => 'string',
               'source' => 'data',
               'optional' => FALSE,
             ),
-            array(
+            /*array(
               'name' => 'username',
               'type' => 'string',
               'source' => 'data',
@@ -310,7 +310,7 @@ function oauth2_resource_services_resources() {
               'type' => 'string',
               'source' => 'data',
               'optional' => FALSE,
-            ),
+            ),*/
           ),
         ),
         'getRefreshToken' => array(
