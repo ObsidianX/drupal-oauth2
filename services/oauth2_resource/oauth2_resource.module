@@ -18,20 +18,8 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'client_id',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'required_scope',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'uid',
-              'type' => 'int',
+              'name' => 'scope_data',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
             ),
@@ -49,14 +37,8 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'client_id',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'uid',
-              'type' => 'int',
+              'name' => 'scope_data',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
             ),
@@ -68,20 +50,8 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'client_id',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'scopes',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'uid',
-              'type' => 'int',
+              'name' => 'scope_data',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
             ),
@@ -93,20 +63,8 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'client_id',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'scopes',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'uid',
-              'type' => 'int',
+              'name' => 'scope_data',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
             ),
@@ -118,8 +76,8 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'sid',
-              'type' => 'string',
+              'name' => 'sid_array',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
             ),
@@ -131,17 +89,10 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'client_id',
-              'type' => 'string',
+              'name' => 'client_data',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
-            ),
-            array(
-              'name' => 'client_secret',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => TRUE,
-              'default value' => NULL,
             ),
           ),
         ),
@@ -151,8 +102,8 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'client_id',
-              'type' => 'string',
+              'name' => 'client_data',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
             ),
@@ -164,8 +115,8 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'oauth_token',
-              'type' => 'string',
+              'name' => 'oauth_data',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
             ),
@@ -177,43 +128,10 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'oauth_token',
-              'type' => 'string',
+              'name' => 'oauth_data',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
-            ),
-            array(
-              'name' => 'client_id',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'expires',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'scope',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => TRUE,
-              'default value' => '',
-            ),
-            array(
-              'name' => 'uid',
-              'type' => 'int',
-              'source' => 'data',
-              'optional' => TRUE,
-              'default value' => 0,
-            ),
-            array(
-              'name' => 'sid',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => TRUE,
-              'default value' => '',
             ),
           ),
         ),
@@ -229,8 +147,8 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'code',
-              'type' => 'string',
+              'name' => 'code_array',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
             ),
@@ -242,49 +160,10 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'code',
-              'type' => 'string',
+              'name' => 'oauth2_data',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
-            ),
-            array(
-              'name' => 'client_id',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'redirect_uri',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'expires',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'scope',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => TRUE,
-              'default value' => '',
-            ),
-            array(
-              'name' => 'uid',
-              'type' => 'int',
-              'source' => 'data',
-              'optional' => TRUE,
-              'default value' => 0,
-            ),
-            array(
-              'name' => 'sid',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => TRUE,
-              'default value' => '',
             ),
           ),
         ),
@@ -295,22 +174,10 @@ function oauth2_resource_services_resources() {
           'args' => array(
             array(
               'name' => 'user_data',
-              'type' => 'string',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
             ),
-            /*array(
-              'name' => 'username',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'password',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),*/
           ),
         ),
         'getRefreshToken' => array(
@@ -319,8 +186,8 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'refresh_token',
-              'type' => 'string',
+              'name' => 'refresh_token_array',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
             ),
@@ -332,43 +199,10 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'refresh_token',
-              'type' => 'string',
+              'name' => 'oauth_data',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
-            ),
-            array(
-              'name' => 'client_id',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'expires',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => FALSE,
-            ),
-            array(
-              'name' => 'scope',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => TRUE,
-              'default value' => '',
-            ),
-            array(
-              'name' => 'uid',
-              'type' => 'int',
-              'source' => 'data',
-              'optional' => TRUE,
-              'default value' => 0,
-            ),
-            array(
-              'name' => 'sid',
-              'type' => 'string',
-              'source' => 'data',
-              'optional' => TRUE,
-              'default value' => '',
             ),
           ),
         ),
@@ -378,8 +212,8 @@ function oauth2_resource_services_resources() {
           'access callback' => 'services_access_menu',
           'args' => array(
             array(
-              'name' => 'refresh_token',
-              'type' => 'string',
+              'name' => 'refresh_token_array',
+              'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
             ),
