@@ -30,8 +30,9 @@ function oauth2_provider_authorize_form() {
   // All scopes are already authorized by this user.
   if (count($extened_permissions) == 0) {
     oauth2_get_server()->finishClientAuthorization(TRUE, $auth_params);
+    //this function ends here if no $extend_permission
   }
-//
+
   $request = 0;
   $scope_ids = array();
   foreach ($extened_permissions as $permission) {
