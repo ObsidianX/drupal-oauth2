@@ -31,7 +31,7 @@ function oauth2_provider_authorize_form() {
   if (count($extened_permissions) == 0) {
     oauth2_get_server()->finishClientAuthorization(TRUE, $auth_params);
   }
-
+//
   $request = 0;
   $scope_ids = array();
   foreach ($extened_permissions as $permission) {
