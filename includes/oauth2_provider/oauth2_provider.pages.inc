@@ -14,10 +14,12 @@ function oauth2_provider_authorize_form() {
 
   // Redirect anonymous user to login page, and come back later.
   if ($user->uid == 0) {
-    $params = $_GET;
-    unset($params['q']);
-    $params['destination'] = 'oauth2/authorize';
-    drupal_goto('user', array('query' => $params));
+    $options = array();
+    $query = drupal_http_build_query(drupal_get_query_parameters());
+    $options['query'] = array(
+        'destination' => 'oauth2/authorize?'.$query,
+    );
+    drupal_goto('user', $options);
   }
 
   $auth_params = oauth2_get_server()->getAuthorizeParams();
