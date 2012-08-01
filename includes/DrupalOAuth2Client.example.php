@@ -23,7 +23,7 @@ $drupal = new DrupalOAuth2Client(array(
   'base_uri' => 'http://server7.oauth2test.pantarei-design.com/',//http://dev.client7.oauth2.pantarei-design.com/',
   'authorize_uri' => 'oauth2/authorize',
   'access_token_uri' => 'oauth2/access_token',
-  'services_uri' => 'o',
+  'services_uri' => 'testing',
   'expires_in' => 3600,
   'cookie_support' => TRUE,
 ));
@@ -41,7 +41,8 @@ $me = NULL;
 // Session based API call.
 if ($session) {
   try {
-    $me = $drupal->api('/me');
+    $me = $drupal->api('/user/retrieve');
+    //$uid = $me['uid'];
     $uid = $me['uid'];
   }
   catch (OAuth2Exception $e) {

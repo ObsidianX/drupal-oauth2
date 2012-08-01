@@ -43,6 +43,22 @@ function oauth2_scope_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'status' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+        'size' => 'tiny',
+        'description' => 'status',
+      ),
+      'changed' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+        'size' => 'tiny',
+        'description' => 'changed',
+      ),
     ),
     'indexes' => array(
       'scope_id' => array('scope_id'),

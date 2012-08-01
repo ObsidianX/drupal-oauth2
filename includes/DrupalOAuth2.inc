@@ -31,7 +31,7 @@ class DrupalOAuth2 extends OAuth2 {
       elseif (isset($_REQUEST['refresh_token'])) {
         $result = $this->getRefreshToken($_REQUEST['refresh_token']);
       }
-
+      error_log(print_r($result,true));
       if ($result) {
         $this->loadUserCredentials($result['uid'], $result['name'], $result['sid']);
       }
