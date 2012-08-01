@@ -163,7 +163,7 @@ function oauth2_get_server($class_name = NULL, $params = array()) {
  *   (optional) Additional parameters to pass to class construct.
  *
  * @return
- *   The OAuth2.0 client-side instance based on $nid.
+ *   The OAuth2.0 client-side instance based on $sid.
  */
 function oauth2_get_client($sid, $params = array()) {
   static $_oauth2_clients;

@@ -38,7 +38,16 @@ function oauth2_scope_admin_callback() {
       l(t('delete'), 'oauth2-scope/'. $scope->sid .'/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-scope'))),
     );
   }
-  
+  $output['add_link'] = array(
+      '#theme'    => 'link',
+      '#text'     => 'Add Scope Identifier',
+      '#path'     => 'oauth2-scope/add',
+      '#options' => array(
+          'attributes' => array('class' => array('oauth2-scope-add-link'), 'id' => 'oauth2-scope-add-link'),
+          //REQUIRED:
+          'html' => FALSE,
+      ),
+  );
   $output['scope_list'] = array(
       '#header'  => $header,
       '#rows'    => $rows,

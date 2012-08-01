@@ -264,7 +264,7 @@ class DrupalOAuth2 extends OAuth2 {
   public function getRedirectUri($client_id) {
     $result = db_query("SELECT oc.redirect_uri FROM {oauth2_clients} AS oc  WHERE oc.client_id = :client_id ", array(':client_id' => $client_id ));
     $record_redirect_uri = $result->fetchField();
-    return $result['redirect_uri'] !== FALSE ? $record_redirect_uri : NULL;
+    return $record_redirect_uri !== FALSE ? $record_redirect_uri : NULL;
   }
 
   /**

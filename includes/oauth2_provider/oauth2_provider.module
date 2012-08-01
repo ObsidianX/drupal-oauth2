@@ -156,7 +156,7 @@ function oauth2_provider_login_authenticate_validate($form, &$form_state) {
     } else {*/
 
       $result = oauth2_get_server()->checkUserCredentials($_GET['client_id'], $form_state['values']['name'], $form_state['values']['pass']);
-      if ($result) {
+      if ($result) { error_log(print_r($result,true));
         $form_state['uid'] = $result['uid'];
       }
       else {
