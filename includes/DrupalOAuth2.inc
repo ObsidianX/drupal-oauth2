@@ -319,7 +319,7 @@ class DrupalOAuth2 extends OAuth2 {
       FROM {oauth2_auth_codes} AS oac
         INNER JOIN {users} AS u ON oac.uid = u.uid
       WHERE oac.code = :code", array(':code' => $code));
-    return $result->fetechAssoc();
+    return $result->fetchAssoc();
   }
 
   /**

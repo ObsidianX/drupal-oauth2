@@ -135,9 +135,10 @@ function oauth2_provider_login_submit($form, &$form_state) {
   // Redirect user to oauth2/authorize if from OAuth2.0 request pattern.
   if (isset($_GET['response_type']) && isset($_GET['client_id']) && isset($_GET['redirect_uri'])) {
 
-    $query = array('query' => $_GET);
-    unset($query['query']['q']);
-    $form_state['redirect'] = array('oauth2/authorize', $query);
+      $user = user_load($form_state['uid']);
+      $query = array('query' => $_GET);
+      unset($query['query']['q']);
+      $form_state['redirect'] = array('oauth2/authorize', $query);
 
   } else {
       $user = user_load($form_state['uid']);
