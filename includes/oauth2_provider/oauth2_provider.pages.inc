@@ -17,7 +17,7 @@ function oauth2_provider_authorize_form() {
     $params = $_GET;
     unset($params['q']);
     $params['destination'] = 'oauth2/authorize';
-    drupal_goto('user', $params);
+    drupal_goto('user', array('query' => $params));
   }
 
   $auth_params = oauth2_get_server()->getAuthorizeParams();
