@@ -72,13 +72,21 @@ function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
       $oauth2_server = oauth2_server_load($server_id);
       $form['#action'] = '/?destination=user&response_type=code&client_id='.$oauth2_server->client_id.'&redirect_uri=user'; 
       // Replace the submit handler of login form.
-      
+
 
       // Replace the drupal authenticate function is it's used as validation.
       if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Proxy'
         && isset($_GET['response_type'])
         && isset($_GET['client_id'])
         && isset($_GET['redirect_uri'])
+        && isset($form['#validate'])
+        && is_array($form['#validate'])
+        && ($key = array_search('user_login_authenticate_validate', $form['#validate']))) {
+        $form['#validate'][$key] = 'oauth2_provider_login_authenticate_validate';
+      }
+      
+      if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Proxy' 
+        && isset($_GET['access_token'])
         && isset($form['#validate'])
         && is_array($form['#validate'])
         && ($key = array_search('user_login_authenticate_validate', $form['#validate']))) {
@@ -159,7 +167,7 @@ function oauth2_provider_login_authenticate_validate($form, &$form_state) {
     } else {*/
 
       $result = oauth2_get_server()->checkUserCredentials($_GET['client_id'], $form_state['values']['name'], $form_state['values']['pass']);
-      if ($result) { error_log(print_r($result,true));
+      if ($result) {
         $form_state['uid'] = $result['uid'];
       }
       else {

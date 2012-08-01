@@ -11,7 +11,7 @@
 function oauth2_resource_services_resources() {
   return array(
     'oauth2' => array(
-      'actions' => array(
+
         'verifyAuthorizedScopes' => array(
           'file' => array('file' => 'inc', 'module' => 'oauth2_resource'),
           'callback' => 'oauth2_resource_verify_authorized_scopes',
@@ -219,7 +219,7 @@ function oauth2_resource_services_resources() {
             ),
           ),
         ),
-      ),
+      
     ),
   );
 }
