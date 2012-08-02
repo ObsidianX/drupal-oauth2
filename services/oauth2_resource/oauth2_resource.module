@@ -11,6 +11,12 @@
 function oauth2_resource_services_resources() {
   return array(
     'oauth2' => array(
+      'retrieve' => array(
+          'file' => array('file' => 'inc', 'module' => 'oauth2_resource'),
+          'callback' => 'oauth2_resource_retrieve',
+          'access callback' => 'services_access_menu',
+          'args' => array(),
+       ),
       'actions' => array(
         'verifyAuthorizedScopes' => array(
           'file' => array('file' => 'inc', 'module' => 'oauth2_resource'),

@@ -102,3 +102,7 @@ function oauth2_resource_set_refresh_token($oauth_data) {
 function oauth2_resource_unset_refresh_token($refresh_token_array) {
   return oauth2_get_server()->unsetRefreshToken($refresh_token_array['refresh_token']);
 }
+
+function oauth2_resource_retrieve() {
+  return 'nothing to retrieve';
+}
