@@ -68,7 +68,18 @@ function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
   
   $server_id = variable_get('oauth2_proxy_server_identifier');
   if (module_exists('oauth2_server') && isset($server_id)) {
-
+    /**
+     * temp code for hacking user_login_block. delete it later!!!
+     */
+      $items = array();
+      if (variable_get('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL)) {
+        $items[] = l(t('Create new account'), 'http://server7.oauth2test.pantarei-design.com/user/register', array('attributes' => array('title' => t('Create a new user account.'))));
+      }
+      $items[] = l(t('Request new password'), 'http://server7.oauth2test.pantarei-design.com/user/password', array('attributes' => array('title' => t('Request new password via e-mail.'))));
+      $form['links'] = array('#markup' => theme('item_list', array('items' => $items)));
+    
+    
+    
       $oauth2_server = oauth2_server_load($server_id);
       $form['#action'] = '/?destination=user&response_type=code&client_id='.$oauth2_server->client_id.'&redirect_uri=user'; 
       // Replace the submit handler of login form.
@@ -85,13 +96,13 @@ function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
         $form['#validate'][$key] = 'oauth2_provider_login_authenticate_validate';
       }
       
-      if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Proxy' 
+      /*if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Proxy' 
         && isset($_GET['access_token'])
         && isset($form['#validate'])
         && is_array($form['#validate'])
         && ($key = array_search('user_login_authenticate_validate', $form['#validate']))) {
         $form['#validate'][$key] = 'oauth2_provider_login_authenticate_validate';
-      }
+      }*/
   }
   
 }
