@@ -146,7 +146,7 @@ function oauth2_get_server($class_name = NULL, $params = array()) {
       // We always display additional OAuth2.0 debug error message.
       'display_error' => TRUE,
     );
-    $params = array_merge($info, $params);
+    $params = array_merge($info, $params);error_log(print_r($class_name,true));
     $_oauth2_servers[$class_name] = new $class_name($params);
   }
 

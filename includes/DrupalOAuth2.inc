@@ -65,15 +65,32 @@ class DrupalOAuth2 extends OAuth2 {
     }
     $user = $account;
 
+    //login the user
+    //copy from user_login_finalize without calling user_module_invoke('login', $edit, $user);
+    watchdog('user', 'Session opened for %name.', array('%name' => $user->name));
+    // Update the user table timestamp noting user has logged in.
+    // This is also used to invalidate one-time login links.
+    $user->login = REQUEST_TIME;
+    db_update('users')
+    ->fields(array('login' => $user->login))
+    ->condition('uid', $user->uid)
+    ->execute();
+    
+    // Regenerate the session ID to prevent against session fixation attacks.
+    // This is called before hook_user in case one of those functions fails
+    // or incorrectly does a redirect which would leave the old session in place.
+    drupal_session_regenerate();
+    
     // Some client/servers, like XMLRPC, do not handle cookies, so
     // imitate it to make sess_read() function try to look for user,
     // instead of just loading anonymous user :).
-    $session_name = session_name();
+    /*$session_name = session_name();
     if (!isset($_COOKIE[$session_name])) {
       $_COOKIE[$session_name] = $sid;
     }
-
-    session_id($sid);
+    
+    session_id($sid);*/
+    
     return $user;
   }
 
