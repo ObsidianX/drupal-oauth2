@@ -15,26 +15,32 @@ class DrupalOAuth2 extends OAuth2 {
 
     parent::__construct($config);
 
-    // devel_execute_block_form also submit execute code in $_REQUEST['code'].
-    if (!isset($_REQUEST['form_id']) || $_REQUEST['form_id'] !== 'devel_execute_block_form') {
-      $result = NULL;
+    $oauth2_mode = variable_get('oauth2_provider_mode');
+    //only for standalone mode and no need to load if already logged in
+    if ($oauth2_mode == 'DrupalOAuth2' && !isset($user->uid)) {
 
-      // Hack to corresponding user if oauth_token provided.
-      if (isset($_REQUEST['oauth_token'])) {
-        $result = $this->getAccessToken($_REQUEST['oauth_token']);
-      }
-      // Hack to corresponding user if code provided.
-      elseif (isset($_REQUEST['code'])) {
-        $result = $this->getAuthCode($_REQUEST['code']);
-      }
-      // Hack to corresponding user if refresh_token provided.
-      elseif (isset($_REQUEST['refresh_token'])) {
-        $result = $this->getRefreshToken($_REQUEST['refresh_token']);
-      }
-      error_log(print_r($result,true));
-      if ($result) {
-        $this->loadUserCredentials($result['uid'], $result['name'], $result['sid']);
-      }
+        // devel_execute_block_form also submit execute code in $_REQUEST['code'].
+        if (!isset($_REQUEST['form_id']) || $_REQUEST['form_id'] !== 'devel_execute_block_form') {
+          $result = NULL;
+    
+          // Hack to corresponding user if oauth_token provided.
+          if (isset($_REQUEST['oauth_token'])) {
+            $result = $this->getAccessToken($_REQUEST['oauth_token']);
+          }
+          // Hack to corresponding user if code provided.
+          elseif (isset($_REQUEST['code'])) {
+            $result = $this->getAuthCode($_REQUEST['code']);
+          }
+          // Hack to corresponding user if refresh_token provided.
+          elseif (isset($_REQUEST['refresh_token'])) {
+            $result = $this->getRefreshToken($_REQUEST['refresh_token']);
+          }
+
+          if ($result) {
+            $this->loadUserCredentials($result['uid'], $result['name'], $result['sid']);
+          }
+        }
+
     }
   }
 
@@ -75,12 +81,12 @@ class DrupalOAuth2 extends OAuth2 {
     ->fields(array('login' => $user->login))
     ->condition('uid', $user->uid)
     ->execute();
-    
+
     // Regenerate the session ID to prevent against session fixation attacks.
     // This is called before hook_user in case one of those functions fails
     // or incorrectly does a redirect which would leave the old session in place.
     drupal_session_regenerate();
-    
+
     // Some client/servers, like XMLRPC, do not handle cookies, so
     // imitate it to make sess_read() function try to look for user,
     // instead of just loading anonymous user :).
@@ -88,9 +94,9 @@ class DrupalOAuth2 extends OAuth2 {
     if (!isset($_COOKIE[$session_name])) {
       $_COOKIE[$session_name] = $sid;
     }
-    
+
     session_id($sid);*/
-    
+
     return $user;
   }
 

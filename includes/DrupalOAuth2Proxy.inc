@@ -34,6 +34,38 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
     $client->getSession();
     $this->setVariable('_client', $client);
 
+    
+    // devel_execute_block_form also submit execute code in $_REQUEST['code'].
+    if (!isset($_REQUEST['form_id']) || $_REQUEST['form_id'] !== 'devel_execute_block_form') {
+      $result = NULL;
+    
+      // Hack to corresponding user if oauth_token provided. $_REQUEST may not contain $_COOKIE for most server setting
+      if (isset($_REQUEST['oauth_token'])) {
+        $result = $this->getAccessToken($_REQUEST['oauth_token']);
+      }
+      // oauth_token may be inside cookie
+      elseif (isset($_COOKIE['oauth_token'])) {error_log('token: '.$_COOKIE['oauth_token']);
+        $result = $this->getAccessToken($_COOKIE['oauth_token']);
+      }
+      // Hack to corresponding user if code provided.
+      elseif (isset($_REQUEST['code'])) {
+        $result = $this->getAuthCode($_REQUEST['code']);
+      }
+      // Hack to corresponding user if refresh_token provided.
+      elseif (isset($_REQUEST['refresh_token'])) {
+        $result = $this->getRefreshToken($_REQUEST['refresh_token']);
+      }
+    
+      if ($result) {
+        $access_token = $client->getAccessToken();
+        
+        //save the access token into cookie
+        $params = session_get_cookie_params();
+        $expire = $params['lifetime'] ? REQUEST_TIME + $params['lifetime'] : 0;
+        setcookie('oauth_token', $access_token, $expire, $params['path'], $params['domain'], FALSE, $params['httponly'] );
+        $this->loadUserCredentials($result['uid'], $result['name'], $result['sid']);
+      }
+    }
     parent::__construct($config);
   }
 
@@ -211,7 +243,7 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
   /**
    * Overrides OAuth2::getAuthCode().
    */
-  public function getAuthCode($code) {
+  public function getAuthCode($code) {error_log('proxy getAuthCode');
     return $this->proxyApi('/oauth2/getAuthCode', array(
       'code' => $code,
     ));
