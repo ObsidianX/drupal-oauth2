@@ -22,7 +22,7 @@ define('OAUTH2_DEFAULT_LIBRARY_PATH', 'sites/all/libraries/oauth2-php');
 define('OAUTH2_DEFAULT_PROVIDER_MODE', 'DrupalOAuth2');
 
 /**
- * Implementation of hook_help().
+ * Implements hook_help().
  */
 function oauth2_help($section, $arg) {
   switch ($section) {
@@ -37,7 +37,7 @@ function oauth2_help($section, $arg) {
 }
 
 /**
- * Implementation of hook_init()
+ * Implements hook_init()
  */
 function oauth2_init() {
   $library_path = NULL;
@@ -74,14 +74,14 @@ function oauth2_init() {
 
 
 /**
- * Implementation of hook_enable().
+ * Implements hook_enable().
  */
 function oauth2_enable() {
 
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function oauth2_menu() {
   $items = array();
@@ -104,7 +104,7 @@ function oauth2_menu() {
 }
 
 /**
- * Implementation of hook_user().
+ * Implements hook_user().
  */
 function oauth2_user($op, &$edit, &$account, $category = NULL) {
   if ($op == 'logout') {
@@ -170,10 +170,12 @@ function oauth2_get_client($sid, $params = array()) {
 
   if (!isset($_oauth2_clients[$sid]) || !$_oauth2_clients[$sid] instanceof DrupalOAuth2Client) {
     $server_info = (array) oauth2_server_load($sid);
-    //$consumer_info = (array) oauth2_consumer_load($sid);
-    //$params = array_merge($server_info,$consumer_info, $params);
-    
+
     $params = array_merge($server_info, $params);
+    if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) != 'DrupalOAuth2Client') {
+      $consumer_info = (array) oauth2_consumer_load($sid);
+      $params = array_merge($consumer_info,$params);
+    }
     $_oauth2_clients[$sid] = new DrupalOAuth2Client($params);
   }
 

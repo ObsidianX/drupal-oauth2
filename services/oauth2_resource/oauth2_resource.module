@@ -6,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_services_resources().
+ * Implements hook_services_resources().
  */
 function oauth2_resource_services_resources() {
   return array(

@@ -6,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_services_authentication_info().
+ * Implements hook_services_authentication_info().
  */
 function services_oauth2_services_authentication_info() {
   return array(

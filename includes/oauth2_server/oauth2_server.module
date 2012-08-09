@@ -6,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_init().
+ * Implements hook_init().
  */
 function oauth2_server_init() {
   // The initialize of class will handle the hack of user
@@ -16,7 +16,7 @@ function oauth2_server_init() {
   }
 }
 /**
- * Implementation of hook_help().
+ * Implements hook_help().
  */
 function oauth2_server_help($section, $arg) {
   switch ($section) {
@@ -29,7 +29,7 @@ function oauth2_server_help($section, $arg) {
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function oauth2_server_menu() {
   $items = array();
@@ -92,7 +92,7 @@ function oauth2_server_menu() {
 }
 
 /**
- * Implementation of hook_entity_info().
+ * Implements hook_entity_info().
  */
 
 function oauth2_server_entity_info() {
@@ -135,7 +135,7 @@ function oauth2_server_uri($server) {
 
 
 /**
- * Implementation of hook_permission().
+ * Implements hook_permission().
  */
 function oauth2_server_permission() {
   return array(
@@ -223,7 +223,7 @@ function oauth2_server_load_multiple($sids = array(), $conditions = array(), $re
 
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function oauth2_server_theme() {
   return array(

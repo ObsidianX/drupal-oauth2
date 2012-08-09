@@ -243,7 +243,7 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
   /**
    * Overrides OAuth2::getAuthCode().
    */
-  public function getAuthCode($code) {error_log('proxy getAuthCode');
+  public function getAuthCode($code) {
     return $this->proxyApi('/oauth2/getAuthCode', array(
       'code' => $code,
     ));

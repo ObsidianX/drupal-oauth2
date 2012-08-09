@@ -23,26 +23,28 @@ class DrupalOAuth2Client extends OAuth2Client {
     $oauth2_mode = variable_get('oauth2_provider_mode');
     //only for client mode and no need to load if already logged in
     if ($oauth2_mode == 'DrupalOAuth2Client' && (empty($user->uid))) {
-  
+
       // devel_execute_block_form also submit execute code in $_REQUEST['code'].
       if (!isset($_REQUEST['form_id']) || $_REQUEST['form_id'] !== 'devel_execute_block_form') {
         $access_token = NULL;
 
         // Hack to corresponding user if oauth_token provided.
-        if (isset($_REQUEST['oauth_token'])) {
-          $access_token = $this->getAccessToken($_REQUEST['oauth_token']);
-        }
+        //if (isset($_REQUEST['oauth_token'])) {
+        //  $access_token = $this->getAccessToken($_REQUEST['oauth_token']);
+        //}
         // Hack to corresponding user if code provided.
-        elseif (isset($_REQUEST['code'])) {
-          $access_token = $this->getAccessToken($_REQUEST['code']);
-        }
+        //elseif (isset($_REQUEST['code'])) {
+        //  $access_token = $this->getAccessToken($_REQUEST['code']);
+        //}
         // Hack to corresponding user if refresh_token provided.
         /*elseif (isset($_REQUEST['refresh_token'])) {
           $result = $this->getRefreshToken($_REQUEST['refresh_token']);
         }*/
-        $url = $this->getVariable('services_uri');
-        error_log($url);
+        /*if (isset($_REQUEST['code'])) {
+          $this->setVariable('code', $_REQUEST['code']);
+        }*/
         $this->getSession();
+        $access_token = $this->getAccessToken();
         if (!empty($access_token)) {
           $result = $this->api('/oauth2/getAccessToken', 'POST', array(
               'oauth_token' => $access_token,

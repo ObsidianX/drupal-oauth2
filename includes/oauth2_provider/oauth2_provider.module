@@ -7,7 +7,7 @@
  */
 
 /**
- * Implementation of hook_init().
+ * Implements hook_init().
  */
 function oauth2_provider_init() {
   // The initialize of class will handle the hack of user base on
@@ -18,7 +18,7 @@ function oauth2_provider_init() {
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function oauth2_provider_menu() {
   $items = array();
@@ -102,7 +102,7 @@ function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * Implementation of hook_cron().
+ * Implements hook_cron().
  */
 function oauth2_provider_cron() {
   if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2') {
@@ -213,7 +213,7 @@ function oauth2_provider_logout() {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function oauth2_provider_theme() {
   return array(

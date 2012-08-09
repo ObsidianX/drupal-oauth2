@@ -6,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_help().
+ * Implements hook_help().
  */
 function oauth2_scope_help($section, $arg) {
   switch ($section) {
@@ -19,7 +19,7 @@ function oauth2_scope_help($section, $arg) {
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function oauth2_scope_menu() {
   $items = array();
@@ -80,7 +80,7 @@ function oauth2_scope_menu() {
   return $items;
 }
 /**
- * Implementation of hook_entity_info().
+ * Implements hook_entity_info().
  */
 
 function oauth2_scope_entity_info() {
@@ -114,7 +114,7 @@ function oauth2_scope_entity_info() {
 
 
 /**
- * Implementation of hook_permission().
+ * Implements hook_permission().
  */
 function oauth2_scope_permission() {
   return array(
@@ -179,7 +179,7 @@ function oauth2_scope_update($oauth2_scope) {
 }
 
 /**
- * Implementation of hook_update().
+ * Implements hook_update().
  */
 /*function oauth2_scope_update($node) {
   // if this is a new node or we're adding a new revision,
@@ -192,7 +192,7 @@ function oauth2_scope_update($oauth2_scope) {
 }*/
 
 /**
- * Implementation of hook_nodeapi().
+ * Implements hook_nodeapi().
  */
 /*function oauth2_scope_nodeapi(&$node, $op, $teaser, $page) {
   switch ($op) {
@@ -228,7 +228,7 @@ function oauth2_scope_load_multiple($sids = array(), $conditions = array(), $res
 }
 
 /**
- * Implementation of hook_view().
+ * Implements hook_view().
  */
 /*function oauth2_scope_view($node, $teaser = FALSE, $page = FALSE) {
   $node = node_prepare($node, $teaser);
@@ -253,7 +253,7 @@ function oauth2_scope_load_multiple($sids = array(), $conditions = array(), $res
 }*/
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function oauth2_scope_theme() {
   return array(

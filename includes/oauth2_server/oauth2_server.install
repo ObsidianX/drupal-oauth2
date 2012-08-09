@@ -10,7 +10,7 @@ function oauth2_server_uninstall() {
 }
 
 /**
- * Implementation of hook_schema().
+ * Implements hook_schema().
  */
 function oauth2_server_schema() {
 

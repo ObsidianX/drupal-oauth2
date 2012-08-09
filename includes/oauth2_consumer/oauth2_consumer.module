@@ -7,7 +7,7 @@
  */
 
 /**
- * Implementation of hook_entity_info().
+ * Implements hook_entity_info().
  */
 
 function oauth2_consumer_entity_info() {
@@ -30,7 +30,7 @@ function oauth2_consumer_entity_info() {
 }
 
 /**
- * Implementation of hook_form_FORM_ID_alter().
+ * Implements hook_form_FORM_ID_alter().
  */
 function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, &$form_state, $form_id) {
 
@@ -110,7 +110,7 @@ function oauth2_consumer_form_oauth2_server_edit_form_submit(&$form, &$form_stat
 }
 
 /**
- * Implementation of hook_form_FORM_ID_alter().
+ * Implements hook_form_FORM_ID_alter().
  */
 function oauth2_consumer_form_oauth2_server_delete_form_alter(&$form, &$form_state) {
   $form['#submit'][] = 'oauth2_consumer_form_oauth2_server_delete_form_submit';
@@ -198,7 +198,7 @@ function oauth2_consumer_load_multiple($sids = array(), $conditions = array(), $
 }*/
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function oauth2_consumer_theme() {
   return array(

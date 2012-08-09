@@ -6,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_help().
+ * Implements hook_help().
  */
 function oauth2_client_help($section, $arg) {
   switch ($section) {
@@ -19,7 +19,7 @@ function oauth2_client_help($section, $arg) {
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function oauth2_client_menu() {
   $items = array();
@@ -82,7 +82,7 @@ function oauth2_client_menu() {
 }
 
 /**
- * Implementation of hook_entity_info().
+ * Implements hook_entity_info().
  */
 
 function oauth2_client_entity_info() {
@@ -124,7 +124,7 @@ function oauth2_client_uri($client) {
 }
 
 /**
- * Implementation of hook_permission().
+ * Implements hook_permission().
  */
 function oauth2_client_permission() {
   return array(
@@ -169,7 +169,7 @@ function oauth2_client_access($op, $client) {
 }
 
 /**
- * Implementation of hook_form().
+ * Implements hook_form().
  */
 /*function oauth2_client_form(&$node) {
   $type = node_get_types('type', $node);
@@ -275,7 +275,7 @@ function oauth2_client_load_multiple($cids = array(), $conditions = array(), $re
 }
 
 /**
- * Implementation of hook_view().
+ * Implements hook_view().
  */
 /*function oauth2_client_view($node, $teaser = FALSE, $page = FALSE) {
   $node = node_prepare($node, $teaser);
@@ -301,7 +301,7 @@ function oauth2_client_load_multiple($cids = array(), $conditions = array(), $re
 }*/
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 /*function oauth2_client_theme() {
   return array(
