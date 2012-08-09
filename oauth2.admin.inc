@@ -8,6 +8,8 @@
 function oauth2_admin_settings() {
   $form = array();
   $oauth2_mode_options = array();
+  
+  $current_provider_mode = variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE);
 
   $form['oauth2_library_path'] = array(
     '#type' => 'textfield',
@@ -22,8 +24,12 @@ function oauth2_admin_settings() {
     $oauth2_mode_options['DrupalOAuth2'] = t('Standalone mode');
   }
   if (module_exists('oauth2_server')) {
-    $oauth2_mode_options['DrupalOAuth2Proxy'] = t('Proxy mode');
+    $oauth2_mode_options['DrupalOAuth2Client'] = t('Client mode');
+    if (module_exists('oauth2_provider') && module_exists('oauth2_consumer')) {
+      $oauth2_mode_options['DrupalOAuth2Proxy'] = t('Proxy mode');
+    }
   }
+  
   if (count($oauth2_mode_options) === 1) {
     foreach ($oauth2_mode_options as $k => $v) {
       variable_set('oauth2_provider_mode', $k);
@@ -33,7 +39,7 @@ function oauth2_admin_settings() {
   $form['oauth2_provider_mode'] = array(
     '#type' => 'select',
     '#title' => t('OAuth2.0 provider mode'),
-    '#default_value' => variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE),
+    '#default_value' => $current_provider_mode,
     '#options' => $oauth2_mode_options,
     '#description' => t('<ul><li>In standalone mode OAuth2.0 will manage its own access_token, authorization_code, refresh_token, etc within local database storage, which is useful if this server acting as global authorization server.</li><li>In proxy mode OAuth2.0 will retreive and store tokens from remote authorization server with Drupal Services 3.x API, which is useful if this server acting as resource server.</li></ul>'),
     '#required' => TRUE,
@@ -44,7 +50,7 @@ function oauth2_admin_settings() {
       '#type' => 'fieldset',
       '#title' => t('Standalone mode'),
       '#collapsible' => TRUE,
-      '#collapsed' => !(variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2'),
+      '#collapsed' => $current_provider_mode != 'DrupalOAuth2',
     );
 
     $form['oauth2_provider_mode_standalone']['oauth2_access_token_lifetime'] = array(
@@ -73,36 +79,74 @@ function oauth2_admin_settings() {
   }
 
   if (module_exists('oauth2_server')) {
-    $form['oauth2_provider_mode_proxy'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Proxy mode'),
-      '#collapsible' => TRUE,
-      '#collapsed' => !(variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Proxy'),
-    );
-
-    $options = array();
-    $results = db_query("SELECT osrv.* FROM {oauth2_servers} AS osrv  WHERE osrv.status = 1");
-
-    foreach ($results as $result) {
-      $options[$result->sid] = "{$result->title} ({$result->server_id})";
-    }
-    if (count($options) >= 1) {
-      $form['oauth2_provider_mode_proxy']['oauth2_proxy_server_identifier'] = array(
-        '#type' => 'select',
-        '#title' => t('OAuth2.0 authorization server indentifier'),
-        '#options' => $options,
-        '#default_value' => variable_get('oauth2_proxy_server_identifier'),
-        '#description' => t('The OAuth2.0 authorization server indentifier. This server MUST enable Drupal Services 3.x oauth2_resource, and optionally enable oauth2_auth for additional security.'),
-        '#required' => FALSE,
+    
+    
+    if (module_exists('oauth2_provider') && module_exists('oauth2_consumer') && $current_provider_mode == 'DrupalOAuth2Proxy') {
+      $form['oauth2_provider_mode_proxy'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Proxy mode'),
+        '#collapsible' => TRUE,
+        '#collapsed' => $current_provider_mode != 'DrupalOAuth2Proxy',
       );
-    }
-    else {
-      $form['oauth2_provider_mode_proxy']['oauth2_proxy_server_identifier'] = array(
-        '#value' => t("<p>To use proxy mode you should first define at least one <a href='@oauth2_server'>OAuth2.0 server indentifier</a> and <a href='@admin'>publish it</a>.</p>", array(
-          '@oauth2_server' => url('oauth2-server/add'),
-          '@admin' => url('admin/structure/oauth2/oauth2-server'),
-        )),
+  
+      $options = array();
+      $results = db_query("SELECT osrv.* FROM {oauth2_servers} AS osrv  WHERE osrv.status = 1");
+  
+      foreach ($results as $result) {
+        $options[$result->sid] = "{$result->title} ({$result->server_id})";
+      }
+      if (count($options) >= 1) {
+        $form['oauth2_provider_mode_proxy']['oauth2_proxy_server_identifier'] = array(
+          '#type' => 'select',
+          '#title' => t('OAuth2.0 authorization server indentifier'),
+          '#options' => $options,
+          '#default_value' => variable_get('oauth2_proxy_server_identifier'),
+          '#description' => t('The OAuth2.0 authorization server indentifier. This server MUST enable Drupal Services 3.x oauth2_resource, and optionally enable oauth2_auth for additional security.'),
+          '#required' => FALSE,
+        );
+      }
+      else {
+        $form['oauth2_provider_mode_proxy']['oauth2_proxy_server_identifier'] = array(
+          '#value' => t("<p>To use proxy mode you should first define at least one <a href='@oauth2_server'>OAuth2.0 server indentifier</a> and <a href='@admin'>publish it</a>.</p>", array(
+            '@oauth2_server' => url('oauth2-server/add'),
+            '@admin' => url('admin/structure/oauth2/oauth2-server'),
+          )),
+        );
+      }
+
+    } else if ($current_provider_mode == 'DrupalOAuth2Client') {
+
+      $form['oauth2_provider_mode_client'] = array(
+          '#type' => 'fieldset',
+          '#title' => t('Client mode'),
+          '#collapsible' => TRUE,
+          '#collapsed' => !(variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client'),
       );
+      
+      $options = array();
+      $results = db_query("SELECT osrv.* FROM {oauth2_servers} AS osrv  WHERE osrv.status = 1");
+      
+      foreach ($results as $result) {
+        $options[$result->sid] = "{$result->title} ({$result->server_id})";
+      }
+      if (count($options) >= 1) {
+        $form['oauth2_provider_mode_client']['oauth2_client_server_identifier'] = array(
+            '#type' => 'select',
+            '#title' => t('OAuth2.0 authorization server indentifier'),
+            '#options' => $options,
+            '#default_value' => variable_get('oauth2_client_server_identifier'),
+            '#description' => t('The OAuth2.0 authorization server indentifier. This server MUST enable Drupal Services 3.x oauth2_resource, and optionally enable oauth2_auth for additional security.'),
+            '#required' => FALSE,
+        );
+      }
+      else {
+        $form['oauth2_provider_mode_client']['oauth2_client_server_identifier'] = array(
+            '#value' => t("<p>To use proxy mode you should first define at least one <a href='@oauth2_server'>OAuth2.0 server indentifier</a> and <a href='@admin'>publish it</a>.</p>", array(
+                '@oauth2_server' => url('oauth2-server/add'),
+                '@admin' => url('admin/structure/oauth2/oauth2-server'),
+            )),
+        );
+      }
     }
   }
 

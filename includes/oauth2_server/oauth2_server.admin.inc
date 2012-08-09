@@ -123,6 +123,14 @@ function oauth2_server_edit_form($form, &$form_state, $oauth2_server = NULL) {
     '#default_value' => isset($oauth2_server->base_uri) ? $oauth2_server->base_uri : '',
     '#required' => TRUE,
   );
+  
+  $form['oauth2_server']['services_uri'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Services endpoint'),
+      '#description' => t('The remote server\'s HTTP endpoint capable of Drupal Service 3.x services. Absolute path or path relative to base URI.'),
+      '#default_value' => isset($oauth2_server->services_uri) ? $oauth2_server->services_uri : '',
+      '#required' => FALSE,
+  );
 
   $form['oauth2_server']['client_id'] = array(
     '#type' => 'textfield',
@@ -183,6 +191,7 @@ function oauth2_server_edit_form_submit($form, &$form_state) {
   $oauth2_server =  array(
     'server_id'         => $form_state['values']['server_id'],
     'base_uri'          => $form_state['values']['base_uri'],
+    'services_uri'      => $form_state['values']['services_uri'],
     'client_id'         => $form_state['values']['client_id'],
     'client_secret'     => $form_state['values']['client_secret'],
     'authorize_uri'     => $form_state['values']['authorize_uri'],

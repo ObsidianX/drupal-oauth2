@@ -22,10 +22,6 @@ function oauth2_consumer_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'services_uri' => array(
-        'description' => t('The remote server\'s HTTP endpoint capable of Drupal Service 3.x services. Absolute path or path relative to base URI.'),
-        'type' => 'text',
-      ),
       'expires_in' => array(
         'description' => 'How long will OAuth2.0 cache query result within local cache. With a long cache lifetime can greatly reduce the loading of remote OAuth2.0 authorization server; by the way with a short cache lifetime can ensure the synchronize of access_token. To disable cache functionality, simply set this as 0.',
         'type' => 'int',

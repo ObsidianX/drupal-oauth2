@@ -6,6 +6,16 @@
  */
 
 /**
+ * Implementation of hook_init().
+ */
+function oauth2_server_init() {
+  // The initialize of class will handle the hack of user
+  if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier')) {
+    $sid = variable_get('oauth2_client_server_identifier');
+    oauth2_get_client($sid, array('cookie_support' => TRUE));
+  }
+}
+/**
  * Implementation of hook_help().
  */
 function oauth2_server_help($section, $arg) {
@@ -200,7 +210,7 @@ function oauth2_server_delete($sid) {
  */
 function oauth2_server_load($sid = NULL, $reset = FALSE) {
   $sids = (isset($sid) ? array($sid) : array());
-  $oauth2_server = oauth2_server_load_multiple($sids,$reset);
+  $oauth2_server = oauth2_server_load_multiple($sids, $reset);
   return $oauth2_server ? reset ($oauth2_server) : FALSE;
 }
 
@@ -208,7 +218,7 @@ function oauth2_server_load($sid = NULL, $reset = FALSE) {
  * Load multiple
  */
 function oauth2_server_load_multiple($sids = array(), $conditions = array(), $reset = FALSE) {
-  return entity_load('oauth2_server',$sids,$conditions,$reset);
+  return entity_load('oauth2_server', $sids, $conditions, $reset);
 }
 
 

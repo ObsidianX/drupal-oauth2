@@ -17,7 +17,7 @@ define('OAUTH2_RECOMMEND_VERSION', 'Revision: 3d57d095d6');
 define('OAUTH2_DEFAULT_LIBRARY_PATH', 'sites/all/libraries/oauth2-php');
 
 /**
- * The default OAuth2.0 provider mode, DrupalOAuth2 or DrupalOAuth2Proxy.
+ * The default OAuth2.0 provider mode, DrupalOAuth2 or DrupalOAuth2Proxy or DrupalOAuth2Client.
  */
 define('OAUTH2_DEFAULT_PROVIDER_MODE', 'DrupalOAuth2');
 
@@ -146,7 +146,7 @@ function oauth2_get_server($class_name = NULL, $params = array()) {
       // We always display additional OAuth2.0 debug error message.
       'display_error' => TRUE,
     );
-    $params = array_merge($info, $params);error_log(print_r($class_name,true));
+    $params = array_merge($info, $params);
     $_oauth2_servers[$class_name] = new $class_name($params);
   }
 
@@ -157,7 +157,7 @@ function oauth2_get_server($class_name = NULL, $params = array()) {
  * Get an OAuth2.0 client-side instance with given client id.
  * This function requires module: oauth2_server!
  *
- * @param $cid
+ * @param $sid
  *   The client id of target OAuth2.0 client-side class setup.
  * @param $params
  *   (optional) Additional parameters to pass to class construct.
@@ -170,8 +170,10 @@ function oauth2_get_client($sid, $params = array()) {
 
   if (!isset($_oauth2_clients[$sid]) || !$_oauth2_clients[$sid] instanceof DrupalOAuth2Client) {
     $server_info = (array) oauth2_server_load($sid);
-    $consumer_info = (array) oauth2_consumer_load($sid);
-    $params = array_merge($server_info,$consumer_info, $params);
+    //$consumer_info = (array) oauth2_consumer_load($sid);
+    //$params = array_merge($server_info,$consumer_info, $params);
+    
+    $params = array_merge($server_info, $params);
     $_oauth2_clients[$sid] = new DrupalOAuth2Client($params);
   }
 

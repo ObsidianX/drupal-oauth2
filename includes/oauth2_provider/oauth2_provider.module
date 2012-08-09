@@ -12,7 +12,9 @@
 function oauth2_provider_init() {
   // The initialize of class will handle the hack of user base on
   // $_REQUEST['oauth_token'].
-  $server = oauth2_get_server();
+  if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) != 'DrupalOAuth2Client') {
+    $server = oauth2_get_server();
+  }
 }
 
 /**
@@ -65,7 +67,7 @@ function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form['#submit']) && is_array($form['#submit']) && ($key = array_search('user_login_submit', $form['#submit'])) !== FALSE) {
     $form['#submit'][$key] = 'oauth2_provider_login_submit';
   }
-  
+
   $server_id = variable_get('oauth2_proxy_server_identifier');
   if (module_exists('oauth2_server') && isset($server_id)) {
     /**
@@ -94,16 +96,9 @@ function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
         && ($key = array_search('user_login_authenticate_validate', $form['#validate']))) {
         $form['#validate'][$key] = 'oauth2_provider_login_authenticate_validate';
       }
-      
-      /*if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) != 'DrupalOAuth2Proxy' 
-        && isset($_GET['access_token'])
-        && isset($form['#validate'])
-        && is_array($form['#validate'])
-        && ($key = array_search('user_login_authenticate_validate', $form['#validate']))) {
-        $form['#validate'][$key] = 'oauth2_provider_login_authenticate_validate';
-      }*/
+
   }
-  
+
 }
 
 /**

@@ -71,14 +71,6 @@ function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, &$form_state
       '#value' => isset($oauth2_consumer->password) ? $oauth2_consumer->password : '',
   );
 
-  $form['oauth2_server']['oauth2_consumer']['services_uri'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Services endpoint'),
-      '#description' => t('The remote server\'s HTTP endpoint capable of Drupal Service 3.x services. Absolute path or path relative to base URI.'),
-      '#default_value' => isset($oauth2_consumer->services_uri) ? $oauth2_consumer->services_uri : '',
-      '#required' => FALSE,
-  );
-
   $form['oauth2_server']['oauth2_consumer']['expires_in'] = array(
       '#type' => 'textfield',
       '#title' => t('Cache lifetime (in seconds)'),
@@ -109,7 +101,6 @@ function oauth2_consumer_form_oauth2_server_edit_form_submit(&$form, &$form_stat
   $consumer = array(
       'username'       => $form_state['values']['username'],
       'password'       => $form_state['values']['password'],
-      'services_uri'   => $form_state['values']['services_uri'],
       'expires_in'     => $form_state['values']['expires_in'],
   );
   if ($form_state['values']['sid'] != NULL) {
@@ -122,7 +113,7 @@ function oauth2_consumer_form_oauth2_server_edit_form_submit(&$form, &$form_stat
  * Implementation of hook_form_FORM_ID_alter().
  */
 function oauth2_consumer_form_oauth2_server_delete_form_alter(&$form, &$form_state) {
-  $form['#submit'][] = 'oauth2_consumer_form_oauth2_server_delete_form_submit';error_log('hihi');
+  $form['#submit'][] = 'oauth2_consumer_form_oauth2_server_delete_form_submit';
 }
 
 /**
@@ -197,10 +188,6 @@ function oauth2_consumer_load_multiple($sids = array(), $conditions = array(), $
         '#value' => theme('oauth2_consumer_username', $node->username),
         '#weight' => 10,
     );
-    $node->content['services_uri'] = array(
-        '#value' => theme('oauth2_consumer_services_uri', $node->services_uri),
-        '#weight' => 11,
-    );
     $node->content['expires_in'] = array(
         '#value' => theme('oauth2_consumer_expires_in', $node->expires_in),
         '#weight' => 12,
@@ -217,9 +204,6 @@ function oauth2_consumer_theme() {
   return array(
       'oauth2_consumer_username' => array(
           'arguments' => array('username' => '', 'teaser' => 0, 'page' => 0),
-      ),
-      'oauth2_consumer_services_uri' => array(
-          'arguments' => array('services_uri' => '', 'teaser' => 0, 'page' => 0),
       ),
       'oauth2_consumer_expires_in' => array(
           'arguments' => array('expires_in' => '', 'teaser' => 0, 'page' => 0),

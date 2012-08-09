@@ -126,6 +126,7 @@ function oauth2_resource_services_resources() {
               'type' => 'array',
               'source' => 'data',
               'optional' => FALSE,
+              'description' => 'Check if access token valid',
             ),
           ),
         ),

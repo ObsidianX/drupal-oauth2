@@ -13,6 +13,105 @@
 class DrupalOAuth2Client extends OAuth2Client {
 
   /**
+   * Overrides OAuth2Client::__construct().
+   */
+  public function __construct($config = array()) {
+    global $user;
+  
+    parent::__construct($config);
+  
+    $oauth2_mode = variable_get('oauth2_provider_mode');
+    //only for client mode and no need to load if already logged in
+    if ($oauth2_mode == 'DrupalOAuth2Client' && (empty($user->uid))) {
+  
+      // devel_execute_block_form also submit execute code in $_REQUEST['code'].
+      if (!isset($_REQUEST['form_id']) || $_REQUEST['form_id'] !== 'devel_execute_block_form') {
+        $access_token = NULL;
+
+        // Hack to corresponding user if oauth_token provided.
+        if (isset($_REQUEST['oauth_token'])) {
+          $access_token = $this->getAccessToken($_REQUEST['oauth_token']);
+        }
+        // Hack to corresponding user if code provided.
+        elseif (isset($_REQUEST['code'])) {
+          $access_token = $this->getAccessToken($_REQUEST['code']);
+        }
+        // Hack to corresponding user if refresh_token provided.
+        /*elseif (isset($_REQUEST['refresh_token'])) {
+          $result = $this->getRefreshToken($_REQUEST['refresh_token']);
+        }*/
+        $url = $this->getVariable('services_uri');
+        error_log($url);
+        $this->getSession();
+        if (!empty($access_token)) {
+          $result = $this->api('/oauth2/getAccessToken', 'POST', array(
+              'oauth_token' => $access_token,
+          ));
+          if ($result) { error_log(print_r($result,true));
+            $this->loadUserCredentials($result['name'], $result['mail']);
+          }
+        }
+      }
+  
+    }
+  }
+  /**
+   * Load the user based on uid and name, assign with corresponding session;
+   * or create dummy user on-the-fly.
+   *
+   * @param $name
+   *   The user name.
+   * @param $mail
+   *   The user email.
+   *
+   * @return
+   *   The user object after successful login.
+   */
+  protected function loadUserCredentials($name, $mail) {
+    global $user;
+  
+    if (isset($name) && !($account = user_load_by_name($name))) {
+      // We hack and create a dummy user placeholder if it is exist in
+      // token tables but not yet a real user account, typically
+      // happened when server running in proxy mode. Can't use
+      // drupal_write_record() as uid is serial.
+      
+      $user_array = array(
+          'name'   => $name,
+          'pass'   => user_password(20),
+          'mail'   => $mail,
+          'init'   => $mail,
+          'status' => 1,
+      );
+      $user = user_save(NULL, $user_array);
+      if ($user === FALSE) {
+        watchdog('user', 'failed to create user %name.', array('%name' => $name));
+        return FALSE;
+      }
+    }
+    $user = $account;
+  
+    //login the user
+    //copy from user_login_finalize without calling user_module_invoke('login', $edit, $user);
+    watchdog('user', 'Session opened for %name.', array('%name' => $user->name));
+    // Update the user table timestamp noting user has logged in.
+    // This is also used to invalidate one-time login links.
+    $user->login = REQUEST_TIME;
+    db_update('users')
+    ->fields(array('login' => $user->login))
+    ->condition('uid', $user->uid)
+    ->execute();
+  
+    // Regenerate the session ID to prevent against session fixation attacks.
+    // This is called before hook_user in case one of those functions fails
+    // or incorrectly does a redirect which would leave the old session in place.
+    drupal_session_regenerate();
+  
+
+  
+    return $user;
+  }
+  /**
    * Get a Login URL for use with redirects. By default, full page redirect is
    * assumed. If you are using the generated URL with a window.open() call in
    * JavaScript, you can pass in display = popup as part of the $params.

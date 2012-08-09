@@ -294,7 +294,7 @@ class DrupalOAuth2 extends OAuth2 {
    * Implements OAuth2::getAccessToken().
    */
   public function getAccessToken($oauth_token) {
-    $result = db_query("SELECT oat.client_id, oat.sid, oat.expires, oat.scope, u.uid, u.name
+    $result = db_query("SELECT oat.client_id, oat.sid, oat.expires, oat.scope, u.uid, u.name, u.mail
       FROM {oauth2_access_tokens} AS oat
         INNER JOIN {users} AS u ON oat.uid = u.uid
       WHERE oat.oauth_token = :s", array(':s' => $oauth_token));
@@ -361,13 +361,13 @@ class DrupalOAuth2 extends OAuth2 {
   public function checkUserCredentials($client_id, $username, $password) {
     // Clone from user_service_login().
     $uid = user_authenticate($username, $password);
-    
+
     $result = NULL;
     if ($uid) {
       $account = user_load($uid);
       // Regenerate the session ID to prevent against session fixation attacks.
       drupal_session_regenerate();
-      
+
       $array = array();
       user_module_invoke('login', $array, $account);
 
