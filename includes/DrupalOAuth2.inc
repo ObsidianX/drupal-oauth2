@@ -286,7 +286,8 @@ class DrupalOAuth2 extends OAuth2 {
       $uid = $stored['uid'];
       
       //if it is not non-zero value
-      if (!empty($uid)) {
+      if (!empty($uid) &&!($user = user_load($uid))) {
+        
       //login the user
       watchdog('user', 'Session opened for %name.', array('%name' => $user->name));
       $user->login = REQUEST_TIME;
