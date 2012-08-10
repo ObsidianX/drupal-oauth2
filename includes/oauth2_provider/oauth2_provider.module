@@ -165,11 +165,11 @@ function oauth2_provider_login_submit($form, &$form_state) {
  * against local users table. If successful, sets the global $user object.
  */
 function oauth2_provider_login_authenticate_validate($form, &$form_state) {
-  /*$root_user = user_load(1);
+  $root_user = user_load(1);
 
   if (trim($form_state['values']['name']) == $root_user->name) {
       user_login_authenticate_validate($form,$form_state);
-    } else {*/
+    } else {
 
       $result = oauth2_get_server()->checkUserCredentials($_GET['client_id'], $form_state['values']['name'], $form_state['values']['pass']);
       if ($result) {
@@ -178,7 +178,7 @@ function oauth2_provider_login_authenticate_validate($form, &$form_state) {
       else {
         watchdog('oauth2_provider', 'Login attempt failed for %user.', array('%user' => $form_state['values']['name']));
       }
-  //}
+  }
 }
 
 /**

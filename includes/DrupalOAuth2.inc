@@ -277,7 +277,26 @@ class DrupalOAuth2 extends OAuth2 {
    * Overrides OAuth2:grantAccessToken()
    */
   public function grantAccessToken() {
+    global $user;
     parent::grantAccessToken();
+    
+    //up to here, the grant is valid
+    if (isset($_POST['grant_type'], $_POST['code']) && $_POST['grant_type'] == OAUTH2_GRANT_TYPE_AUTH_CODE) {
+      $stored =  $this->getAuthCode($_POST['code']);
+      $uid = $stored['uid'];
+      
+      //if it is not non-zero value
+      if (!empty($uid)) {
+      //login the user
+      watchdog('user', 'Session opened for %name.', array('%name' => $user->name));
+      $user->login = REQUEST_TIME;
+      db_update('users')
+      ->fields(array('login' => $user->login))
+      ->condition('uid', $user->uid)
+      ->execute();
+      }
+    }
+    
   }
   
   /**
