@@ -43,9 +43,9 @@ class DrupalOAuth2Client extends OAuth2Client {
         /*if (isset($_REQUEST['code'])) {
           $this->setVariable('code', $_REQUEST['code']);
         }*/
-        $this->getSession();
+
         $access_token = $this->getAccessToken();
-        error_log('access token: '.$access_token);
+        //error_log('access token: '.$access_token);
         if (!empty($access_token)) {
           $result = $this->api('/oauth2/getAccessToken', 'POST', array(
               'oauth_token' => $access_token,
@@ -101,7 +101,11 @@ class DrupalOAuth2Client extends OAuth2Client {
    */
   protected function loadUserCredentials($name, $mail) {
     global $user;
-    
+
+    $root_user = user_load(1);
+    if ($name == $root_user->name) {
+      return $user;
+    }
     user_external_login_register($name,'oauth2');
     
     /*if (!empty($user->uid)) {

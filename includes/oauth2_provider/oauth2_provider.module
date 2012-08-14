@@ -69,7 +69,7 @@ function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
   }
 
   $server_id = variable_get('oauth2_proxy_server_identifier');
-  if (module_exists('oauth2_server') && isset($server_id)) {
+  if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Proxy' && isset($server_id)) {
     /**
      * temp code for hacking user_login_block. delete it later!!!
      */
