@@ -13,8 +13,30 @@ function oauth2_server_init() {
   if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier')) {
     $sid = variable_get('oauth2_client_server_identifier');
     oauth2_get_client($sid, array('cookie_support' => TRUE));
+    
+    global $user;
+    //if not logged in
+    //if (empty($user->uid)) {
+      drupal_add_js(drupal_get_path('module', 'oauth2_server').'/oauth2_server.js');
+    //}
   }
 }
+/**
+ * Implements hook_user_logout().
+ */
+function oauth2_server_user_logout() {
+  if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier')) {
+    $sid = variable_get('oauth2_client_server_identifier');
+    $client = oauth2_get_client($sid);
+    
+    //tell the server to expire the session(access token,etc)
+    $client->expireSession();
+    
+    //flush the oauth2 session
+    $client->setSession();
+  }
+}
+
 /**
  * Implements hook_help().
  */
@@ -221,11 +243,47 @@ function oauth2_server_load_multiple($sids = array(), $conditions = array(), $re
   return entity_load('oauth2_server', $sids, $conditions, $reset);
 }
 
+/**
+ * Implements hook_block_info().
+ */
+function oauth2_server_block_info() {
+
+  if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier')) {
+    $blocks['oauth2_login']['info'] = t('OAuth2 Login');
+    $blocks['oauth2_login']['cache'] = DRUPAL_NO_CACHE;
+  }
+  return $blocks;
+}
+
+function oauth2_server_block_view($delta = '') {
+  if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier')) {
+    $sid = variable_get('oauth2_client_server_identifier');
+    $server = oauth2_server_load($sid);
+    $block = array();
+    switch ($delta) {
+      case 'oauth2_login':
+        $block['subject'] = t('OAuth2 login');
+        $block['content'] = array(
+            'link' => array(
+                '#theme'  => 'link',
+                '#text'   => 'OAuth2 Login',
+                '#path'   => $server->base_uri.$server->authorize_uri.'?response_type=code&client_id='.$server->client_id.'&redirect_uri='.url('<front>',array('absolute' => TRUE)),
+                '#options' => array(
+                    'attributes' => array('class' => array('oauth2-login-link'), 'id' => 'oauth2-login-link'),
+                    //REQUIRED:
+                    'html' => FALSE,
+                )
+            )
+        );
+        return $block;
+    }
+  }
+}
 
 /**
  * Implements hook_theme().
  */
-function oauth2_server_theme() {
+/*function oauth2_server_theme() {
   return array(
     'oauth2_server_server_id' => array(
       'arguments' => array('server_id' => '', 'teaser' => 0, 'page' => 0),
@@ -246,76 +304,76 @@ function oauth2_server_theme() {
       'arguments' => array('access_token_uri' => '', 'teaser' => 0, 'page' => 0),
     ),
   );
-}
+}*/
 
 /**
  * Returns HTML for field server_id.
  *
  * @ingroup themeable
  */
-function theme_oauth2_server_server_id($server_id, $teaser = 0, $page = 0) {
+/*function theme_oauth2_server_server_id($server_id, $teaser = 0, $page = 0) {
   $output = '<div class="oauth2_server-info server_id">';
   $output .= t('Server ID: @server_id', array('@server_id' => $server_id));
   $output .= '</div>';
   return $output;
-}
+}*/
 
 /**
  * Returns HTML for field base_uri.
  *
  * @ingroup themeable
  */
-function theme_oauth2_server_base_uri($base_uri, $teaser = 0, $page = 0) {
+/*function theme_oauth2_server_base_uri($base_uri, $teaser = 0, $page = 0) {
   $output = '<div class="oauth2_server-info base_uri">';
   $output .= t('Base URI: @base_uri', array('@base_uri' => $base_uri));
   $output .= '</div>';
   return $output;
-}
+}*/
 
 /**
  * Returns HTML for field client_id.
  *
  * @ingroup themeable
  */
-function theme_oauth2_server_client_id($client_id, $teaser = 0, $page = 0) {
+/*function theme_oauth2_server_client_id($client_id, $teaser = 0, $page = 0) {
   $output = '<div class="oauth2_server-info client_id">';
   $output .= t('Application ID: @client_id', array('@client_id' => $client_id));
   $output .= '</div>';
   return $output;
-}
+}*/
 
 /**
  * Returns HTML for field client_secret.
  *
  * @ingroup themeable
  */
-function theme_oauth2_server_client_secret($client_secret, $teaser = 0, $page = 0) {
+/*function theme_oauth2_server_client_secret($client_secret, $teaser = 0, $page = 0) {
   $output = '<div class="oauth2_server-info client_secret">';
   $output .= t('Application Secret: @client_secret', array('@client_secret' => $client_secret));
   $output .= '</div>';
   return $output;
-}
+}*/
 
 /**
  * Returns HTML for field authorize_uri.
  *
  * @ingroup themeable
  */
-function theme_oauth2_server_authorize_uri($authorize_uri, $teaser = 0, $page = 0) {
+/*function theme_oauth2_server_authorize_uri($authorize_uri, $teaser = 0, $page = 0) {
   $output = '<div class="oauth2_server-info authorize_uri">';
   $output .= t('End-user authorization endpoint: @authorize_uri', array('@authorize_uri' => $authorize_uri));
   $output .= '</div>';
   return $output;
-}
+}*/
 
 /**
  * Returns HTML for field access_token_uri.
  *
  * @ingroup themeable
  */
-function theme_oauth2_server_access_token_uri($access_token_uri, $teaser = 0, $page = 0) {
+/*function theme_oauth2_server_access_token_uri($access_token_uri, $teaser = 0, $page = 0) {
   $output = '<div class="oauth2_server-info access_token_uri">';
   $output .= t('Token endpoint: @access_token_uri', array('@access_token_uri' => $access_token_uri));
   $output .= '</div>';
   return $output;
-}
+}*/

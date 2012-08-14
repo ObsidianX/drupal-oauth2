@@ -45,17 +45,47 @@ class DrupalOAuth2Client extends OAuth2Client {
         }*/
         $this->getSession();
         $access_token = $this->getAccessToken();
+        error_log('access token: '.$access_token);
         if (!empty($access_token)) {
           $result = $this->api('/oauth2/getAccessToken', 'POST', array(
               'oauth_token' => $access_token,
           ));
-          if ($result) { error_log(print_r($result,true));
+          if ($result) {
             $this->loadUserCredentials($result['name'], $result['mail']);
           }
         }
       }
   
     }
+  }
+  
+  /**
+   * Expires all OAuth2.0 related tokens based on sid.
+   *
+   * @return
+   *   TRUE if successful, and FALSE if it isn't.
+   */
+  public function expireSession() {
+
+    // we won't know the server session id
+    $params = array(
+      'sid' => NULL,
+      'oauth_token' => $this->getAccessToken(),
+    );
+
+    // Purge tokens based on oauth_token if provided.
+    /*if (isset($_REQUEST['oauth_token']) && !empty($_REQUEST['oauth_token'])) {
+      $result = $this->getAccessToken($_REQUEST['oauth_token']);
+      if ($result) {
+        $params = array(
+          'sid' => $result['sid'],
+          'oauth_token' => $_REQUEST['oauth_token'],
+        );
+      }
+    }*/
+    
+
+    return $this->api('/oauth2/expireSession', 'POST', $params);
   }
   /**
    * Load the user based on uid and name, assign with corresponding session;
@@ -71,6 +101,10 @@ class DrupalOAuth2Client extends OAuth2Client {
    */
   protected function loadUserCredentials($name, $mail) {
     global $user;
+    
+    if (!empty($user->uid)) {
+      return $user;
+    }
   
     if (isset($name) && !($account = user_load_by_name($name))) {
       // We hack and create a dummy user placeholder if it is exist in

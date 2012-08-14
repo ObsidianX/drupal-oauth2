@@ -233,10 +233,15 @@ class DrupalOAuth2 extends OAuth2 {
    * @return
    *   TRUE if successful, and FALSE if it isn't.
    */
-  public function expireSession($sid) {
+  public function expireSession($sid = NULL) {
+    //for backward compatability only
+    if (isset($_REQUEST['oauth_token']) && !isset($_REQUEST['access_token'])) {
+      $_REQUEST['access_token'] = $_REQUEST['oauth_token'];
+    }
+
     // Purge tokens based on oauth_token if provided.
-    if (isset($_REQUEST['oauth_token']) && !empty($_REQUEST['oauth_token'])) {
-      $result = $this->getAccessToken($_REQUEST['oauth_token']);
+    if (isset($_REQUEST['access_token']) && !empty($_REQUEST['access_token'])) {
+      $result = $this->getAccessToken($_REQUEST['access_token']);
       if ($result) {
         $sid = $result['sid'];
       }
@@ -287,7 +292,7 @@ class DrupalOAuth2 extends OAuth2 {
       if (!empty($uid) && ($user = user_load($uid))) {
 
         //login the user
-        watchdog('user', 'Session opened for %name.', array('%name' => $user->name));
+        //watchdog('user', 'Session opened for %name.', array('%name' => $user->name));
         $user->login = REQUEST_TIME;
         db_update('users')
         ->fields(array('login' => $user->login))
