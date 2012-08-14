@@ -282,7 +282,7 @@ class DrupalOAuth2 extends OAuth2 {
    * Overrides OAuth2:grantAccessToken()
    */
   public function grantAccessToken() {
-    global $user;
+    /*global $user;
 
     if (isset($_POST['grant_type'], $_POST['code']) && $_POST['grant_type'] == OAUTH2_GRANT_TYPE_AUTH_CODE) {
       $stored =  $this->getAuthCode($_POST['code']);
@@ -299,7 +299,7 @@ class DrupalOAuth2 extends OAuth2 {
         ->condition('uid', $user->uid)
         ->execute();
       }
-    }
+    }*/
 
     parent::grantAccessToken();
   }
