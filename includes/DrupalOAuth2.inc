@@ -255,7 +255,7 @@ class DrupalOAuth2 extends OAuth2 {
           FROM {oauth2_access_tokens} AS oat
             INNER JOIN {oauth2_clients} AS oc ON oat.client_id = oc.client_id
           WHERE oat.sid = :sid ", array(':sid' =>$sid));
-        $record = $result->fetchObject();
+        $record = $result->fetchAssoc();
           $_GET['redirect_uri'] = $record['redirect_uri'];
         
       }
