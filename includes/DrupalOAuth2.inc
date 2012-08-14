@@ -61,14 +61,15 @@ class DrupalOAuth2 extends OAuth2 {
   protected function loadUserCredentials($uid, $name, $sid) {
     global $user;
 
-    user_external_login_register($name,'oauth2');
-    /*if (isset($uid) && isset($name) && !($account = user_load($uid))) {
+    //user_external_login_register($name,'oauth2');
+    if (isset($uid) && isset($name) && !($account = user_load($uid))) {
       // We hack and create a dummy user placeholder if it is exist in
       // token tables but not yet a real user account, typically
       // happened when server running in proxy mode. Can't use
       // drupal_write_record() as uid is serial.
-      db_query("INSERT INTO {users} (uid, name, created, access, login, status) VALUES (:uid, :name, :created, :access, :login, 1)", array(':uid' => $uid, ':name' => $name, ':created' => time(), ':access' => time(), ':login' => time()));
-      $account = user_load($uid);
+      //db_query("INSERT INTO {users} (uid, name, created, access, login, status) VALUES (:uid, :name, :created, :access, :login, 1)", array(':uid' => $uid, ':name' => $name, ':created' => time(), ':access' => time(), ':login' => time()));
+      //$account = user_load($uid);
+      return FALSE;
     }
     $user = $account;
 
@@ -97,7 +98,7 @@ class DrupalOAuth2 extends OAuth2 {
     }
 
     session_id($sid);
-*/
+
     return $user;
   }
 
