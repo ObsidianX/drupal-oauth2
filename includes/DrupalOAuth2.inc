@@ -61,7 +61,8 @@ class DrupalOAuth2 extends OAuth2 {
   protected function loadUserCredentials($uid, $name, $sid) {
     global $user;
 
-    if (isset($uid) && isset($name) && !($account = user_load($uid))) {
+    user_external_login_register($name,'oauth2');
+    /*if (isset($uid) && isset($name) && !($account = user_load($uid))) {
       // We hack and create a dummy user placeholder if it is exist in
       // token tables but not yet a real user account, typically
       // happened when server running in proxy mode. Can't use
@@ -90,13 +91,13 @@ class DrupalOAuth2 extends OAuth2 {
     // Some client/servers, like XMLRPC, do not handle cookies, so
     // imitate it to make sess_read() function try to look for user,
     // instead of just loading anonymous user :).
-    /*$session_name = session_name();
+    $session_name = session_name();
     if (!isset($_COOKIE[$session_name])) {
       $_COOKIE[$session_name] = $sid;
     }
 
-    session_id($sid);*/
-
+    session_id($sid);
+*/
     return $user;
   }
 

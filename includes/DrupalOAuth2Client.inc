@@ -102,7 +102,9 @@ class DrupalOAuth2Client extends OAuth2Client {
   protected function loadUserCredentials($name, $mail) {
     global $user;
     
-    if (!empty($user->uid)) {
+    user_external_login_register($name,'oauth2');
+    
+    /*if (!empty($user->uid)) {
       return $user;
     }
   
@@ -141,7 +143,7 @@ class DrupalOAuth2Client extends OAuth2Client {
     // Regenerate the session ID to prevent against session fixation attacks.
     // This is called before hook_user in case one of those functions fails
     // or incorrectly does a redirect which would leave the old session in place.
-    drupal_session_regenerate();
+    drupal_session_regenerate();*/
   
 
   
