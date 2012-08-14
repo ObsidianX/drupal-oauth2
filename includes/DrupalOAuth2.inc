@@ -26,6 +26,8 @@ class DrupalOAuth2 extends OAuth2 {
           // Hack to corresponding user if oauth_token provided.
           if (isset($_REQUEST['oauth_token'])) {
             $result = $this->getAccessToken($_REQUEST['oauth_token']);
+          } elseif (isset($_REQUEST['access_token'])) {
+            $result = $this->getAccessToken($_REQUEST['access_token']);
           }
           // Hack to corresponding user if code provided.
           elseif (isset($_REQUEST['code'])) {
@@ -92,12 +94,12 @@ class DrupalOAuth2 extends OAuth2 {
     // Some client/servers, like XMLRPC, do not handle cookies, so
     // imitate it to make sess_read() function try to look for user,
     // instead of just loading anonymous user :).
-    $session_name = session_name();
-    if (!isset($_COOKIE[$session_name])) {
-      $_COOKIE[$session_name] = $sid;
-    }
+    //$session_name = session_name();
+    //if (!isset($_COOKIE[$session_name])) {
+    //  $_COOKIE[$session_name] = $sid;
+    //}
 
-    session_id($sid);
+    //session_id($sid);
 
     return $user;
   }

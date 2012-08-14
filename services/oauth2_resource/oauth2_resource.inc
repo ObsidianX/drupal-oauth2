@@ -41,7 +41,10 @@ function oauth2_resource_get_redirect_uri($client_data) {
 }
 
 function oauth2_resource_get_access_token($oauth_data) {
-  return oauth2_get_server()->getAccessToken($oauth_data['oauth_token']);
+  if (!isset($oauth_data['access_token']) && isset($oauth_data['oauth_token'])) {
+    $oauth_data['access_token'] = $oauth_data['oauth_token'];
+  }
+  return oauth2_get_server()->getAccessToken($oauth_data['access_token']);
 }
 
 function oauth2_resource_set_access_token($oauth_data) {
@@ -54,7 +57,10 @@ function oauth2_resource_set_access_token($oauth_data) {
   if (!isset($oauth_data['sid'])) {
     $oauth_data['sid'] = '';
   }
-  return oauth2_get_server()->setAccessToken($oauth_data['oauth_token'], $oauth_data['client_id'], $oauth_data['expires'], $oauth_data['scope'], $$oauth_data['uid'], $oauth_data['sid']);
+  if (!isset($oauth_data['access_token']) && isset($oauth_data['oauth_token'])) {
+    $oauth_data['access_token'] = $oauth_data['oauth_token'];
+  }
+  return oauth2_get_server()->setAccessToken($oauth_data['access_token'], $oauth_data['client_id'], $oauth_data['expires'], $oauth_data['scope'], $$oauth_data['uid'], $oauth_data['sid']);
 }
 
 function oauth2_resource_get_supported_scopes() {
