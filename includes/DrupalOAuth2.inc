@@ -73,7 +73,7 @@ class DrupalOAuth2 extends OAuth2 {
 
     //login the user
     //copy from user_login_finalize without calling user_module_invoke('login', $edit, $user);
-    watchdog('user', 'Session opened for %name.', array('%name' => $user->name));
+    watchdog('user', 'Session opened for %name by oauth2.', array('%name' => $user->name));
     // Update the user table timestamp noting user has logged in.
     // This is also used to invalidate one-time login links.
     $user->login = REQUEST_TIME;
@@ -234,6 +234,8 @@ class DrupalOAuth2 extends OAuth2 {
    *   TRUE if successful, and FALSE if it isn't.
    */
   public function expireSession($sid = NULL) {
+
+    //global $user;
     //for backward compatability only
     if (isset($_REQUEST['oauth_token']) && !isset($_REQUEST['access_token'])) {
       $_REQUEST['access_token'] = $_REQUEST['oauth_token'];
@@ -256,14 +258,20 @@ class DrupalOAuth2 extends OAuth2 {
             INNER JOIN {oauth2_clients} AS oc ON oat.client_id = oc.client_id
           WHERE oat.sid = :sid ", array(':sid' =>$sid));
         $record = $result->fetchAssoc();
-          $_GET['redirect_uri'] = $record['redirect_uri'];
+        $_GET['redirect_uri'] = $record['redirect_uri'];
         
       }
+      
+      $result = db_query("SELECT uid FROM {oauth2_access_tokens} WHERE sid = :sid", array(':sid' => $sid));
+      $uid = $result->fetchField();
 
       // Expirse all tokens base on this session_id.
       db_query("DELETE FROM {oauth2_access_tokens} WHERE sid = :sid", array(':sid' => $sid));
       db_query("DELETE FROM {oauth2_auth_codes} WHERE sid = :sid", array(':sid' => $sid));
       db_query("DELETE FROM {oauth2_refresh_tokens} WHERE sid = :sid", array(':sid' => $sid));
+
+      
+      db_query("DELETE FROM {sessions} WHERE uid = :uid", array(':uid' => $uid));
 
       // Also manually destroy user session.
       if (session_id($sid) != $sid) {
