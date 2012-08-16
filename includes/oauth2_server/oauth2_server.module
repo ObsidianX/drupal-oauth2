@@ -9,17 +9,7 @@
  * Implements hook_init().
  */
 function oauth2_server_init() {
-  // The initialize of class will handle the hack of user
-  if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier')) {
-    $sid = variable_get('oauth2_client_server_identifier');
-    oauth2_get_client($sid, array('cookie_support' => TRUE));
-    
-    global $user;
-    //if not logged in
-    //if (empty($user->uid)) {
-      drupal_add_js(drupal_get_path('module', 'oauth2_server').'/oauth2_server.js');
-    //}
-  }
+
 }
 /**
  * Implements hook_user_logout().

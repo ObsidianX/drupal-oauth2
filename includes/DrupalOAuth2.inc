@@ -17,7 +17,7 @@ class DrupalOAuth2 extends OAuth2 {
 
     $oauth2_mode = variable_get('oauth2_provider_mode');
     //only for standalone mode and no need to load if already logged in
-    if ($oauth2_mode == 'DrupalOAuth2' && empty($user->uid)) {
+    if ($oauth2_mode == 'DrupalOAuth2' && !user_is_logged_in()) {
 
         // devel_execute_block_form also submit execute code in $_REQUEST['code'].
         if (!isset($_REQUEST['form_id']) || $_REQUEST['form_id'] !== 'devel_execute_block_form') {
@@ -277,10 +277,10 @@ class DrupalOAuth2 extends OAuth2 {
       db_query("DELETE FROM {sessions} WHERE uid = :uid", array(':uid' => $uid));
 
       // Also manually destroy user session.
-      if (session_id($sid) != $sid) {
+      /*if (session_id($sid) != $sid) {
         session_start();
         session_id($sid);
-      }
+      }*/
 
       return session_destroy();
     }

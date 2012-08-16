@@ -28,7 +28,7 @@ class DrupalOAuth2Client extends OAuth2Client {
       if (!isset($_REQUEST['form_id']) || $_REQUEST['form_id'] !== 'devel_execute_block_form') {
 
         $access_token = $this->getAccessToken();
-        //error_log('access token: '.$access_token);
+
         if (!empty($access_token)) {
           $result = $this->api('/oauth2/getAccessToken', 'POST', array(
               'oauth_token' => $access_token,

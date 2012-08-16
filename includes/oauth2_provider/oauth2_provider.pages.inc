@@ -20,6 +20,9 @@ function oauth2_provider_authorize_form() {
         'destination' => 'oauth2/authorize?'.$query,
     );
     drupal_goto('user', $options);
+  } else if ($user->uid == 1) {
+    //do not allow using root
+    drupal_goto('user');
   }
 
   $auth_params = oauth2_get_server()->getAuthorizeParams();
