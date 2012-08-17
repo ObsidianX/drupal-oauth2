@@ -19,29 +19,29 @@ class DrupalOAuth2 extends OAuth2 {
     //only for standalone mode and no need to load if already logged in
     if ($oauth2_mode == 'DrupalOAuth2' && !user_is_logged_in()) {
 
-        // devel_execute_block_form also submit execute code in $_REQUEST['code'].
-        if (!isset($_REQUEST['form_id']) || $_REQUEST['form_id'] !== 'devel_execute_block_form') {
-          $result = NULL;
-    
-          // Hack to corresponding user if oauth_token provided.
-          if (isset($_REQUEST['oauth_token'])) {
-            $result = $this->getAccessToken($_REQUEST['oauth_token']);
-          } elseif (isset($_REQUEST['access_token'])) {
-            $result = $this->getAccessToken($_REQUEST['access_token']);
-          }
-          // Hack to corresponding user if code provided.
-          elseif (isset($_REQUEST['code'])) {
-            $result = $this->getAuthCode($_REQUEST['code']);
-          }
-          // Hack to corresponding user if refresh_token provided.
-          elseif (isset($_REQUEST['refresh_token'])) {
-            $result = $this->getRefreshToken($_REQUEST['refresh_token']);
-          }
+      // devel_execute_block_form also submit execute code in $_REQUEST['code'].
+      if (!isset($_REQUEST['form_id']) || $_REQUEST['form_id'] !== 'devel_execute_block_form') {
+        $result = NULL;
 
-          if ($result) {
-            $this->loadUserCredentials($result['uid'], $result['name'], $result['sid']);
-          }
+        // Hack to corresponding user if oauth_token provided.
+        if (isset($_REQUEST['oauth_token'])) {
+          $result = $this->getAccessToken($_REQUEST['oauth_token']);
+        } elseif (isset($_REQUEST['access_token'])) {
+          $result = $this->getAccessToken($_REQUEST['access_token']);
         }
+        // Hack to corresponding user if code provided.
+        elseif (isset($_REQUEST['code'])) {
+          $result = $this->getAuthCode($_REQUEST['code']);
+        }
+        // Hack to corresponding user if refresh_token provided.
+        elseif (isset($_REQUEST['refresh_token'])) {
+          $result = $this->getRefreshToken($_REQUEST['refresh_token']);
+        }
+
+        if ($result) {
+          $this->loadUserCredentials($result['uid'], $result['name'], $result['sid']);
+        }
+      }
 
     }
   }
@@ -258,14 +258,14 @@ class DrupalOAuth2 extends OAuth2 {
       if (!isset($_GET['redirect_uri'])) {
         // We hack $_REQUEST['redirect_uri'] so handle it custom logout.
         $result = db_query("SELECT oc.redirect_uri
-          FROM {oauth2_access_tokens} AS oat
-            INNER JOIN {oauth2_clients} AS oc ON oat.client_id = oc.client_id
-          WHERE oat.sid = :sid ", array(':sid' =>$sid));
+        FROM {oauth2_access_tokens} AS oat
+        INNER JOIN {oauth2_clients} AS oc ON oat.client_id = oc.client_id
+        WHERE oat.sid = :sid ", array(':sid' =>$sid));
         $record = $result->fetchAssoc();
         $_GET['redirect_uri'] = $record['redirect_uri'];
-        
+
       }
-      
+
       $result = db_query("SELECT uid FROM {oauth2_access_tokens} WHERE sid = :sid", array(':sid' => $sid));
       $uid = $result->fetchField();
 
@@ -280,8 +280,8 @@ class DrupalOAuth2 extends OAuth2 {
 
       // Also manually destroy user session.
       /*if (session_id($sid) != $sid) {
-        session_start();
-        session_id($sid);
+      session_start();
+      session_id($sid);
       }*/
 
       return session_destroy();
@@ -290,7 +290,7 @@ class DrupalOAuth2 extends OAuth2 {
     return FALSE;
   }
 
-  
+
   /**
    * Overrides OAuth2:grantAccessToken()
    */
@@ -298,25 +298,25 @@ class DrupalOAuth2 extends OAuth2 {
     /*global $user;
 
     if (isset($_POST['grant_type'], $_POST['code']) && $_POST['grant_type'] == OAUTH2_GRANT_TYPE_AUTH_CODE) {
-      $stored =  $this->getAuthCode($_POST['code']);
-      $uid = $stored['uid'];
-      
-      //if it is not non-zero value
-      if (!empty($uid) && ($user = user_load($uid))) {
+    $stored =  $this->getAuthCode($_POST['code']);
+    $uid = $stored['uid'];
 
-        //login the user
-        //watchdog('user', 'Session opened for %name.', array('%name' => $user->name));
-        $user->login = REQUEST_TIME;
-        db_update('users')
-        ->fields(array('login' => $user->login))
-        ->condition('uid', $user->uid)
-        ->execute();
-      }
+    //if it is not non-zero value
+    if (!empty($uid) && ($user = user_load($uid))) {
+
+    //login the user
+    //watchdog('user', 'Session opened for %name.', array('%name' => $user->name));
+    $user->login = REQUEST_TIME;
+    db_update('users')
+    ->fields(array('login' => $user->login))
+    ->condition('uid', $user->uid)
+    ->execute();
+    }
     }*/
 
     parent::grantAccessToken();
   }
-  
+
   /**
    * Implements OAuth2::checkClientCredentials().
    */
@@ -340,9 +340,9 @@ class DrupalOAuth2 extends OAuth2 {
    */
   public function getAccessToken($oauth_token) {
     $result = db_query("SELECT oat.client_id, oat.sid, oat.expires, oat.scope, u.uid, u.name, u.mail
-      FROM {oauth2_access_tokens} AS oat
-        INNER JOIN {users} AS u ON oat.uid = u.uid
-      WHERE oat.oauth_token = :s", array(':s' => $oauth_token));
+    FROM {oauth2_access_tokens} AS oat
+    INNER JOIN {users} AS u ON oat.uid = u.uid
+    WHERE oat.oauth_token = :s", array(':s' => $oauth_token));
     return $result->fetchAssoc();
   }
 
@@ -361,9 +361,9 @@ class DrupalOAuth2 extends OAuth2 {
    */
   protected function getSupportedGrantTypes() {
     return array(
-      OAUTH2_GRANT_TYPE_AUTH_CODE,
-      OAUTH2_GRANT_TYPE_USER_CREDENTIALS,
-      OAUTH2_GRANT_TYPE_REFRESH_TOKEN
+        OAUTH2_GRANT_TYPE_AUTH_CODE,
+        OAUTH2_GRANT_TYPE_USER_CREDENTIALS,
+        OAUTH2_GRANT_TYPE_REFRESH_TOKEN
     );
   }
 
@@ -384,9 +384,9 @@ class DrupalOAuth2 extends OAuth2 {
    */
   public function getAuthCode($code) {
     $result = db_query("SELECT oac.client_id, oac.sid, oac.redirect_uri, oac.expires, oac.scope, u.uid, u.name
-      FROM {oauth2_auth_codes} AS oac
-        INNER JOIN {users} AS u ON oac.uid = u.uid
-      WHERE oac.code = :code", array(':code' => $code));
+    FROM {oauth2_auth_codes} AS oac
+    INNER JOIN {users} AS u ON oac.uid = u.uid
+    WHERE oac.code = :code", array(':code' => $code));
     return $result->fetchAssoc();
   }
 
@@ -417,10 +417,10 @@ class DrupalOAuth2 extends OAuth2 {
       user_module_invoke('login', $array, $account);
 
       $result = array(
-        'uid' => $account->uid,
-        'name' => $account->name,
-        'sid' => session_id(),
-        'scope' => trim(implode(' ', $this->getAuthorizedScopes($client_id, $account->uid))),
+          'uid' => $account->uid,
+          'name' => $account->name,
+          'sid' => session_id(),
+          'scope' => trim(implode(' ', $this->getAuthorizedScopes($client_id, $account->uid))),
       );
     }
 
@@ -432,9 +432,9 @@ class DrupalOAuth2 extends OAuth2 {
    */
   public function getRefreshToken($refresh_token) {
     $result = db_query("SELECT ort.client_id, ort.sid, ort.expires, ort.scope, u.uid, u.name
-      FROM {oauth2_refresh_tokens} AS ort
-        INNER JOIN {users} AS u ON ort.uid = u.uid
-      WHERE ort.refresh_token = :token", array(':token' => $refresh_token));
+    FROM {oauth2_refresh_tokens} AS ort
+    INNER JOIN {users} AS u ON ort.uid = u.uid
+    WHERE ort.refresh_token = :token", array(':token' => $refresh_token));
     return $result->fetchAssoc();
   }
 

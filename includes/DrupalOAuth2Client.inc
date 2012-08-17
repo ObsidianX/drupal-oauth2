@@ -17,9 +17,9 @@ class DrupalOAuth2Client extends OAuth2Client {
    */
   public function __construct($config = array()) {
     global $user;
-  
+
     parent::__construct($config);
-  
+
     $oauth2_mode = variable_get('oauth2_provider_mode');
     //only for client mode and no need to load if already logged in
     if ($oauth2_mode == 'DrupalOAuth2Client' && !user_is_logged_in()) {
@@ -38,57 +38,101 @@ class DrupalOAuth2Client extends OAuth2Client {
           }
         }
       }
-  
+
     }
   }
-/**
- * Overrides OAuth2Client::api()
- * 
- * @param $path
- *   The target path, relative to base_path/service_uri or an absolute URI.
- * @param $method
- *   (optional) The HTTP method (default 'GET').
- * @param $params
- *   (optional The GET/POST parameters.
- *
- * @return
- *   The JSON decoded response object.
- *
- * @throws OAuth2Exception
- */
+  /**
+   * Overrides OAuth2Client::api()
+   *
+   * @param $path
+   *   The target path, relative to base_path/service_uri or an absolute URI.
+   * @param $method
+   *   (optional) The HTTP method (default 'GET').
+   * @param $params
+   *   (optional The GET/POST parameters.
+   *
+   * @return
+   *   The JSON decoded response object.
+   *
+   * @throws OAuth2Exception
+   */
   public function api($path, $method = 'GET', $params = array()) {
     if (is_array($method) && empty($params)) {
       $params = $method;
       $method = 'GET';
     }
-  
+
     // json_encode all params values that are not strings.
     foreach ($params as $key => $value) {
       if (!is_string($value)) {
         $params[$key] = json_encode($value);
       }
     }
-  
+
     $result = json_decode($this->makeOAuth2Request(
     $this->getUri($path),
     $method,
     $params
     ), TRUE);
-    $session = $this->getSession();
+    
     // Results are returned, errors are thrown.
     if (is_array($result) && isset($result['error'])) {
       $e = new OAuth2Exception($result);
-      switch ($e->getType()) {
+      $error_type = $e->getType();
+      switch ($error_type) {
         // OAuth 2.0 Draft 10 style.
         case OAUTH2_ERROR_EXPIRED_TOKEN:
-          error_log(print_r($session,true));
-          break;
-        case 'invalid_token':
-          //$this->setSession(NULL);
           
           break;
+        case OAUTH2_ERROR_INVALID_TOKEN:
+          //$this->setSession(NULL);
+          $this->setSession(NULL);
+          user_logout();
+          break;
         default:
-          error_log(print_r($e->getResult(),true));
+          //special hack..coz the library is bugged
+          if (strpos($error_type, OAUTH2_ERROR_EXPIRED_TOKEN) === 0) {
+            $access_token = $this->getAccessTokenFromRefreshToken();
+            //error_log('new access_token '.print_r($access_token,true));
+            $session = $this->getSessionObject($access_token);
+            $session = $this->validateSessionObject($session);
+            if (!empty($session)) {
+              //if session is valid
+              $this->setSession($session);
+              
+              //update the access token in $params
+              if (isset($params['oauth_token'])) {
+                $params['oauth_token'] = $this->getAccessToken();
+              } elseif (isset($params['access_token'])) {
+                $params['access_token'] = $this->getAccessToken();
+              }
+              //try to call api again
+              $result = json_decode($this->makeOAuth2Request(
+              $this->getUri($path),
+              $method,
+              $params
+              ), TRUE);
+              
+              if (is_array($result) && isset($result['error'])) {
+                //if still failed
+                $this->setSession(NULL);
+                user_logout();
+              } else {
+                return $result;
+              }
+            }else {
+              //if still invalid
+              $this->setSession(NULL);
+              user_logout();
+            }
+            break;
+          } else if (strpos($error_type, OAUTH2_ERROR_INVALID_TOKEN) === 0) {
+            $this->setSession(NULL);
+            user_logout();
+            break;
+          }
+          
+          
           $this->setSession(NULL);
           throw $e;
       }
@@ -96,6 +140,26 @@ class DrupalOAuth2Client extends OAuth2Client {
     }
     return $result;
   }
+  /**
+   * 
+   */
+  public function getAccessTokenFromRefreshToken() {
+    
+    if ($this->getVariable('access_token_uri') && $this->getVariable('client_id') && $this->getVariable('client_secret')) {
+      return json_decode($this->makeRequest(
+        $this->getVariable('access_token_uri'),
+        'POST',
+        array(
+          'grant_type' => OAUTH2_GRANT_TYPE_REFRESH_TOKEN,
+          'refresh_token' => $this->getRefreshToken(),
+          'client_id' => $this->getVariable('client_id'),
+          'client_secret' => $this->getVariable('client_secret'),
+        )
+      ), TRUE);
+    }
+    return NULL;
+  }
+  
   /**
    * @return
    *  The valid OAuth2 refresh token, or NULL if not exist
@@ -114,21 +178,21 @@ class DrupalOAuth2Client extends OAuth2Client {
 
     // we won't know the server session id
     $params = array(
-      'sid' => NULL,
-      'oauth_token' => $this->getAccessToken(),
+        'sid' => NULL,
+        'oauth_token' => $this->getAccessToken(),
     );
 
     // Purge tokens based on oauth_token if provided.
     /*if (isset($_REQUEST['oauth_token']) && !empty($_REQUEST['oauth_token'])) {
-      $result = $this->getAccessToken($_REQUEST['oauth_token']);
-      if ($result) {
-        $params = array(
-          'sid' => $result['sid'],
-          'oauth_token' => $_REQUEST['oauth_token'],
-        );
-      }
+    $result = $this->getAccessToken($_REQUEST['oauth_token']);
+    if ($result) {
+    $params = array(
+        'sid' => $result['sid'],
+        'oauth_token' => $_REQUEST['oauth_token'],
+    );
+    }
     }*/
-    
+
 
     return $this->api('/oauth2/expireSession', 'POST', $params);
   }
@@ -152,32 +216,32 @@ class DrupalOAuth2Client extends OAuth2Client {
       return $user;
     }
     user_external_login_register($name,'oauth2');
-    
+
     /*if (!empty($user->uid)) {
-      return $user;
+     return $user;
     }
-  
+
     if (isset($name) && !($account = user_load_by_name($name))) {
-      // We hack and create a dummy user placeholder if it is exist in
-      // token tables but not yet a real user account, typically
-      // happened when server running in proxy mode. Can't use
-      // drupal_write_record() as uid is serial.
-      
-      $user_array = array(
-          'name'   => $name,
-          'pass'   => user_password(20),
-          'mail'   => $mail,
-          'init'   => $mail,
-          'status' => 1,
-      );
-      $user = user_save(NULL, $user_array);
-      if ($user === FALSE) {
-        watchdog('user', 'failed to create user %name.', array('%name' => $name));
-        return FALSE;
-      }
+    // We hack and create a dummy user placeholder if it is exist in
+    // token tables but not yet a real user account, typically
+    // happened when server running in proxy mode. Can't use
+    // drupal_write_record() as uid is serial.
+
+    $user_array = array(
+        'name'   => $name,
+        'pass'   => user_password(20),
+        'mail'   => $mail,
+        'init'   => $mail,
+        'status' => 1,
+    );
+    $user = user_save(NULL, $user_array);
+    if ($user === FALSE) {
+    watchdog('user', 'failed to create user %name.', array('%name' => $name));
+    return FALSE;
+    }
     }
     $user = $account;
-  
+
     //login the user
     //copy from user_login_finalize without calling user_module_invoke('login', $edit, $user);
     watchdog('user', 'Session opened for %name.', array('%name' => $user->name));
@@ -188,14 +252,14 @@ class DrupalOAuth2Client extends OAuth2Client {
     ->fields(array('login' => $user->login))
     ->condition('uid', $user->uid)
     ->execute();
-  
+
     // Regenerate the session ID to prevent against session fixation attacks.
     // This is called before hook_user in case one of those functions fails
     // or incorrectly does a redirect which would leave the old session in place.
     drupal_session_regenerate();*/
-  
 
-  
+
+
     return $user;
   }
   /**
@@ -211,12 +275,12 @@ class DrupalOAuth2Client extends OAuth2Client {
    */
   public function getLoginUri($params = array()) {
     return $this->getUri(
-      $this->getVariable('base_uri') . 'user',
-      array_merge(array(
+    $this->getVariable('base_uri') . 'user',
+    array_merge(array(
         'response_type' => 'code',
         'client_id' => $this->getVariable('client_id'),
         'redirect_uri' => $this->getCurrentUri(),
-      ), $params)
+    ), $params)
     );
   }
 
@@ -231,11 +295,11 @@ class DrupalOAuth2Client extends OAuth2Client {
    */
   public function getLogoutUri($params = array()) {
     return $this->getUri(
-      $this->getVariable('base_uri') . 'logout',
-      array_merge(array(
+    $this->getVariable('base_uri') . 'logout',
+    array_merge(array(
         'oauth_token' => $this->getAccessToken(),
         'redirect_uri' => $this->getCurrentUri(),
-      ), $params)
+    ), $params)
     );
   }
 }
