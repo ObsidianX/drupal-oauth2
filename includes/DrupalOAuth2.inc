@@ -274,7 +274,9 @@ class DrupalOAuth2 extends OAuth2 {
       db_query("DELETE FROM {oauth2_auth_codes} WHERE sid = :sid", array(':sid' => $sid));
       db_query("DELETE FROM {oauth2_refresh_tokens} WHERE sid = :sid", array(':sid' => $sid));
 
-      db_query("DELETE FROM {sessions} WHERE uid = :uid", array(':uid' => $uid));
+      if ($uid != 0) {
+        db_query("DELETE FROM {sessions} WHERE uid = :uid", array(':uid' => $uid));
+      }
 
       // Also manually destroy user session.
       /*if (session_id($sid) != $sid) {

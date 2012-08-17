@@ -252,23 +252,33 @@ function oauth2_server_block_view($delta = '') {
     $block = array();
     switch ($delta) {
       case 'oauth2_login':
+        $links = array (
+          'link_redirect' => array(
+            'title' => 'OAuth2 Login (Redirect)',
+            'href' => $server->base_uri.$server->authorize_uri.'?response_type=code&client_id='.$server->client_id.'&redirect_uri='.url('<front>',array('absolute' => TRUE)),
+          ),
+        );
         $block['subject'] = t('OAuth2 login');
         $block['content'] = array(
             'link' => array(
-                '#theme'  => 'link',
+                '#theme'  => 'links',
                 '#text'   => 'OAuth2 Login',
-                '#path'   => $server->base_uri.$server->authorize_uri.'?response_type=code&client_id='.$server->client_id.'&redirect_uri='.url('<front>',array('absolute' => TRUE)),
+                '#links'   => $links,
                 '#options' => array(
-                    'attributes' => array('class' => array('oauth2-login-link'), 'id' => 'oauth2-login-link'),
+                    'attributes' => array(),
                     //REQUIRED:
                     'html' => FALSE,
                 )
-            )
+            ),
+            
         );
+        
         return $block;
     }
   }
 }
+
+
 
 /**
  * Implements hook_theme().

@@ -22,7 +22,7 @@ class DrupalOAuth2Client extends OAuth2Client {
   
     $oauth2_mode = variable_get('oauth2_provider_mode');
     //only for client mode and no need to load if already logged in
-    if ($oauth2_mode == 'DrupalOAuth2Client' && (empty($user->uid))) {
+    if ($oauth2_mode == 'DrupalOAuth2Client' && !user_is_logged_in()) {
 
       // devel_execute_block_form also submit execute code in $_REQUEST['code'].
       if (!isset($_REQUEST['form_id']) || $_REQUEST['form_id'] !== 'devel_execute_block_form') {
@@ -41,7 +41,69 @@ class DrupalOAuth2Client extends OAuth2Client {
   
     }
   }
+/**
+ * Overrides OAuth2Client::api()
+ * 
+ * @param $path
+ *   The target path, relative to base_path/service_uri or an absolute URI.
+ * @param $method
+ *   (optional) The HTTP method (default 'GET').
+ * @param $params
+ *   (optional The GET/POST parameters.
+ *
+ * @return
+ *   The JSON decoded response object.
+ *
+ * @throws OAuth2Exception
+ */
+  public function api($path, $method = 'GET', $params = array()) {
+    if (is_array($method) && empty($params)) {
+      $params = $method;
+      $method = 'GET';
+    }
   
+    // json_encode all params values that are not strings.
+    foreach ($params as $key => $value) {
+      if (!is_string($value)) {
+        $params[$key] = json_encode($value);
+      }
+    }
+  
+    $result = json_decode($this->makeOAuth2Request(
+    $this->getUri($path),
+    $method,
+    $params
+    ), TRUE);
+    $session = $this->getSession();
+    // Results are returned, errors are thrown.
+    if (is_array($result) && isset($result['error'])) {
+      $e = new OAuth2Exception($result);
+      switch ($e->getType()) {
+        // OAuth 2.0 Draft 10 style.
+        case OAUTH2_ERROR_EXPIRED_TOKEN:
+          error_log(print_r($session,true));
+          break;
+        case 'invalid_token':
+          //$this->setSession(NULL);
+          
+          break;
+        default:
+          error_log(print_r($e->getResult(),true));
+          $this->setSession(NULL);
+          throw $e;
+      }
+
+    }
+    return $result;
+  }
+  /**
+   * @return
+   *  The valid OAuth2 refresh token, or NULL if not exist
+   */
+  public function getRefreshToken() {
+    $session = $this->getSession();
+    return isset($session['refresh_token']) ? $session['refresh_token'] : NULL;
+  }
   /**
    * Expires all OAuth2.0 related tokens based on sid.
    *

@@ -87,6 +87,7 @@ function oauth2_init() {
             'authorize_uri' => $server->authorize_uri,
             'redirect_uri'  => $temp_url,
             'logged_in'  => user_is_logged_in(),
+            'auto_login_enabled' => variable_get('oauth2_auto_login'),
         )), 'setting');
     drupal_add_js(drupal_get_path('module', 'oauth2_server').'/oauth2_server.js');
   

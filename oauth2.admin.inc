@@ -147,6 +147,15 @@ function oauth2_admin_settings() {
             )),
         );
       }
+      
+      $form['oauth2_provider_mode_client']['oauth2_auto_login'] = array(
+          '#type' => 'checkbox',
+          '#return_value' => TRUE,
+          '#title' => t('Enable auto login?'),
+          '#default_value' => variable_get('oauth2_auto_login'),
+          '#description' => t('User do not need to click login button if enabled. Increase server load.'),
+          
+      );
     }
   }
 
