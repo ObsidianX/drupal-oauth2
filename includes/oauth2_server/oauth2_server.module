@@ -99,6 +99,16 @@ function oauth2_server_menu() {
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
+  
+  $items['user/%/oauth2/edit'] = array(
+      'title' => 'Account',
+      'page callback' => 'oauth2_server_user_edit',
+      'page arguments' => array(1),
+      'access callback' => 'user_edit_access',
+      'access arguments' => array(1),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'oauth2_server.admin.inc',
+  );
 
   return $items;
 }

@@ -195,7 +195,7 @@ function oauth2_client_delete_form($form, &$form_state, $oauth2_client) {
           '#value' => $oauth2_client->cid,
       ),
   ),
-  t('Are you sure you want to delete this client Identifier?'),
+  t('Are you sure you want to delete this client Identifier: '.$oauth2_client->title.' ?'),
   $destination['destination'],
   t('This action cannot be undone.'),
   t('Delete Client Identifier'),

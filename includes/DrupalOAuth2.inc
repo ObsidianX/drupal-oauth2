@@ -283,8 +283,8 @@ class DrupalOAuth2 extends OAuth2 {
       session_start();
       session_id($sid);
       }*/
-
-      return session_destroy();
+      return TRUE;
+      //return session_destroy();
     }
 
     return FALSE;
