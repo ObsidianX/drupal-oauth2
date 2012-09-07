@@ -3,7 +3,7 @@
 /**
  * @file
  * Simpletest case for oauth2_server module.
- * 
+ *
  * Not yet convert to D7
  *
  * Verify oauth2_server module functionality.
@@ -17,9 +17,9 @@ class OAuth2ServerTestCase extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => 'OAuth2.0 Server Identifer',
-      'description' => 'Verify the oauth2_server entity creation and admin overview.',
-      'group' => 'OAuth2.0',
+        'name' => 'OAuth2.0 Server Identifer',
+        'description' => 'Verify the oauth2_server entity creation and admin overview.',
+        'group' => 'OAuth2.0',
     );
   }
 
@@ -37,13 +37,13 @@ class OAuth2ServerTestCase extends DrupalWebTestCase {
 
     // Create a new entity.
     $edit = array(
-      'title' => $this->randomName(),
-      'server_id' => $this->randomName(),
-      'base_uri' => 'http://example.com/',
-      'client_id' => md5(base64_encode(pack('N6', mt_rand(), mt_rand(), mt_rand(), mt_rand(), mt_rand(), uniqid()))),
-      'client_secret' => md5(base64_encode(pack('N6', mt_rand(), mt_rand(), mt_rand(), mt_rand(), mt_rand(), uniqid()))),
-      'authorize_uri' => 'oauth2/authorize',
-      'access_token_uri' => 'oauth2/access_token',
+        'title' => $this->randomName(),
+        'server_id' => $this->randomName(),
+        'base_uri' => 'http://example.com/',
+        'client_id' => md5(base64_encode(pack('N6', mt_rand(), mt_rand(), mt_rand(), mt_rand(), mt_rand(), uniqid()))),
+        'client_secret' => md5(base64_encode(pack('N6', mt_rand(), mt_rand(), mt_rand(), mt_rand(), mt_rand(), uniqid()))),
+        'authorize_uri' => 'oauth2/authorize',
+        'access_token_uri' => 'oauth2/access_token',
     );
     $this->drupalPost('oauth2-server/add', $edit, t('Save'));
     $this->assertText(t("OAuth2.0 Server Identifer @title has been created", array('@title' => $edit['title'])));
@@ -62,7 +62,7 @@ class OAuth2ServerTestCase extends DrupalWebTestCase {
     $this->drupalLogin($this->admin_user);
 
     $servers = array();
-    $servers[] = 
+    $servers[] =
     $nodes['oauth2_server_1'] = $this->drupalCreateNode(array('type' => 'oauth2_server', 'base_uri' => 'http://example1.com/', 'server_id' => 'example1'));
     $nodes['oauth2_server_2'] = $this->drupalCreateNode(array('type' => 'oauth2_server', 'base_uri' => 'http://example2.com/', 'server_id' => 'example2'));
 

@@ -17,24 +17,24 @@ class OAuth2ProviderTestCase extends DrupalWebTestCase {
   //       drupalPost().
   protected function drupalRawPost($path, $params) {
     $out = $this->curlExec(array(
-      CURLOPT_URL => $path,
-      CURLOPT_POST => TRUE,
-      CURLOPT_POSTFIELDS => http_build_query($params, NULL, '&'),
+        CURLOPT_URL => $path,
+        CURLOPT_POST => TRUE,
+        CURLOPT_POSTFIELDS => http_build_query($params, NULL, '&'),
     ));
     if (($new = $this->checkForMetaRefresh())) {
       $out = $new;
     }
     $this->verbose('POST request to: ' . $path .
-                   '<hr />Fields: ' . highlight_string('<?php ' . var_export($params, TRUE), TRUE) .
-                   '<hr />' . $out);
+    '<hr />Fields: ' . highlight_string('<?php ' . var_export($params, TRUE), TRUE) .
+    '<hr />' . $out);
     return $out;
   }
 
   public static function getInfo() {
     return array(
-      'name' => 'OAuth2.0 Provider Support',
-      'description' => 'Verify the oauth2_provider functionality.',
-      'group' => 'OAuth2.0',
+        'name' => 'OAuth2.0 Provider Support',
+        'description' => 'Verify the oauth2_provider functionality.',
+        'group' => 'OAuth2.0',
     );
   }
 
@@ -53,18 +53,18 @@ class OAuth2ProviderTestCase extends DrupalWebTestCase {
     $title = $this->randomName();
     $redirect_uri = url(NULL, array('absolute' => TRUE));
     $edit = array(
-      'title' => $title,
-      'redirect_uri' => $redirect_uri,
+        'title' => $title,
+        'redirect_uri' => $redirect_uri,
     );
     $this->drupalPost('node/add/oauth2-client', $edit, t('Save'));
     $node = node_load(array('title' => $title));
 
     // Test response_type = code.
     $this->drupalGet($redirect_uri . "oauth2/authorize", array(
-      'query' => array(
-        'response_type' => 'code',
-        'client_id' => $node->client_id,
-      ),
+        'query' => array(
+            'response_type' => 'code',
+            'client_id' => $node->client_id,
+        ),
     ));
     $this->assertResponse(200);
     $response = parse_url($this->getUrl());
@@ -74,10 +74,10 @@ class OAuth2ProviderTestCase extends DrupalWebTestCase {
 
     // Test response_type = token.
     $this->drupalGet($redirect_uri . "oauth2/authorize", array(
-      'query' => array(
-        'response_type' => 'token',
-        'client_id' => $node->client_id,
-      ),
+        'query' => array(
+            'response_type' => 'token',
+            'client_id' => $node->client_id,
+        ),
     ));
     $this->assertResponse(200);
     $response = parse_url($this->getUrl());
@@ -87,10 +87,10 @@ class OAuth2ProviderTestCase extends DrupalWebTestCase {
 
     // Test response_type = code-and-token.
     $this->drupalGet($redirect_uri . "oauth2/authorize", array(
-      'query' => array(
-        'response_type' => 'code-and-token',
-        'client_id' => $node->client_id,
-      ),
+        'query' => array(
+            'response_type' => 'code-and-token',
+            'client_id' => $node->client_id,
+        ),
     ));
     $this->assertResponse(200);
     $response = parse_url($this->getUrl());
@@ -112,18 +112,18 @@ class OAuth2ProviderTestCase extends DrupalWebTestCase {
     $title = $this->randomName();
     $redirect_uri = url(NULL, array('absolute' => TRUE));
     $edit = array(
-      'title' => $title,
-      'redirect_uri' => $redirect_uri,
+        'title' => $title,
+        'redirect_uri' => $redirect_uri,
     );
     $this->drupalPost('node/add/oauth2-client', $edit, t('Save'));
     $oauth2_client = node_load(array('title' => $title));
 
     // Test response_type = code.
     $this->drupalGet($redirect_uri . "oauth2/authorize", array(
-      'query' => array(
-        'response_type' => 'code',
-        'client_id' => $oauth2_client->client_id,
-      ),
+        'query' => array(
+            'response_type' => 'code',
+            'client_id' => $oauth2_client->client_id,
+        ),
     ));
     $this->assertResponse(200);
     $response = parse_url($this->getUrl());
@@ -132,22 +132,22 @@ class OAuth2ProviderTestCase extends DrupalWebTestCase {
 
     // Test grant_type = authorization_code.
     $result = json_decode($this->drupalRawPost($oauth2_client->redirect_uri . 'oauth2/access_token', array(
-      'grant_type' => 'authorization_code',
-      'client_id' => $oauth2_client->client_id,
-      'client_secret' => $oauth2_client->client_secret,
-      'code' => $code,
-      'redirect_uri' => $oauth2_client->redirect_uri,
+        'grant_type' => 'authorization_code',
+        'client_id' => $oauth2_client->client_id,
+        'client_secret' => $oauth2_client->client_secret,
+        'code' => $code,
+        'redirect_uri' => $oauth2_client->redirect_uri,
     )), TRUE);
     $this->assertResponse(200);
     $this->assertTrue(isset($result['access_token']), "'access_token' is found from grant_type = authorization_code: ". $result['access_token']);
 
     // Test grant_type = password.
     $result = json_decode($this->drupalRawPost($oauth2_client->redirect_uri . 'oauth2/access_token', array(
-      'grant_type' => 'password',
-      'client_id' => $oauth2_client->client_id,
-      'client_secret' => $oauth2_client->client_secret,
-      'username' => $this->admin_user->name,
-      'password' => $this->admin_user->pass_raw,
+        'grant_type' => 'password',
+        'client_id' => $oauth2_client->client_id,
+        'client_secret' => $oauth2_client->client_secret,
+        'username' => $this->admin_user->name,
+        'password' => $this->admin_user->pass_raw,
     )), TRUE);
     $this->assertResponse(200);
     $this->assertTrue(isset($result['access_token']), "'access_token' is found from grant_type = password: ". $result['access_token']);

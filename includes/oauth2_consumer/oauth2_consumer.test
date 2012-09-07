@@ -15,9 +15,9 @@ class OAuth2ConsumerTestCase extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => 'OAuth2.0 Consumer Support',
-      'description' => 'Verify the extend fields added to oauth2_server by oauth2_consumer.',
-      'group' => 'OAuth2.0',
+        'name' => 'OAuth2.0 Consumer Support',
+        'description' => 'Verify the extend fields added to oauth2_server by oauth2_consumer.',
+        'group' => 'OAuth2.0',
     );
   }
 
@@ -35,17 +35,17 @@ class OAuth2ConsumerTestCase extends DrupalWebTestCase {
 
     // Create a new node.
     $edit = array(
-      'title' => $this->randomName(),
-      'server_id' => $this->randomName(),
-      'base_uri' => 'http://example.com/',
-      'client_id' => md5(base64_encode(pack('N6', mt_rand(), mt_rand(), mt_rand(), mt_rand(), mt_rand(), uniqid()))),
-      'client_secret' => md5(base64_encode(pack('N6', mt_rand(), mt_rand(), mt_rand(), mt_rand(), mt_rand(), uniqid()))),
-      'authorize_uri' => 'oauth2/authorize',
-      'access_token_uri' => 'oauth2/access_token',
-      'username' => 'example_username',
-      'password' => 'example_password',
-      'services_uri' => 'example_endpoint',
-      'expires_in' => '60',
+        'title' => $this->randomName(),
+        'server_id' => $this->randomName(),
+        'base_uri' => 'http://example.com/',
+        'client_id' => md5(base64_encode(pack('N6', mt_rand(), mt_rand(), mt_rand(), mt_rand(), mt_rand(), uniqid()))),
+        'client_secret' => md5(base64_encode(pack('N6', mt_rand(), mt_rand(), mt_rand(), mt_rand(), mt_rand(), uniqid()))),
+        'authorize_uri' => 'oauth2/authorize',
+        'access_token_uri' => 'oauth2/access_token',
+        'username' => 'example_username',
+        'password' => 'example_password',
+        'services_uri' => 'example_endpoint',
+        'expires_in' => '60',
 
     );
     $this->drupalPost('node/add/oauth2-server', $edit, t('Save'));

@@ -13,61 +13,61 @@ function oauth2_client_schema() {
   $schema = array();
 
   $schema['oauth2_clients'] = array(
-    'description' => t('OAuth2.0 client indentifier information as Drupal node.'),
-    'fields' => array(
-      'cid' => array(
-        'description' => 'The primary identifier for a client.',
-        'type' => 'serial',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
+      'description' => t('OAuth2.0 client indentifier information as Drupal node.'),
+      'fields' => array(
+          'cid' => array(
+              'description' => 'The primary identifier for a client.',
+              'type' => 'serial',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'title' => array(
+              'description' => t('title.'),
+              'type' => 'varchar',
+              'length' => 64,
+              'not null' => TRUE,
+          ),
+          'client_id' => array(
+              'description' => t('The client identifier.'),
+              'type' => 'varchar',
+              'length' => 64,
+              'not null' => TRUE,
+          ),
+          'client_secret' => array(
+              'description' => t('The client password.'),
+              'type' => 'varchar',
+              'length' => 255,
+              'not null' => TRUE,
+          ),
+          'redirect_uri' => array(
+              'description' => t('An absolute URI to which the authorization server will redirect the user-agent to when the end-user authorization step is completed.'),
+              'type' => 'text',
+          ),
+          'base_domain' => array(
+              'description' => t('If set, Drupal will enable authentication on all subdomains (e.g., "example.com" will enable *.example.com).'),
+              'type' => 'text',
+          ),
+          'status' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 1,
+              'size' => 'tiny',
+              'description' => 'status',
+          ),
+          'changed' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 1,
+              'size' => 'tiny',
+              'description' => 'changed',
+          ),
       ),
-      'title' => array(
-          'description' => t('title.'),
-          'type' => 'varchar',
-          'length' => 64,
-          'not null' => TRUE,
+      'indexes' => array(
+          'client_id' => array('client_id'),
       ),
-      'client_id' => array(
-        'description' => t('The client identifier.'),
-        'type' => 'varchar',
-        'length' => 64,
-        'not null' => TRUE,
-      ),
-      'client_secret' => array(
-        'description' => t('The client password.'),
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ),
-      'redirect_uri' => array(
-        'description' => t('An absolute URI to which the authorization server will redirect the user-agent to when the end-user authorization step is completed.'),
-        'type' => 'text',
-      ),
-      'base_domain' => array(
-        'description' => t('If set, Drupal will enable authentication on all subdomains (e.g., "example.com" will enable *.example.com).'),
-        'type' => 'text',
-      ),
-      'status' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 1,
-        'size' => 'tiny',
-        'description' => 'status',
-      ),
-      'changed' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 1,
-        'size' => 'tiny',
-        'description' => 'changed',
-      ),
-    ),
-    'indexes' => array(
-      'client_id' => array('client_id'),
-    ),
-    'primary key' => array('cid'),
+      'primary key' => array('cid'),
   );
 
   return $schema;

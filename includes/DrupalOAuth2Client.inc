@@ -74,7 +74,7 @@ class DrupalOAuth2Client extends OAuth2Client {
     $method,
     $params
     ), TRUE);
-    
+
     // Results are returned, errors are thrown.
     if (is_array($result) && isset($result['error'])) {
       $e = new OAuth2Exception($result);
@@ -82,7 +82,7 @@ class DrupalOAuth2Client extends OAuth2Client {
       switch ($error_type) {
         // OAuth 2.0 Draft 10 style.
         case OAUTH2_ERROR_EXPIRED_TOKEN:
-          
+
           break;
         case OAUTH2_ERROR_INVALID_TOKEN:
           //$this->setSession(NULL);
@@ -99,7 +99,7 @@ class DrupalOAuth2Client extends OAuth2Client {
             if (!empty($session)) {
               //if session is valid
               $this->setSession($session);
-              
+
               //update the access token in $params
               if (isset($params['oauth_token'])) {
                 $params['oauth_token'] = $this->getAccessToken();
@@ -112,7 +112,7 @@ class DrupalOAuth2Client extends OAuth2Client {
               $method,
               $params
               ), TRUE);
-              
+
               if (is_array($result) && isset($result['error'])) {
                 //if still failed
                 $this->setSession(NULL);
@@ -131,8 +131,8 @@ class DrupalOAuth2Client extends OAuth2Client {
             user_logout();
             break;
           }
-          
-          
+
+
           $this->setSession(NULL);
           throw $e;
       }
@@ -141,25 +141,25 @@ class DrupalOAuth2Client extends OAuth2Client {
     return $result;
   }
   /**
-   * 
+   *
    */
   public function getAccessTokenFromRefreshToken() {
-    
+
     if ($this->getVariable('access_token_uri') && $this->getVariable('client_id') && $this->getVariable('client_secret')) {
       return json_decode($this->makeRequest(
-        $this->getVariable('access_token_uri'),
-        'POST',
-        array(
+      $this->getVariable('access_token_uri'),
+      'POST',
+      array(
           'grant_type' => OAUTH2_GRANT_TYPE_REFRESH_TOKEN,
           'refresh_token' => $this->getRefreshToken(),
           'client_id' => $this->getVariable('client_id'),
           'client_secret' => $this->getVariable('client_secret'),
-        )
+      )
       ), TRUE);
     }
     return NULL;
   }
-  
+
   /**
    * @return
    *  The valid OAuth2 refresh token, or NULL if not exist

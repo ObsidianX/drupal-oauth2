@@ -12,7 +12,7 @@ function oauth2_scope_help($section, $arg) {
   switch ($section) {
     case 'admin/structure/oauth2/oauth2_scope':
       $help = '<p>'. t("An <a href='!oauth_scope'>OAuth2.0 Scope Identifer</a> contain the scope information, including scope name, default for empty scope query and bypass end-user authorization, etc.", array(
-        '!oauth_scope' => url('oauth2-scope/add'),
+      '!oauth_scope' => url('oauth2-scope/add'),
       )) .'</p>';
       return $help;
   }
@@ -25,13 +25,13 @@ function oauth2_scope_menu() {
   $items = array();
 
   $items['admin/structure/oauth2/oauth2-scope'] = array(
-    'title' => 'Scopes',
-    'description' => 'List, add, and edit OAuth2.0 Scope Identifer.',
-    'page callback' => 'oauth2_scope_admin_callback',
-    'access arguments' => array('administer site configuration'),
-    'file' => 'oauth2_scope.admin.inc',
-    'type' => MENU_LOCAL_TASK,
-    'weight' => -6,
+      'title' => 'Scopes',
+      'description' => 'List, add, and edit OAuth2.0 Scope Identifer.',
+      'page callback' => 'oauth2_scope_admin_callback',
+      'access arguments' => array('administer site configuration'),
+      'file' => 'oauth2_scope.admin.inc',
+      'type' => MENU_LOCAL_TASK,
+      'weight' => -6,
   );
   $items['oauth2-scope/%oauth2_scope'] = array(
       'title' => 'View OAuth2 scope Identifier',
@@ -43,7 +43,7 @@ function oauth2_scope_menu() {
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
-  
+
   $items['oauth2-scope/add'] = array(
       'title' => 'Add OAuth2 scope Identifier',
       'page callback' => 'drupal_get_form',
@@ -54,7 +54,7 @@ function oauth2_scope_menu() {
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
-  
+
   $items['oauth2-scope/%oauth2_scope/edit'] = array(
       'title' => 'Edit OAuth2 scope Identifier',
       'page callback' => 'drupal_get_form',
@@ -65,7 +65,7 @@ function oauth2_scope_menu() {
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
-  
+
   $items['oauth2-scope/%oauth2_scope/delete'] = array(
       'title' => 'Delete OAuth2 scope Identifier',
       'page callback' => 'drupal_get_form',
@@ -118,27 +118,27 @@ function oauth2_scope_entity_info() {
  */
 function oauth2_scope_permission() {
   return array(
-    'create oauth2_scope' => array(
-        'title' => t('Create new scope')
-    ),
-    /*'delete own oauth2_scope' => array(
-        'title' => t('Delete own scope')
-    ),*/
-    'delete any oauth2_scope' => array(
-        'title' => t('Delete any scope')
-    ),
-    /*'edit own oauth2_scope' => array(
-        'title' => t('Edit own scope')
-    ),*/
-    'edit any oauth2_scope' => array(
-        'title' => t('Edit any scope')
-    ),
+      'create oauth2_scope' => array(
+          'title' => t('Create new scope')
+      ),
+      /*'delete own oauth2_scope' => array(
+       'title' => t('Delete own scope')
+      ),*/
+      'delete any oauth2_scope' => array(
+          'title' => t('Delete any scope')
+      ),
+      /*'edit own oauth2_scope' => array(
+       'title' => t('Edit own scope')
+      ),*/
+      'edit any oauth2_scope' => array(
+          'title' => t('Edit any scope')
+      ),
   );
 }
 
 /**
  * @param $op
- *   The operation that is to be performed on the scope. 
+ *   The operation that is to be performed on the scope.
  * @param $scope
  *   The scope object.
  * @return
@@ -182,25 +182,25 @@ function oauth2_scope_update($oauth2_scope) {
  * Implements hook_update().
  */
 /*function oauth2_scope_update($node) {
-  // if this is a new node or we're adding a new revision,
-  if ($node->revision) {
-    oauth2_scope_insert($node);
-  }
-  else {
-    drupal_write_record('oauth2_scopes', $node, 'vid');
-  }
+ // if this is a new node or we're adding a new revision,
+if ($node->revision) {
+oauth2_scope_insert($node);
+}
+else {
+drupal_write_record('oauth2_scopes', $node, 'vid');
+}
 }*/
 
 /**
  * Implements hook_nodeapi().
  */
 /*function oauth2_scope_nodeapi(&$node, $op, $teaser, $page) {
-  switch ($op) {
-    case 'delete revision':
-      // Notice that we're matching a single revision based on the node's vid.
-      db_query("DELETE FROM {oauth2_scopes} WHERE vid = %d", $node->vid);
-      break;
-  }
+ switch ($op) {
+case 'delete revision':
+// Notice that we're matching a single revision based on the node's vid.
+db_query("DELETE FROM {oauth2_scopes} WHERE vid = %d", $node->vid);
+break;
+}
 }*/
 
 /**
@@ -231,25 +231,25 @@ function oauth2_scope_load_multiple($sids = array(), $conditions = array(), $res
  * Implements hook_view().
  */
 /*function oauth2_scope_view($node, $teaser = FALSE, $page = FALSE) {
-  $node = node_prepare($node, $teaser);
-  $node->content['scope_id'] = array(
+ $node = node_prepare($node, $teaser);
+$node->content['scope_id'] = array(
     '#value' => theme('oauth2_scope_scope_id', $node->scope_id),
     '#weight' => -10,
-  );
-  $node->content['hidden'] = array(
+);
+$node->content['hidden'] = array(
     '#value' => theme('oauth2_scope_hidden', $node->hidden),
     '#weight' => -9,
-  );
-  $node->content['bypass'] = array(
+);
+$node->content['bypass'] = array(
     '#value' => theme('oauth2_scope_bypass', $node->bypass),
     '#weight' => -8,
-  );
-  $node->content['required'] = array(
+);
+$node->content['required'] = array(
     '#value' => theme('oauth2_scope_required', $node->required),
     '#weight' => -7,
-  );
+);
 
-  return $node;
+return $node;
 }*/
 
 /**
@@ -257,18 +257,18 @@ function oauth2_scope_load_multiple($sids = array(), $conditions = array(), $res
  */
 function oauth2_scope_theme() {
   return array(
-    'oauth2_scope_scope_id' => array(
-      'arguments' => array('scope_id' => '', 'teaser' => 0, 'page' => 0),
-    ),
-    'oauth2_scope_hidden' => array(
-      'arguments' => array('hidden' => '', 'teaser' => 0, 'page' => 0),
-    ),
-    'oauth2_scope_bypass' => array(
-      'arguments' => array('bypass' => '', 'teaser' => 0, 'page' => 0),
-    ),
-    'oauth2_scope_required' => array(
-      'arguments' => array('required' => '', 'teaser' => 0, 'page' => 0),
-    ),
+      'oauth2_scope_scope_id' => array(
+          'arguments' => array('scope_id' => '', 'teaser' => 0, 'page' => 0),
+      ),
+      'oauth2_scope_hidden' => array(
+          'arguments' => array('hidden' => '', 'teaser' => 0, 'page' => 0),
+      ),
+      'oauth2_scope_bypass' => array(
+          'arguments' => array('bypass' => '', 'teaser' => 0, 'page' => 0),
+      ),
+      'oauth2_scope_required' => array(
+          'arguments' => array('required' => '', 'teaser' => 0, 'page' => 0),
+      ),
   );
 }
 

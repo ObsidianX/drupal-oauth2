@@ -146,7 +146,7 @@ function oauth2_client_edit_form($form, &$form_state, $oauth2_client = NULL) {
       '#type' => 'value',
       '#value' => isset($oauth2_client->cid) ? $oauth2_client->cid : NULL,
   );
-  
+
   $form['actions'] = array(
       '#type' => 'actions',
       'save' => array(

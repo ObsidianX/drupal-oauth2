@@ -25,19 +25,19 @@ function oauth2_provider_menu() {
 
   // End-user authorization endpoint for both code and token.
   $items['oauth2/authorize'] = array(
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('oauth2_provider_authorize_form'),
-    'access callback' => TRUE,
-    'file' => 'oauth2_provider.pages.inc',
-    'type' => MENU_CALLBACK,
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('oauth2_provider_authorize_form'),
+      'access callback' => TRUE,
+      'file' => 'oauth2_provider.pages.inc',
+      'type' => MENU_CALLBACK,
   );
 
   // Token endpoint for both authorizaion code, password and refresh token.
   $items['oauth2/access_token'] = array(
-    'page callback' => 'oauth2_provider_access_token_callback',
-    'access callback' => TRUE,
-    'file' => 'oauth2_provider.pages.inc',
-    'type' => MENU_CALLBACK,
+      'page callback' => 'oauth2_provider_access_token_callback',
+      'access callback' => TRUE,
+      'file' => 'oauth2_provider.pages.inc',
+      'type' => MENU_CALLBACK,
   );
 
   return $items;
@@ -60,7 +60,6 @@ function oauth2_provider_menu_alter(&$callbacks) {
  */
 function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
 
-//for test only...should not alter login form in future
   if ($form_id != 'user_login_block' && $form_id != 'user_login') {
     return;
   }
@@ -70,36 +69,55 @@ function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
 
   $server_id = variable_get('oauth2_proxy_server_identifier');
   if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Proxy' && isset($server_id)) {
-    /**
-     * temp code for hacking user_login_block. delete it later!!!
-     */
-      /*$items = array();
-      if (variable_get('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL)) {
-        $items[] = l(t('Create new account'), 'http://server7.oauth2test.pantarei-design.com/user/register', array('attributes' => array('title' => t('Create a new user account.'))));
-      }
-      $items[] = l(t('Request new password'), 'http://server7.oauth2test.pantarei-design.com/user/password', array('attributes' => array('title' => t('Request new password via e-mail.'))));
-      $form['links'] = array('#markup' => theme('item_list', array('items' => $items)));*/
+
+    $oauth2_server = oauth2_server_load($server_id);
+    $form['#action'] = '/?destination=user&response_type=code&client_id='.$oauth2_server->client_id.'&redirect_uri=user';
+    // Replace the submit handler of login form.
 
 
-      $oauth2_server = oauth2_server_load($server_id);
-      $form['#action'] = '/?destination=user&response_type=code&client_id='.$oauth2_server->client_id.'&redirect_uri=user'; 
-      // Replace the submit handler of login form.
-
-
-      // Replace the drupal authenticate function is it's used as validation.
-      if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Proxy'
-        && isset($_GET['response_type'])
-        && isset($_GET['client_id'])
-        && isset($_GET['redirect_uri'])
-        && isset($form['#validate'])
-        && is_array($form['#validate'])
-        && ($key = array_search('user_login_authenticate_validate', $form['#validate']))) {
-        $form['#validate'][$key] = 'oauth2_provider_login_authenticate_validate';
-      }
+    // Replace the drupal authenticate function is it's used as validation.
+    if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Proxy'
+    && isset($_GET['response_type'])
+    && isset($_GET['client_id'])
+    && isset($_GET['redirect_uri'])
+    && isset($form['#validate'])
+    && is_array($form['#validate'])
+    && ($key = array_search('user_login_authenticate_validate', $form['#validate']))) {
+      $form['#validate'][$key] = 'oauth2_provider_login_authenticate_validate';
+    }
 
   }
 
 }
+
+// /**
+//  * Implements hook_form_FORM_ID_alter.
+//  */
+// function oauth2_provider_form_user_profile_form_alter(&$form, &$form_state) {
+//   if (isset($_GET['client_id'])) {
+//     $_SESSION['oauth2_from_client_id'] = $_GET['client_id'];
+//   } else {
+//     //unset any old oauth2_from_client_id
+//     unset($_SESSION['oauth2_from_client_id']);
+//   }
+  
+//   $form['#submit'][] = 'oauth2_provider_form_user_profile_form_alter_submit';
+// }
+// /**
+//  * Redirect back to client site.
+//  */
+// function oauth2_provider_form_user_profile_form_alter_submit($form, &$form_state) {
+//   if (!isset($_SESSION['oauth2_from_client_id'])) {
+//     return;
+//   }
+//   $client = oauth2_client_load_by_client_id($_SESSION['oauth2_from_client_id']);
+//   if (!isset($cleint)) {
+//     return;
+//   }
+  
+//   $form_state['redirect'] = array($client->redirect_uri);
+  
+// }
 
 /**
  * Implements hook_cron().
@@ -148,14 +166,14 @@ function oauth2_provider_login_submit($form, &$form_state) {
   // Redirect user to oauth2/authorize if from OAuth2.0 request pattern.
   if (isset($_GET['response_type']) && isset($_GET['client_id']) && isset($_GET['redirect_uri'])) {
 
-      $user = user_load($form_state['uid']);
-      $query = array('query' => $_GET);
-      unset($query['query']['q']);
-      $form_state['redirect'] = array('oauth2/authorize', $query);
+    $user = user_load($form_state['uid']);
+    $query = array('query' => $_GET);
+    unset($query['query']['q']);
+    $form_state['redirect'] = array('oauth2/authorize', $query);
 
   } else {
-      $user = user_load($form_state['uid']);
-      $form_state['redirect'] = 'user/'. $user->uid;
+    $user = user_load($form_state['uid']);
+    $form_state['redirect'] = 'user/'. $user->uid;
   }
   user_login_finalize($form_state);
 }
@@ -168,16 +186,16 @@ function oauth2_provider_login_authenticate_validate($form, &$form_state) {
   $root_user = user_load(1);
 
   if (trim($form_state['values']['name']) == $root_user->name) {
-      user_login_authenticate_validate($form,$form_state);
-    } else {
+    user_login_authenticate_validate($form,$form_state);
+  } else {
 
-      $result = oauth2_get_server()->checkUserCredentials($_GET['client_id'], $form_state['values']['name'], $form_state['values']['pass']);
-      if ($result) {
-        $form_state['uid'] = $result['uid'];
-      }
-      else {
-        watchdog('oauth2_provider', 'Login attempt failed for %user.', array('%user' => $form_state['values']['name']));
-      }
+    $result = oauth2_get_server()->checkUserCredentials($_GET['client_id'], $form_state['values']['name'], $form_state['values']['pass']);
+    if ($result) {
+      $form_state['uid'] = $result['uid'];
+    }
+    else {
+      watchdog('oauth2_provider', 'Login attempt failed for %user.', array('%user' => $form_state['values']['name']));
+    }
   }
 }
 
@@ -217,9 +235,9 @@ function oauth2_provider_logout() {
  */
 function oauth2_provider_theme() {
   return array(
-    'oauth2_provider_scope' => array(
-      'arguments' => array('node' => '', 'teaser' => 0, 'page' => 0),
-    ),
+      'oauth2_provider_scope' => array(
+          'arguments' => array('node' => '', 'teaser' => 0, 'page' => 0),
+      ),
   );
 }
 

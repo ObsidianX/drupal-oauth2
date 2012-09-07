@@ -39,7 +39,7 @@ function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, &$form_state
   } else {
     $oauth2_consumer = new StdClass(); //nothing
   }
-  
+
   $form['oauth2_server']['oauth2_consumer'] = array(
       '#type' => 'fieldset',
       '#title' => t('Consumer settings'),
@@ -78,7 +78,7 @@ function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, &$form_state
       '#default_value' => isset($oauth2_consumer->expires_in) ? $oauth2_consumer->expires_in : 0,
       '#required' => TRUE,
   );
-  
+
   $form['#validate'][] = 'oauth2_consumer_form_oauth2_server_edit_form_validate';
   $form['#submit'][] = 'oauth2_consumer_form_oauth2_server_edit_form_submit';
 
@@ -87,7 +87,7 @@ function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, &$form_state
  * validate oauth2_consumer_form_oauth2_server_edit_form_alter
  */
 function oauth2_consumer_form_oauth2_server_edit_form_validate(&$form, &$form_state) {
-  
+
 }
 /**
  * submit oauth2_consumer_form_oauth2_server_edit_form_alter
@@ -141,9 +141,9 @@ function oauth2_consumer_update($consumer) {
   } else {
 
     db_merge('oauth2_consumers')
-        ->key(array('sid' => $consumer['sid']))
-        ->fields($consumer)
-        ->execute();
+    ->key(array('sid' => $consumer['sid']))
+    ->fields($consumer)
+    ->execute();
 
   }
 }
@@ -163,7 +163,7 @@ function oauth2_consumer_load($sid = NULL, $reset = FALSE) {
   $sids = (isset($sid) ? array($sid) : array());
   $oauth2_consumer = oauth2_consumer_load_multiple($sids,$reset);
   return $oauth2_consumer ? reset ($oauth2_consumer) : FALSE;
-  
+
 }
 /**
  * Load multiple
@@ -181,20 +181,20 @@ function oauth2_consumer_load_multiple($sids = array(), $conditions = array(), $
  * Useless. view not implemented for now
  */
 /*function oauth2_consumer_view($node, $teaser = FALSE, $page = FALSE) {
-  if ($node->type == 'oauth2_server') {
-    $node = node_prepare($node, $teaser);
+ if ($node->type == 'oauth2_server') {
+$node = node_prepare($node, $teaser);
 
-    $node->content['username'] = array(
-        '#value' => theme('oauth2_consumer_username', $node->username),
-        '#weight' => 10,
-    );
-    $node->content['expires_in'] = array(
-        '#value' => theme('oauth2_consumer_expires_in', $node->expires_in),
-        '#weight' => 12,
-    );
+$node->content['username'] = array(
+    '#value' => theme('oauth2_consumer_username', $node->username),
+    '#weight' => 10,
+);
+$node->content['expires_in'] = array(
+    '#value' => theme('oauth2_consumer_expires_in', $node->expires_in),
+    '#weight' => 12,
+);
 
-    return $node;
-  }
+return $node;
+}
 }*/
 
 /**
@@ -217,10 +217,10 @@ function oauth2_consumer_theme() {
  * @ingroup themeable
  */
 /*function theme_oauth2_consumer_username($username, $teaser = 0, $page = 0) {
-  $output = '<div class="oauth2_consumer-info username">';
-  $output .= t('Username: @username', array('@username' => $username));
-  $output .= '</div>';
-  return $output;
+ $output = '<div class="oauth2_consumer-info username">';
+$output .= t('Username: @username', array('@username' => $username));
+$output .= '</div>';
+return $output;
 }*/
 
 /**
@@ -229,10 +229,10 @@ function oauth2_consumer_theme() {
  * @ingroup themeable
  */
 /*function theme_oauth2_consumer_services_uri($services_uri, $teaser = 0, $page = 0) {
-  $output = '<div class="oauth2_consumer-info services_uri">';
-  $output .= t('Services endpoint: @services_uri', array('@services_uri' => $services_uri));
-  $output .= '</div>';
-  return $output;
+ $output = '<div class="oauth2_consumer-info services_uri">';
+$output .= t('Services endpoint: @services_uri', array('@services_uri' => $services_uri));
+$output .= '</div>';
+return $output;
 }*/
 
 /**
@@ -241,8 +241,8 @@ function oauth2_consumer_theme() {
  * @ingroup themeable
  */
 /*function theme_oauth2_consumer_expires_in($expires_in, $teaser = 0, $page = 0) {
-  $output = '<div class="oauth2_consumer-info expires_in">';
-  $output .= t('Cache lifetime (in seconds): @expires_in', array('@expires_in' => $expires_in));
-  $output .= '</div>';
-  return $output;
+ $output = '<div class="oauth2_consumer-info expires_in">';
+$output .= t('Cache lifetime (in seconds): @expires_in', array('@expires_in' => $expires_in));
+$output .= '</div>';
+return $output;
 }*/

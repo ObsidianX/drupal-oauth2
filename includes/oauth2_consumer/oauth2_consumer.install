@@ -14,29 +14,29 @@ function oauth2_consumer_schema() {
   $schema = array();
 
   $schema['oauth2_consumers']  = array(
-    'description' => t('Stores information about OAuth2.0 consumers.'),
-    'fields' => array(
-      'sid' => array(
-        'description' => 'The primary identifier for a server identifier.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
+      'description' => t('Stores information about OAuth2.0 consumers.'),
+      'fields' => array(
+          'sid' => array(
+              'description' => 'The primary identifier for a server identifier.',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'expires_in' => array(
+              'description' => 'How long will OAuth2.0 cache query result within local cache. With a long cache lifetime can greatly reduce the loading of remote OAuth2.0 authorization server; by the way with a short cache lifetime can ensure the synchronize of access_token. To disable cache functionality, simply set this as 0.',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+          ),
+          'data' => array(
+              'type' => 'text',
+              'not null' => FALSE,
+              'size' => 'big',
+              'description' => 'A serialized array of name value pairs that are related to the consumer username and password.',
+          ),
       ),
-      'expires_in' => array(
-        'description' => 'How long will OAuth2.0 cache query result within local cache. With a long cache lifetime can greatly reduce the loading of remote OAuth2.0 authorization server; by the way with a short cache lifetime can ensure the synchronize of access_token. To disable cache functionality, simply set this as 0.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'data' => array(
-        'type' => 'text',
-        'not null' => FALSE,
-        'size' => 'big',
-        'description' => 'A serialized array of name value pairs that are related to the consumer username and password.',
-      ),
-    ),
-    'primary key' => array('sid'),
+      'primary key' => array('sid'),
   );
 
   return $schema;

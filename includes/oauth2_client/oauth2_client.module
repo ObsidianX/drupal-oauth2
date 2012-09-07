@@ -12,7 +12,7 @@ function oauth2_client_help($section, $arg) {
   switch ($section) {
     case 'admin/structure/oauth2/oauth2-client':
       $help = '<p>'. t("An <a href='!oauth2_client'>OAuth2.0 Client Identifer</a> contain the registed OAuth2.0 application information, including client_id, client_secret, redirect_uri and base_domain, etc.", array(
-        '!oauth2_client' => url('oauth2-client/add'),
+      '!oauth2_client' => url('oauth2-client/add'),
       )) .'</p>';
       return $help;
   }
@@ -25,15 +25,15 @@ function oauth2_client_menu() {
   $items = array();
 
   $items['admin/structure/oauth2/oauth2-client'] = array(
-    'title' => 'Clients',
-    'description' => 'List, add, and edit OAuth2.0 Client Identifer.',
-    'page callback' => 'oauth2_client_admin_callback',
-    'access arguments' => array('administer site configuration'),
-    'file' => 'oauth2_client.admin.inc',
-    'type' => MENU_LOCAL_TASK,
-    'weight' => -8,
+      'title' => 'Clients',
+      'description' => 'List, add, and edit OAuth2.0 Client Identifer.',
+      'page callback' => 'oauth2_client_admin_callback',
+      'access arguments' => array('administer site configuration'),
+      'file' => 'oauth2_client.admin.inc',
+      'type' => MENU_LOCAL_TASK,
+      'weight' => -8,
   );
-  
+
   $items['oauth2-client/%oauth2_client'] = array(
       'title' => 'View OAuth2 client Identifier',
       'page callback' => 'oauth2_client_view_callback',
@@ -44,7 +44,7 @@ function oauth2_client_menu() {
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
-  
+
   $items['oauth2-client/add'] = array(
       'title' => 'Add OAuth2 client Identifier',
       'page callback' => 'drupal_get_form',
@@ -55,7 +55,7 @@ function oauth2_client_menu() {
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
-  
+
   $items['oauth2-client/%oauth2_client/edit'] = array(
       'title' => 'Edit OAuth2 client Identifier',
       'page callback' => 'drupal_get_form',
@@ -66,7 +66,7 @@ function oauth2_client_menu() {
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
-  
+
   $items['oauth2-client/%oauth2_client/delete'] = array(
       'title' => 'Delete OAuth2 client Identifier',
       'page callback' => 'drupal_get_form',
@@ -93,22 +93,22 @@ function oauth2_client_entity_info() {
           'uri callback' => 'oauth2_client_uri',
           'fieldable' => FALSE,
           'entity keys' => array(
-            'id' => 'cid',
+              'id' => 'cid',
           ),
           'buddles' => array(
-            'oauth2_client' => array(
-               'label' => 'OAuth2 Client Identifier',
-                'admin' => array(
-                  'path' => 'admin/structure/oauth2/oauth2-client',
-                  'access arguments' =>  array('administer site configuration')
-                )
-             )
+              'oauth2_client' => array(
+                  'label' => 'OAuth2 Client Identifier',
+                  'admin' => array(
+                      'path' => 'admin/structure/oauth2/oauth2-client',
+                      'access arguments' =>  array('administer site configuration')
+                  )
+              )
           ),
           'view modes' => array(
-            'full' => array(
-                'label' => t('Clients'),
-                'custom settings' => FALSE,
-            ),
+              'full' => array(
+                  'label' => t('Clients'),
+                  'custom settings' => FALSE,
+              ),
           ),
       ),
   );
@@ -128,21 +128,21 @@ function oauth2_client_uri($client) {
  */
 function oauth2_client_permission() {
   return array(
-    'create oauth2_client' => array(
-        'title' => t('Create new client')
-    ),
-    'delete any oauth2_client' => array(
-        'title' => t('Delete any client')
-     ),
-    'edit any oauth2_client' => array(
-        'title' => t('Edit any client')
-    ),
+      'create oauth2_client' => array(
+          'title' => t('Create new client')
+      ),
+      'delete any oauth2_client' => array(
+          'title' => t('Delete any client')
+      ),
+      'edit any oauth2_client' => array(
+          'title' => t('Edit any client')
+      ),
   );
 }
 
 /**
  * @param $op
- *   The operation that is to be performed on the client identifier. 
+ *   The operation that is to be performed on the client identifier.
  * @param $client
  *   The client identifier object.
  * @return
@@ -167,76 +167,6 @@ function oauth2_client_access($op, $client) {
     }
   }
 }
-
-/**
- * Implements hook_form().
- */
-/*function oauth2_client_form(&$node) {
-  $type = node_get_types('type', $node);
-
-  if ($type->has_title) {
-    $form['title'] = array(
-      '#type' => 'textfield',
-      '#title' => check_plain($type->title_label),
-      '#required' => TRUE,
-      '#default_value' => $node->title,
-      '#maxlength' => 255,
-      '#weight' => -5,
-    );
-  }
-
-  if ($type->has_body) {
-    $form['body_field'] = node_body_field($node, $type->body_label, $type->min_word_count);
-  }
-
-  $form['oauth2_client'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('OAuth2.0 settings'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-  );
-
-  // Generate a random client_id.
-  if (!isset($node->client_id) || empty($node->client_id)) {
-    $node->client_id = md5(base64_encode(pack('N6', mt_rand(), mt_rand(), mt_rand(), mt_rand(), mt_rand(), uniqid())));
-  }
-  $form['oauth2_client']['client_id'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Application ID'),
-    '#description' => t('Your OAuth2.0 <em>client_id</em>.'),
-    '#value' => $node->client_id,
-    '#disabled' => TRUE,
-  );
-
-  // Generate a random client_secret.
-  if (!isset($node->client_secret) || empty($node->client_secret)) {
-    $node->client_secret = md5(base64_encode(pack('N6', mt_rand(), mt_rand(), mt_rand(), mt_rand(), mt_rand(), uniqid())));
-  }
-  $form['oauth2_client']['client_secret'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Application Secret'),
-    '#description' => t('Your OAuth2.0 <em>client_secret</em>.'),
-    '#value' => $node->client_secret,
-    '#disabled' => TRUE,
-  );
-
-  $form['oauth2_client']['redirect_uri'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Site URL'),
-    '#description' => t('Your site\'s URL.'),
-    '#default_value' => isset($node->redirect_uri) ? $node->redirect_uri : '',
-    '#required' => TRUE,
-  );
-
-  $form['oauth2_client']['base_domain'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Site Domain'),
-    '#description' => t('If set, Drupal will enable authentication on all subdomains (e.g., "example.com" will enable *.example.com).'),
-    '#default_value' => isset($node->base_domain) ? $node->base_domain : '',
-  );
-
-  return $form;
-}*/
 
 /**
  * Update/Add a record
@@ -273,51 +203,73 @@ function oauth2_client_load($cid = NULL, $reset = FALSE) {
 function oauth2_client_load_multiple($cids = array(), $conditions = array(), $reset = FALSE) {
   return entity_load('oauth2_client',$cids,$conditions,$reset);
 }
+/**
+ * Load by client id
+ */
+function oauth2_client_load_by_client_id($client_id) {
+  $query = new EntityFieldQuery;
+  $client_id = '4bdbd5d29d5e24714fb2efe11ed71cc8';
+  $result = $query
+  ->entityCondition('entity_type', 'oauth2_client')
+  ->propertyCondition('client_id', $client_id)
+  ->execute();
+
+    if (!empty($result['oauth2_client'])) {
+      $entities = entity_load('oauth2_client', array_keys($result['oauth2_client']));
+    }
+  
+  foreach($entites as $entity) {
+    //should be unique
+    //only return the first one
+    return $entity;
+  }
+  return NULL;
+}
 
 /**
  * Implements hook_view().
  */
 /*function oauth2_client_view($node, $teaser = FALSE, $page = FALSE) {
-  $node = node_prepare($node, $teaser);
+ $node = node_prepare($node, $teaser);
 
-  $node->content['client_id'] = array(
+$node->content['client_id'] = array(
     '#value' => theme('oauth2_client_client_id', $node->client_id),
     '#weight' => -10,
-  );
-  $node->content['client_secret'] = array(
+);
+$node->content['client_secret'] = array(
     '#value' => theme('oauth2_client_client_secret', $node->client_secret),
     '#weight' => -9,
-  );
-  $node->content['redirect_uri'] = array(
+);
+$node->content['redirect_uri'] = array(
     '#value' => theme('oauth2_client_redirect_uri', $node->redirect_uri),
     '#weight' => -8,
-  );
-  $node->content['base_domain'] = array(
+);
+$node->content['base_domain'] = array(
     '#value' => theme('oauth2_client_base_domain', $node->base_domain),
     '#weight' => -7,
-  );
+);
 
-  return $node;
+return $node;
 }*/
 
 /**
  * Implements hook_theme().
  */
 /*function oauth2_client_theme() {
-  return array(
-    'oauth2_client_client_id' => array(
-      'arguments' => array('client_id' => '', 'teaser' => 0, 'page' => 0),
-    ),
-    'oauth2_client_client_secret' => array(
-      'arguments' => array('client_secret' => '', 'teaser' => 0, 'page' => 0),
-    ),
-    'oauth2_client_redirect_uri' => array(
-      'arguments' => array('redirect_uri' => '', 'teaser' => 0, 'page' => 0),
-    ),
-    'oauth2_client_base_domain' => array(
-      'arguments' => array('base_domain' => '', 'teaser' => 0, 'page' => 0),
-    ),
-  );
+ return array(
+     'oauth2_client_client_id' => array(
+         'arguments' => array('client_id' => '', 'teaser' => 0, 'page' => 0),
+     ),
+     'oauth2_client_client_secret' => array(
+         'arguments' => array('client_secret' => '', 'teaser' => 0, 'page' => 0),
+),
+'oauth2_client_redirect_uri' => array(
+'arguments' => array('redirect_uri' => '', 'teaser' => 0, 'page' => 0),
+),
+'oauth2_client_base_domain' => array(
+'arguments' => array('base_domain' => '', 'teaser' => 0, 'page' => 0),
+),
+);
 }*/
 
 /**
@@ -326,11 +278,11 @@ function oauth2_client_load_multiple($cids = array(), $conditions = array(), $re
  * @ingroup themeable
  */
 /*function theme_oauth2_client_client_id($client_id, $teaser = 0, $page = 0) {
-  $output = '<div class="oauth2_client-info client_id">';
-  $output .= t('Application ID: @client_id', array('@client_id' => $client_id));
-  $output .= '</div>';
-  return $output;
-}*/
+ $output = '<div class="oauth2_client-info client_id">';
+ $output .= t('Application ID: @client_id', array('@client_id' => $client_id));
+ $output .= '</div>';
+ return $output;
+ }*/
 
 /**
  * Returns HTML for field client_secret.
@@ -338,11 +290,11 @@ function oauth2_client_load_multiple($cids = array(), $conditions = array(), $re
  * @ingroup themeable
  */
 /*function theme_oauth2_client_client_secret($client_secret, $teaser = 0, $page = 0) {
-  $output = '<div class="oauth2_client-info client_secret">';
-  $output .= t('Application Secret: @client_secret', array('@client_secret' => $client_secret));
-  $output .= '</div>';
-  return $output;
-}*/
+ $output = '<div class="oauth2_client-info client_secret">';
+ $output .= t('Application Secret: @client_secret', array('@client_secret' => $client_secret));
+ $output .= '</div>';
+ return $output;
+ }*/
 
 /**
  * Returns HTML for field redirect_uri.
@@ -350,11 +302,11 @@ function oauth2_client_load_multiple($cids = array(), $conditions = array(), $re
  * @ingroup themeable
  */
 /*function theme_oauth2_client_redirect_uri($redirect_uri, $teaser = 0, $page = 0) {
-  $output = '<div class="oauth2_client-info redirect_uri">';
-  $output .= t('Site URL: @redirect_uri', array('@redirect_uri' => $redirect_uri));
-  $output .= '</div>';
-  return $output;
-}*/
+ $output = '<div class="oauth2_client-info redirect_uri">';
+ $output .= t('Site URL: @redirect_uri', array('@redirect_uri' => $redirect_uri));
+ $output .= '</div>';
+ return $output;
+ }*/
 
 /**
  * Returns HTML for field base_domain.
@@ -362,9 +314,9 @@ function oauth2_client_load_multiple($cids = array(), $conditions = array(), $re
  * @ingroup themeable
  */
 /*function theme_oauth2_client_base_domain($base_domain, $teaser = 0, $page = 0) {
-  $output = '<div class="oauth2_client-info base_domain">';
-  $output .= t('Site Domain: @base_domain', array('@base_domain' => empty($base_domain) ? t('<none>') : $base_domain));
-  $output .= '</div>';
-  return $output;
-}
-*/
+ $output = '<div class="oauth2_client-info base_domain">';
+ $output .= t('Site Domain: @base_domain', array('@base_domain' => empty($base_domain) ? t('<none>') : $base_domain));
+ $output .= '</div>';
+ return $output;
+ }
+ */

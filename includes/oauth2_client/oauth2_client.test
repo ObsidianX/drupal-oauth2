@@ -15,9 +15,9 @@ class OAuth2ClientTestCase extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => 'OAuth2.0 Client Identifer',
-      'description' => 'Verify the oauth2_client node type creation and admin overview.',
-      'group' => 'OAuth2.0',
+        'name' => 'OAuth2.0 Client Identifer',
+        'description' => 'Verify the oauth2_client node type creation and admin overview.',
+        'group' => 'OAuth2.0',
     );
   }
 
@@ -35,9 +35,9 @@ class OAuth2ClientTestCase extends DrupalWebTestCase {
 
     // Create a new node.
     $edit = array(
-      'title' => $this->randomName(),
-      'redirect_uri' => 'http://example.com/',
-      'base_domain' => 'example.com',
+        'title' => $this->randomName(),
+        'redirect_uri' => 'http://example.com/',
+        'base_domain' => 'example.com',
     );
     $this->drupalPost('node/add/oauth2-client', $edit, t('Save'));
     $this->assertText(t("OAuth2.0 Client Identifer @title has been created", array('@title' => $edit['title'])));

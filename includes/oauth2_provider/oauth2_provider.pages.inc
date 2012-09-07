@@ -57,22 +57,22 @@ function oauth2_provider_authorize_form() {
 
   foreach ($auth_params as $k => $v) {
     $form[$k] = array(
-      '#type' => 'hidden',
-      '#value' => $v,
+        '#type' => 'hidden',
+        '#value' => $v,
     );
   }
 
   $form['message'] = array(
-    '#value' => t('<p>Do you authorize the app to do its thing?</p>'),
+      '#value' => t('<p>Do you authorize the app to do its thing?</p>'),
   );
 
   $form['submit'] = array(
-    '#type'  => 'submit',
-    '#value' => t('Yep'),
+      '#type'  => 'submit',
+      '#value' => t('Yep'),
   );
   $form['reset'] = array(
-    '#type'  => 'submit',
-    '#value' => t('Nope'),
+      '#type'  => 'submit',
+      '#value' => t('Nope'),
   );
 
   return $form;

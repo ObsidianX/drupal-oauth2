@@ -14,7 +14,7 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
    * Default options for DrupalOAuth2Client.
    */
   protected static $DrupalOAuth2Client_OPTS = array(
-    'cookie_support' => FALSE,
+      'cookie_support' => FALSE,
   );
 
   /**
@@ -28,17 +28,17 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
     // initialize it.
     $opts = self::$DrupalOAuth2Client_OPTS;
     $client = oauth2_get_client(
-      variable_get('oauth2_proxy_server_identifier', NULL),
-      $opts
+    variable_get('oauth2_proxy_server_identifier', NULL),
+    $opts
     );
     $client->getSession();
     $this->setVariable('_client', $client);
 
-    
+
     // devel_execute_block_form also submit execute code in $_REQUEST['code'].
     if (!isset($_REQUEST['form_id']) || $_REQUEST['form_id'] !== 'devel_execute_block_form') {
       $result = NULL;
-    
+
       // Hack to corresponding user if oauth_token provided. $_REQUEST may not contain $_COOKIE for most server setting
       if (isset($_REQUEST['oauth_token'])) {
         $result = $this->getAccessToken($_REQUEST['oauth_token']);
@@ -55,10 +55,10 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
       elseif (isset($_REQUEST['refresh_token'])) {
         $result = $this->getRefreshToken($_REQUEST['refresh_token']);
       }
-    
+
       if ($result) {
         /*$access_token = $client->getAccessToken();
-        
+
         //save the access token into cookie
         $params = session_get_cookie_params();
         $expire = $params['lifetime'] ? REQUEST_TIME + $params['lifetime'] : 0;
@@ -117,9 +117,9 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
    */
   public function verifyAuthorizedScopes($client_id, $required_scope, $uid) {
     return $this->proxyApi('/oauth2/verifyAuthorizedScopes', array(
-      'client_id' => $client_id,
-      'required_scope' => $required_scope,
-      'uid' => $uid,
+        'client_id' => $client_id,
+        'required_scope' => $required_scope,
+        'uid' => $uid,
     ));
   }
 
@@ -135,8 +135,8 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
    */
   public function getAuthorizedScopes($client_id, $uid) {
     return $this->proxyApi('/oauth2/getAuthorizedScopes', array(
-      'client_id' => $client_id,
-      'uid' => $uid,
+        'client_id' => $client_id,
+        'uid' => $uid,
     ));
   }
 
@@ -145,9 +145,9 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
    */
   public function setAuthorizedScopes($client_id, $scopes, $uid) {
     return $this->proxyApi('/oauth2/setAuthorizedScopes', array(
-      'client_id' => $client_id,
-      'scopes' => $scopes,
-      'uid' => $uid,
+        'client_id' => $client_id,
+        'scopes' => $scopes,
+        'uid' => $uid,
     ));
   }
 
@@ -156,9 +156,9 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
    */
   public function unsetAuthorizedScopes($client_id, $scopes, $uid) {
     return $this->proxyApi('/oauth2/unsetAuthorizedScopes', array(
-      'client_id' => $client_id,
-      'scopes' => $scopes,
-      'uid' => $uid,
+        'client_id' => $client_id,
+        'scopes' => $scopes,
+        'uid' => $uid,
     ));
   }
 
@@ -167,8 +167,8 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
    */
   public function expireSession($sid) {
     $params = array(
-      'sid' => $sid,
-      'oauth_token' => $this->getVariable('_client')->getAccessToken(),
+        'sid' => $sid,
+        'oauth_token' => $this->getVariable('_client')->getAccessToken(),
     );
 
     // Purge tokens based on oauth_token if provided.
@@ -176,8 +176,8 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
       $result = $this->getAccessToken($_REQUEST['oauth_token']);
       if ($result) {
         $params = array(
-          'sid' => $result['sid'],
-          'oauth_token' => $_REQUEST['oauth_token'],
+            'sid' => $result['sid'],
+            'oauth_token' => $_REQUEST['oauth_token'],
         );
       }
     }
@@ -193,8 +193,8 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
    */
   public function checkClientCredentials($client_id, $client_secret = NULL) {
     return $this->proxyApi('/oauth2/checkClientCredentials', array(
-      'client_id' => $client_id,
-      'client_secret' => $client_secret,
+        'client_id' => $client_id,
+        'client_secret' => $client_secret,
     ));
   }
 
@@ -203,7 +203,7 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
    */
   public function getRedirectUri($client_id) {
     return $this->proxyApi('/oauth2/getRedirectUri', array(
-      'client_id' => $client_id,
+        'client_id' => $client_id,
     ));
   }
 
@@ -212,7 +212,7 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
    */
   public function getAccessToken($oauth_token) {
     return $this->proxyApi('/oauth2/getAccessToken', array(
-      'oauth_token' => $oauth_token,
+        'oauth_token' => $oauth_token,
     ));
   }
 
@@ -224,12 +224,12 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
     $uid = ($uid == 0 && $user->uid != 0) ? $user->uid : $uid;
     $sid = ($sid == '' && session_id()) ? session_id() : $sid;
     return $this->proxyApi('/oauth2/setAccessToken', array(
-      'oauth_token' => $oauth_token,
-      'client_id' => $client_id,
-      'expires' => $expires,
-      'scope' => $scope,
-      'uid' => $uid,
-      'sid' => $sid,
+        'oauth_token' => $oauth_token,
+        'client_id' => $client_id,
+        'expires' => $expires,
+        'scope' => $scope,
+        'uid' => $uid,
+        'sid' => $sid,
     ));
   }
 
@@ -245,7 +245,7 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
    */
   public function getAuthCode($code) {
     return $this->proxyApi('/oauth2/getAuthCode', array(
-      'code' => $code,
+        'code' => $code,
     ));
   }
 
@@ -257,13 +257,13 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
     $uid = ($uid == 0 && $user->uid != 0) ? $user->uid : $uid;
     $sid = ($sid == '' && session_id()) ? session_id() : $sid;
     return $this->proxyApi('/oauth2/setAuthCode', array(
-      'code' => $code,
-      'client_id' => $client_id,
-      'redirect_uri' => $redirect_uri,
-      'expires' => $expires,
-      'scope' => $scope,
-      'uid' => $uid,
-      'sid' => $sid,
+        'code' => $code,
+        'client_id' => $client_id,
+        'redirect_uri' => $redirect_uri,
+        'expires' => $expires,
+        'scope' => $scope,
+        'uid' => $uid,
+        'sid' => $sid,
     ));
   }
 
@@ -274,9 +274,9 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
     global $user;
 
     $result = $this->proxyApi('/oauth2/checkUserCredentials', array(
-      'client_id' => $client_id,
-      'username' => $username,
-      'password' => $password,
+        'client_id' => $client_id,
+        'username' => $username,
+        'password' => $password,
     ));
 
     if ($result) {
@@ -291,7 +291,7 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
    */
   public function getRefreshToken($refresh_token) {
     return $this->proxyApi('/oauth2/getRefreshToken', array(
-      'refresh_token' => $refresh_token,
+        'refresh_token' => $refresh_token,
     ));
   }
 
@@ -303,12 +303,12 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
     $uid = ($uid == 0 && $user->uid != 0) ? $user->uid : $uid;
     $sid = ($sid == '' && session_id()) ? session_id() : $sid;
     return $this->proxyApi('/oauth2/setRefreshToken', array(
-      'refresh_token' => $refresh_token,
-      'client_id' => $client_id,
-      'expires' => $expires,
-      'scope' => $scope,
-      'uid' => $uid,
-      'sid' => $sid,
+        'refresh_token' => $refresh_token,
+        'client_id' => $client_id,
+        'expires' => $expires,
+        'scope' => $scope,
+        'uid' => $uid,
+        'sid' => $sid,
     ));
   }
 
@@ -317,7 +317,7 @@ class DrupalOAuth2Proxy extends DrupalOAuth2 {
    */
   public function unsetRefreshToken($refresh_token) {
     return $this->proxyApi('/oauth2/unsetRefreshToken', array(
-      'refresh_token' => $refresh_token,
+        'refresh_token' => $refresh_token,
     ));
   }
 }
