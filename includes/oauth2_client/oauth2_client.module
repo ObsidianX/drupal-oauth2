@@ -214,14 +214,15 @@ function oauth2_client_load_by_client_id($client_id) {
   ->propertyCondition('client_id', $client_id)
   ->execute();
 
-    if (!empty($result['oauth2_client'])) {
-      $entities = entity_load('oauth2_client', array_keys($result['oauth2_client']));
+  if (!empty($result['oauth2_client'])) {
+
+    $entities = entity_load('oauth2_client', array_keys($result['oauth2_client']));
+    foreach($entites as $entity) {
+      //should be unique
+      //only return the first one
+
+      return $entity;
     }
-  
-  foreach($entites as $entity) {
-    //should be unique
-    //only return the first one
-    return $entity;
   }
   return NULL;
 }
