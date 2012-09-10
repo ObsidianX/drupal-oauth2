@@ -215,8 +215,11 @@ function oauth2_client_load_by_client_id($client_id) {
   ->execute();
 
   if (!empty($result['oauth2_client'])) {
-
-    $entities = entity_load('oauth2_client', array_keys($result['oauth2_client']));
+    $cid = -1;
+    foreach($result['oauth2_client'] as $key => $row) {
+      $cid = $key;
+    }
+    $entities = entity_load('oauth2_client', array($cid));
     foreach($entites as $entity) {
       //should be unique
       //only return the first one
@@ -224,6 +227,7 @@ function oauth2_client_load_by_client_id($client_id) {
       return $entity;
     }
   }
+  
   return NULL;
 }
 
