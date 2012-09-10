@@ -233,13 +233,13 @@ function oauth2_provider_logout() {
 /**
  * Implements hook_theme().
  */
-function oauth2_provider_theme() {
-  return array(
-      'oauth2_provider_scope' => array(
-          'arguments' => array('node' => '', 'teaser' => 0, 'page' => 0),
-      ),
-  );
-}
+// function oauth2_provider_theme() {
+//   return array(
+//       'oauth2_provider_scope' => array(
+//           'arguments' => array('node' => '', 'teaser' => 0, 'page' => 0),
+//       ),
+//   );
+// }
 
 /**
  * Returns HTML for scope items.

@@ -208,7 +208,7 @@ function oauth2_client_load_multiple($cids = array(), $conditions = array(), $re
  */
 function oauth2_client_load_by_client_id($client_id) {
   $query = new EntityFieldQuery;
-  $client_id = '4bdbd5d29d5e24714fb2efe11ed71cc8';
+
   $result = $query
   ->entityCondition('entity_type', 'oauth2_client')
   ->propertyCondition('client_id', $client_id)

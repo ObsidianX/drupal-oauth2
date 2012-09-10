@@ -50,12 +50,7 @@ function oauth2_server_admin_callback() {
   /*if (empty($rows)) {
    $rows[] = array(array('data' => '<em>'. t('There are currently no OAuth2.0 Server Identifer.') .'</em>', 'colspan' => 6));
   }*/
-  return $output;/*.theme('table',array(
-      'header'         => $header,
-      'rows'           => $rows,
-      'attributes'     => array(),
-  ));*/
-  //return $output;
+  return $output;
 
 }
 

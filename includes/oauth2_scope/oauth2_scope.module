@@ -255,22 +255,22 @@ return $node;
 /**
  * Implements hook_theme().
  */
-function oauth2_scope_theme() {
-  return array(
-      'oauth2_scope_scope_id' => array(
-          'arguments' => array('scope_id' => '', 'teaser' => 0, 'page' => 0),
-      ),
-      'oauth2_scope_hidden' => array(
-          'arguments' => array('hidden' => '', 'teaser' => 0, 'page' => 0),
-      ),
-      'oauth2_scope_bypass' => array(
-          'arguments' => array('bypass' => '', 'teaser' => 0, 'page' => 0),
-      ),
-      'oauth2_scope_required' => array(
-          'arguments' => array('required' => '', 'teaser' => 0, 'page' => 0),
-      ),
-  );
-}
+// function oauth2_scope_theme() {
+//   return array(
+//       'oauth2_scope_scope_id' => array(
+//           'arguments' => array('scope_id' => '', 'teaser' => 0, 'page' => 0),
+//       ),
+//       'oauth2_scope_hidden' => array(
+//           'arguments' => array('hidden' => '', 'teaser' => 0, 'page' => 0),
+//       ),
+//       'oauth2_scope_bypass' => array(
+//           'arguments' => array('bypass' => '', 'teaser' => 0, 'page' => 0),
+//       ),
+//       'oauth2_scope_required' => array(
+//           'arguments' => array('required' => '', 'teaser' => 0, 'page' => 0),
+//       ),
+//   );
+// }
 
 /**
  * Returns HTML for field scope_id.

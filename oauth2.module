@@ -133,7 +133,7 @@ function oauth2_user_logout($account) {
 
   if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier')) {
     
-  } else {
+  } elseif (variable_get('oauth2_provider_mode') == 'DrupalOAuth2' ) {
     $session_id = session_id();
     if (isset($account->sid)) {
       $session_id = $account->sid;

@@ -258,14 +258,15 @@ function oauth2_server_block_info() {
 function oauth2_server_block_view($delta = '') {
   if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier')) {
     $sid = variable_get('oauth2_client_server_identifier');
-    $server = oauth2_server_load($sid);
-    $block = array();
+
+    $client = oauth2_get_client($sid);
     switch ($delta) {
       case 'oauth2_login':
         $links = array (
         'link_redirect' => array(
         'title' => 'OAuth2 Login (Redirect)',
-        'href' => $server->base_uri.$server->authorize_uri.'?response_type=code&client_id='.$server->client_id.'&redirect_uri='.url('<front>',array('absolute' => TRUE)),
+        'href' => $client->getLoginUri(),
+        //'href' => $server->base_uri.$server->authorize_uri.'?response_type=code&client_id='.$server->client_id.'&redirect_uri='.url('<front>',array('absolute' => TRUE)),
         ),
         );
         $block['subject'] = t('OAuth2 login');
