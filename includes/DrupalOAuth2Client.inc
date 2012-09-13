@@ -284,6 +284,20 @@ class DrupalOAuth2Client extends OAuth2Client {
     );
   }
 
+  public function getLoginUriRedirect($redirect_uri = '',$params = array()) {
+    if ($redirect_uri == '') {
+      $redirect_uri = $this->getCurrentUri();
+    }
+    return $this->getUri(
+    $this->getVariable('base_uri') . 'user',
+    array_merge(array(
+        'response_type' => 'code',
+        'client_id' => $this->getVariable('client_id'),
+        'redirect_uri' => $redirect_uri,
+    ), $params)
+    );
+  }
+
   /**
    * Get a Logout URL suitable for use with redirects.
    *
