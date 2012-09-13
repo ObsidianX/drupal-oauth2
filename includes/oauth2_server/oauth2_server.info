@@ -7,3 +7,5 @@ core = 7.x
 files[] = oauth2_server.admin.inc
 
 files[] = oauth2_server.test
+
+scripts[] = oauth2_server.js

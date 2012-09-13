@@ -220,7 +220,7 @@ function oauth2_client_load_by_client_id($client_id) {
       $cid = $key;
     }
     $entities = entity_load('oauth2_client', array($cid));
-    foreach($entites as $entity) {
+    foreach($entities as $entity) {
       //should be unique
       //only return the first one
 
