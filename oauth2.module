@@ -71,15 +71,13 @@ function oauth2_init() {
     drupal_set_message(t("The oauth2 module cannot find the oauth2-php library used to handle OAuth2.0 request. The site administrator will need to verify that it is installed and then update the <a href='!admin-settings-oauth2-php'>settings</a>.", array('!admin-settings-oauth2-php' => url('admin/build/oauth2'))), 'error', FALSE);
   }
   
-  
-
   if (module_exists('oauth2_server') && variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier')) {
     $sid = variable_get('oauth2_client_server_identifier');
     $server = oauth2_server_load($sid);
     oauth2_get_client($sid, array('cookie_support' => TRUE));
     $temp_url = url(NULL, array('absolute' => TRUE));
-
-    drupal_add_js(array('oauth2' => 
+  
+    drupal_add_js(array('oauth2' =>
         array(
             'client_id' => $server->client_id,
             'redirect_uri' => $server->base_uri,
@@ -92,8 +90,16 @@ function oauth2_init() {
     drupal_add_js(drupal_get_path('module', 'oauth2_server').'/oauth2_server.js');
   
   }
+
+
 }
 
+/**
+ * Implements hook_boot().
+ */
+function oauth2_boot() {
+
+}
 
 
 /**

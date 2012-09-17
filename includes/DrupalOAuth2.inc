@@ -30,7 +30,7 @@ class DrupalOAuth2 extends OAuth2 {
           $result = $this->getAccessToken($_REQUEST['access_token']);
         }
         // Hack to corresponding user if code provided.
-        elseif (isset($_REQUEST['code'])) {
+        elseif (isset($_REQUEST['code'])) {error_log('code get');
           $result = $this->getAuthCode($_REQUEST['code']);
         }
         // Hack to corresponding user if refresh_token provided.

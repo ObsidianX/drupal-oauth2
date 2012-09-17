@@ -42,15 +42,18 @@ jQuery(document).ready(
       document.body.appendChild(ifrm);
       // console.debug(Drupal.settings.oauth2.url);
       if (!Drupal.settings.oauth2.logged_in
-          && Drupal.settings.oauth2.auto_login_enabled
-          && getCookie('oauth2_check_login') == null) {
-        setCookie('oauth2_check_login', 'checked', 10);
+          && Drupal.settings.oauth2.auto_login_enabled) {
+          //&& getCookie('oauth2_check_login') == null) {
+        //console.debug('set cookie');
+        //setCookie('oauth2_check_login', 'checked', 10);
         $("#oauth2_iframe").attr(
             'src',
             Drupal.settings.oauth2.url + Drupal.settings.oauth2.authorize_uri
                 + '?response_type=code&client_id='
                 + Drupal.settings.oauth2.client_id + '&redirect_uri='
                 + Drupal.settings.oauth2.redirect_uri);
+      } else {
+        //console.debug('not loaded');
       }
 
       $('#oauth2_login_iframe').click(

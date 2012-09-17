@@ -210,12 +210,34 @@ class DrupalOAuth2Client extends OAuth2Client {
    */
   protected function loadUserCredentials($name, $mail) {
     global $user;
-
+error_log('name: '.$name);
+    //root is not allowed
     $root_user = user_load(1);
     if ($name == $root_user->name) {
       return $user;
     }
-    user_external_login_register($name,'oauth2');
+
+    //check if exists in authmap
+    $user = user_external_load($name);
+    if (!$user) {
+      //try to load user from existing user table
+      $user = user_load_by_name($name);
+
+      if ($user !== FALSE) {
+        //if user exist
+        user_set_authmaps($user, array("authname_oauth2" => $name));
+      } else {
+
+        user_external_login_register($name,'oauth2');
+      }
+    } else {
+      //load it
+      error_log('here!');
+      $temp_form_state = array('uid' => $user->uid);
+      user_login_submit(array(), $temp_form_state);
+
+    }
+
 
     /*if (!empty($user->uid)) {
      return $user;
