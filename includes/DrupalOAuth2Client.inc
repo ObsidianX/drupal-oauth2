@@ -210,7 +210,7 @@ class DrupalOAuth2Client extends OAuth2Client {
    */
   protected function loadUserCredentials($name, $mail) {
     global $user;
-error_log('name: '.$name);
+
     //root is not allowed
     $root_user = user_load(1);
     if ($name == $root_user->name) {
@@ -226,61 +226,19 @@ error_log('name: '.$name);
       if ($user !== FALSE) {
         //if user exist
         user_set_authmaps($user, array("authname_oauth2" => $name));
+        $temp_form_state = array('uid' => $user->uid);
+        user_login_submit(array(), $temp_form_state);
       } else {
 
         user_external_login_register($name,'oauth2');
       }
     } else {
       //load it
-      error_log('here!');
+      //error_log('here!');
       $temp_form_state = array('uid' => $user->uid);
       user_login_submit(array(), $temp_form_state);
 
     }
-
-
-    /*if (!empty($user->uid)) {
-     return $user;
-    }
-
-    if (isset($name) && !($account = user_load_by_name($name))) {
-    // We hack and create a dummy user placeholder if it is exist in
-    // token tables but not yet a real user account, typically
-    // happened when server running in proxy mode. Can't use
-    // drupal_write_record() as uid is serial.
-
-    $user_array = array(
-        'name'   => $name,
-        'pass'   => user_password(20),
-        'mail'   => $mail,
-        'init'   => $mail,
-        'status' => 1,
-    );
-    $user = user_save(NULL, $user_array);
-    if ($user === FALSE) {
-    watchdog('user', 'failed to create user %name.', array('%name' => $name));
-    return FALSE;
-    }
-    }
-    $user = $account;
-
-    //login the user
-    //copy from user_login_finalize without calling user_module_invoke('login', $edit, $user);
-    watchdog('user', 'Session opened for %name.', array('%name' => $user->name));
-    // Update the user table timestamp noting user has logged in.
-    // This is also used to invalidate one-time login links.
-    $user->login = REQUEST_TIME;
-    db_update('users')
-    ->fields(array('login' => $user->login))
-    ->condition('uid', $user->uid)
-    ->execute();
-
-    // Regenerate the session ID to prevent against session fixation attacks.
-    // This is called before hook_user in case one of those functions fails
-    // or incorrectly does a redirect which would leave the old session in place.
-    drupal_session_regenerate();*/
-
-
 
     return $user;
   }
