@@ -63,12 +63,14 @@ function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id != 'user_login_block' && $form_id != 'user_login') {
     return;
   }
+
   if (isset($form['#submit']) && is_array($form['#submit']) && ($key = array_search('user_login_submit', $form['#submit'])) !== FALSE) {
     $form['#submit'][$key] = 'oauth2_provider_login_submit';
   }
 
   $server_id = variable_get('oauth2_proxy_server_identifier');
   if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Proxy' && isset($server_id)) {
+    //only for proxy mode
 
     $oauth2_server = oauth2_server_load($server_id);
     $form['#action'] = '/?destination=user&response_type=code&client_id='.$oauth2_server->client_id.'&redirect_uri=user';

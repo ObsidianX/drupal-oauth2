@@ -229,15 +229,14 @@ class DrupalOAuth2Client extends OAuth2Client {
         $temp_form_state = array('uid' => $user->uid);
         user_login_submit(array(), $temp_form_state);
       } else {
-
+        error_log('create user: '.$name);
         user_external_login_register($name,'oauth2');
       }
     } else {
       //load it
-      //error_log('here!');
+      
       $temp_form_state = array('uid' => $user->uid);
       user_login_submit(array(), $temp_form_state);
-
     }
 
     return $user;

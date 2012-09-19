@@ -19,7 +19,7 @@
  *  Returns nothing, or a error message if authentication fails
  */
 function _services_oauth2_authenticate_call($settings, $method, $args) {
-  // Remove all oauth_token from args.
+
   foreach ($args as $key => $arg) {
     if (is_array($args[$key]) && isset($args[$key]['oauth_token'])) {
       //unset($args[$key]['oauth_token']);

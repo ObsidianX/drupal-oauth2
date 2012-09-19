@@ -153,7 +153,7 @@ function oauth2_admin_settings() {
           '#return_value' => TRUE,
           '#title' => t('Enable auto login?'),
           '#default_value' => variable_get('oauth2_auto_login'),
-          '#description' => t('User do not need to click login button if enabled. Increase server load.'),
+          '#description' => t('User do not need to click login button if enabled. Remember to clear cache'),
           
       );
     }
