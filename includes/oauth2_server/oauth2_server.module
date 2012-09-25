@@ -247,8 +247,9 @@ function oauth2_server_load_multiple($sids = array(), $conditions = array(), $re
  * Implements hook_block_info().
  */
 function oauth2_server_block_info() {
-
+$blocks = array();
   if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier')) {
+    $blocks['oauth2_login'] = array();
     $blocks['oauth2_login']['info'] = t('OAuth2 Login');
     $blocks['oauth2_login']['cache'] = DRUPAL_NO_CACHE;
   }
