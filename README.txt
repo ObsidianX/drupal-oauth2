@@ -39,6 +39,8 @@ This module also provides OAuth2.0 authentication for the Service 3.x module.
 INSTALLATION
 ------------
 
+** WARNING! This version is not suitable for production use yet! 
+
 Before start with module installation please download oauth2-php from
 http://code.google.com/p/oauth2-php/ and extract it under either following
 directory:
@@ -59,9 +61,9 @@ functionalities:
     * oauth2_consumer: Extend OAuth2.0 Server Identifer with consumer support.
 
   * Configuration data containers:
-    * oauth2_client: Handle OAuth2.0 Client Identifer as Drupal node.
-    * oauth2_server: Handle OAuth2.0 Server Identifer as Drupal node.
-    * oauth2_scope: Handle OAuth2.0 Scope Identifer as Drupal node.
+    * oauth2_client: Handle OAuth2.0 Client Identifer as Drupal entity.
+    * oauth2_server: Handle OAuth2.0 Server Identifer as Drupal entity.
+    * oauth2_scope: Handle OAuth2.0 Scope Identifer as Drupal entity.
 
   * 3rd party modules integration:
     * services_oauth2: Provides OAuth2.0 authentication for the Services 3.x
@@ -82,82 +84,26 @@ also provide following dummy packages for resolve submodule dependency:
 CONFIGURATION
 -------------
 
-Whatever install OAuth2.0 in which mode, standalone or proxy, authorization or
-resource, both coming with similar configuration procedures:
+Typical configuration consists of an authorization server and a client in either proxy mode or client mode
 
-  * admin/user/permissions
-    * Configurate corresponding permission for OAuth2.0 identifiers, e.g. only
-      allow webmaster to add identifier.
+* Authorization server
+  * Enable OAuth2.0 Authorization Server dummy package
+  * Configure client identifier (admin/structure/oauth2)
+  * Configure Services 3.x endpoint with OAuth2.0 authentication
+  * Set OAuth2.0 provider mode to standalone mode
 
-  * admin/content/types
-    * Configurate the OAuth2.0 identifiers refer to your requirement. Typically
-      you would like to disable comment and always create revision during node
-      save.
-    * In case of vertical_tabs enabled, you would also like to exclude
-      "OAuth2.0 settings" from vertical tabs.
-
-  * node/add
-    * Add OAuth2.0 identifiers as Drupal node.
-
-  * admin/build/oauth2
-    * Include basic configuration of OAuth2.0, e.g. oauth2-php library path,
-      operate in standalone or proxy mode with corresponding setup, etc.
-    * Optional administration interface is also provided for OAuth2.0
-      identifiers, under admin/build/oauth2/*.
-
-  * (optional) admin/build/services/*/edit
-    * Configure Services 3.x endpoint with OAuth2.0 authentication.
-
-  * (optional) admin/build/services/*/resources
-    * Enable ALL (yes, ALL) actions for oauth2_resource, when acting as
-      authorization server AND hope to provide remote resource server
-      integration services.
-
-
-TESTING
--------
-
-Testing OAuth2.0 setup manually is a bit complicated, and required for detail
-understanding of overall OAuth2.0 logic which will not detail within this
-document. Here we will go though a simple test case with authorization server
-operate in standalone mode:
-
-  * Install dummy package oauth2_authorize_server.
-
-  * Add a new OAuth2.0 Client Identifier under node/add/oauth2-client, with
-    "Site URL" as your Drupal base URI, e.g. http://example.com/
-
-  * Go to admin/build/oauth2 and confirm if all basic configuration are setup
-    correctly.
-
-  * In your browser, type in following URL pattern and replace with your own
-    OAuth2.0 Client Identifier setup (line breaks are for display purposes
-    only):
-
-    http://example.com/oauth2/authorize
-      ?response_type=token
-      &client_id=<client_id>
-
-  * After page redirect your URL should now become following pattern with
-    access_token included (line breaks are for display purposes only):
-
-    http://example.com/
-      #access_token=<access_token>
-      &expires_in=3600
-      &refresh_token=<refresh_token>
-
-Up to this point your setup should successfully operate as OAuth2.0
-authorization server in standalone mode. For other detail test case please
-study with http://tools.ietf.org/html/draft-ietf-oauth-v2-10.
-
-
-TESTING FOR DEVELOPER
----------------------
-
-OAuth2.0 already build in with some Simpletest
-(http://drupal.org/project/simpletest) test cases. Once install with Simpletest
-go to admin/build/testing and you will able to test OAuth2.0 under "OAuth2.0"
-section. For more information please visit Simpletest's official documents.
+* Client in proxy mode
+  * Enable OAuth2.0 Proxy Mode dummy package
+  * Configure server identifier 
+  * Set OAuth2.0 provider mode to proxy mode
+  * Use the standard Drupal login form with username and password from Authorization server
+  
+* Client in client mode
+  * Enable OAuth2.0 Client Mode dummy package
+  * Configure server identifier
+  * Set OAuth2.0 provider mode to client mode
+  * You will find a block named 'OAuth2 Login'. It will provide a link to the Authorization server. 
+    Log in the Authorization server and you will be redirected back to client side logged in
 
 
 LIST OF MAINTAINERS
