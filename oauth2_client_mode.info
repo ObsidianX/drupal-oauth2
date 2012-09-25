@@ -2,5 +2,5 @@ name = "OAuth2.0 Client Mode Dummy Package"
 description = "Provides OAuth2.0 Client Mode functionality"
 package = "OAuth2.0 - dummy"
 dependencies[] = oauth2
-dependencies[] = oauth2_client
+dependencies[] = oauth2_server
 core = 7.x
