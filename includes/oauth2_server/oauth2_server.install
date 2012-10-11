@@ -13,18 +13,32 @@ function oauth2_server_uninstall() {
  * Implements hook_schema().
  */
 function oauth2_server_schema() {
-
-  $schema['oauth2_servers'] = array(
-      'description' => 'OAuth2.0 server indentifier information as Drupal node.',
+  $schema = array();
+  $schema['oauth2_server'] = array(
+      'description' => 'OAuth2.0 server indentifier information as a Drupal Entity.',
+      'export' => array(
+          'key' => 'server_id',
+          'key name' => 'OAuth2.0 Server Machine Name',
+          'primary key' => 'sid',
+          'identifier' => 'preset', // Exports will be defined as $preset
+          'default hook' => 'default_oauth2_server_preset',  // Function hook name.
+          'api' => array(
+              'owner' => 'oauth2_server',
+              'api' => 'default_oauth2_server_presets',  // Base name for api include files.
+              'minimum_version' => 1,
+              'current_version' => 1,
+          ),
+      ),
       'fields' => array(
           'sid' => array(
               'description' => 'Primary Key: Unique server ID',
               'type' => 'serial',
               'unsigned' => TRUE,
               'not null' => TRUE,
+              'no export' => TRUE,
           ),
           'server_id' => array(
-              'description' => t('The server name.'),
+              'description' => t('The server machine name.'),
               'type' => 'varchar',
               'length' => 64,
               'not null' => TRUE,
@@ -85,6 +99,9 @@ function oauth2_server_schema() {
           'oauth2_server_status' => array('status'),
       ),
       'primary key' => array('sid'),
+      'unique keys' => array(
+          'server_id' => array('server_id'),
+      ),
   );
 
   return $schema;

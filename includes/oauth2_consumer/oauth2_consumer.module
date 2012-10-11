@@ -17,7 +17,7 @@ function oauth2_consumer_entity_info() {
           'base table' => 'oauth2_consumers',
           'fieldable' => FALSE,
           'entity keys' => array(
-              'id' => 'sid',
+              'id' => 'server_id',
           ),
           'view modes' => array(
               'full' => array(
@@ -35,7 +35,7 @@ function oauth2_consumer_entity_info() {
 function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, &$form_state, $form_id) {
 
   if (isset($form['#oauth2_server'])) {
-    $oauth2_consumer = oauth2_consumer_load($form['#oauth2_server']->sid);
+    $oauth2_consumer = oauth2_consumer_load($form['#oauth2_server']->server_id);
   } else {
     $oauth2_consumer = new StdClass(); //nothing
   }
@@ -103,8 +103,8 @@ function oauth2_consumer_form_oauth2_server_edit_form_submit(&$form, &$form_stat
       'password'       => $form_state['values']['password'],
       'expires_in'     => $form_state['values']['expires_in'],
   );
-  if ($form_state['values']['sid'] != NULL) {
-    $consumer['sid'] = $form_state['values']['sid'];
+  if ($form_state['values']['server_id'] != NULL) {
+    $consumer['server_id'] = $form_state['values']['server_id'];
   }
   oauth2_consumer_update($consumer);
 }
@@ -120,7 +120,7 @@ function oauth2_consumer_form_oauth2_server_delete_form_alter(&$form, &$form_sta
  * form delete
  */
 function oauth2_consumer_form_oauth2_server_delete_form_submit(&$form, &$form_state) {
-  oauth2_consumer_delete($form_state['values']['sid']);
+  oauth2_consumer_delete($form_state['values']['server_id']);
 }
 
 /**
@@ -135,13 +135,13 @@ function oauth2_consumer_update($consumer) {
   ));
   unset($consumer['username']);
   unset($consumer['password']);
-  if (!isset($consumer['sid'])) {
+  if (!isset($consumer['server_id'])) {
     //Should not be here
-    error_log('sid not set!');
+    error_log('server_id not set!');
   } else {
 
     db_merge('oauth2_consumers')
-    ->key(array('sid' => $consumer['sid']))
+    ->key(array('server_id' => $consumer['server_id']))
     ->fields($consumer)
     ->execute();
 
@@ -151,25 +151,25 @@ function oauth2_consumer_update($consumer) {
 /**
  * Delete a record
  */
-function oauth2_consumer_delete($sid) {
+function oauth2_consumer_delete($server_id) {
 
-  db_query("DELETE FROM {oauth2_consumers} WHERE sid = :s", array(':s' => $sid));
+  db_query("DELETE FROM {oauth2_consumers} WHERE server_id = :s", array(':s' => $server_id));
 }
 
 /**
  * Load a record
  */
-function oauth2_consumer_load($sid = NULL, $reset = FALSE) {
-  $sids = (isset($sid) ? array($sid) : array());
-  $oauth2_consumer = oauth2_consumer_load_multiple($sids,$reset);
+function oauth2_consumer_load($server_id = NULL, $reset = FALSE) {
+  $server_ids = (isset($server_id) ? array($server_id) : array());
+  $oauth2_consumer = oauth2_consumer_load_multiple($server_ids,$reset);
   return $oauth2_consumer ? reset ($oauth2_consumer) : FALSE;
 
 }
 /**
  * Load multiple
  */
-function oauth2_consumer_load_multiple($sids = array(), $conditions = array(), $reset = FALSE) {
-  $consumers =  entity_load('oauth2_consumer',$sids,$conditions,$reset);
+function oauth2_consumer_load_multiple($server_ids = array(), $conditions = array(), $reset = FALSE) {
+  $consumers =  entity_load('oauth2_consumer',$server_ids,$conditions,$reset);
   foreach ($consumers as &$consumer) {
     // Remember to unpack username and password.
     $consumer = drupal_unpack($consumer);

@@ -72,9 +72,9 @@ function oauth2_init() {
   }
   
   if (module_exists('oauth2_server') && variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier')) {
-    $sid = variable_get('oauth2_client_server_identifier');
-    $server = oauth2_server_load($sid);
-    oauth2_get_client($sid, array('cookie_support' => TRUE));
+    $server_id = variable_get('oauth2_client_server_identifier');
+    $server = oauth2_server_load($server_id);
+    oauth2_get_client($server_id, array('cookie_support' => TRUE));
     $temp_url = url(NULL, array('absolute' => TRUE));
   
     drupal_add_js(array('oauth2' =>
@@ -189,7 +189,7 @@ function oauth2_get_server($class_name = NULL, $params = array()) {
  * Get an OAuth2.0 client-side instance with given client id.
  * This function requires module: oauth2_server!
  *
- * @param $sid
+ * @param $server_id
  *   The client id of target OAuth2.0 client-side class setup.
  * @param $params
  *   (optional) Additional parameters to pass to class construct.
@@ -197,19 +197,19 @@ function oauth2_get_server($class_name = NULL, $params = array()) {
  * @return
  *   The OAuth2.0 client-side instance based on $sid.
  */
-function oauth2_get_client($sid, $params = array()) {
+function oauth2_get_client($server_id, $params = array()) {
   static $_oauth2_clients;
 
-  if (!isset($_oauth2_clients[$sid]) || !$_oauth2_clients[$sid] instanceof DrupalOAuth2Client) {
-    $server_info = (array) oauth2_server_load($sid);
+  if (!isset($_oauth2_clients[$server_id]) || !$_oauth2_clients[$sid] instanceof DrupalOAuth2Client) {
+    $server_info = (array) oauth2_server_load($server_id);
 
     $params = array_merge($server_info, $params);
     if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) != 'DrupalOAuth2Client') {
-      $consumer_info = (array) oauth2_consumer_load($sid);
+      $consumer_info = (array) oauth2_consumer_load($server_info['server_id']);
       $params = array_merge($consumer_info,$params);
     }
-    $_oauth2_clients[$sid] = new DrupalOAuth2Client($params);
+    $_oauth2_clients[$server_id] = new DrupalOAuth2Client($params);
   }
 
-  return $_oauth2_clients[$sid];
+  return $_oauth2_clients[$server_id];
 }

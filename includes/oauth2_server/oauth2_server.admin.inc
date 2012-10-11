@@ -17,8 +17,23 @@ function oauth2_server_admin_callback() {
       array('data' => t('Operations'), 'colspan' => 2),
   );
 
-  $result = db_query("SELECT osrv.sid, osrv.title, osrv.server_id, osrv.status, osrv.changed FROM {oauth2_servers} AS osrv ");
-
+  /*$query = new EntityFieldQuery();
+  $query
+  ->entityCondition('entity_type', 'oauth2_server', '=');
+  $result = $query->execute();
+  $sids = array();
+  foreach($result['oauth2_server'] as $record) {
+    $sids[] = $record->sid;
+  }
+  $result = oauth2_server_load_multiple($sids);*/
+  
+ 
+  $result = oauth2_server_load_multiple();
+  
+  
+  //$result = db_query("SELECT osrv.sid, osrv.title, osrv.server_id, osrv.status, osrv.changed FROM {oauth2_server} AS osrv ");
+  //$result = oauth2_server_load_multiple();
+  //error_log(print_r($temp,true));
   $output = array();
   $rows = array();
   $output['add_link'] = array(
@@ -35,12 +50,12 @@ function oauth2_server_admin_callback() {
   $output['server_list']['#header'] = $header;
   foreach($result as $server) {
     $rows[] = array(
-        l($server->title, 'oauth2-server/'. $server->sid),
+        l($server->title, 'oauth2-server/'. $server->server_id),
         $server->server_id,
         $server->status ? t('Yes') : t('No'),
         format_interval(time() - $server->changed),
-        l(t('edit'), 'oauth2-server/'. $server->sid .'/edit', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-server'))),
-        l(t('delete'), 'oauth2-server/'. $server->sid .'/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-server'))),
+        l(t('edit'), 'oauth2-server/'. $server->server_id .'/edit', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-server'))),
+        l(t('delete'), 'oauth2-server/'. $server->server_id .'/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-server'))),
     );
   }
   $output['server_list']['#rows'] = $rows;
@@ -93,6 +108,16 @@ function oauth2_server_edit_form($form, &$form_state, $oauth2_server = NULL) {
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
   );
+  
+  $form['oauth2_server']['server_id'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Server ID'),
+      '#description' => t('The OAuth2.0 machine name<em>(server_id)</em>.'),
+      '#default_value' => isset($oauth2_server->server_id) ? $oauth2_server->server_id : '',
+      '#required' => TRUE,
+      '#weight' => -6,
+  );
+  
   $form['oauth2_server']['title'] = array(
       '#type' => 'textfield',
       '#title' => t('Title'),
@@ -102,13 +127,7 @@ function oauth2_server_edit_form($form, &$form_state, $oauth2_server = NULL) {
       '#weight' => -5,
   );
 
-  $form['oauth2_server']['server_id'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Server ID'),
-      '#description' => t('The OAuth2.0 <em>server_id</em>.'),
-      '#default_value' => isset($oauth2_server->server_id) ? $oauth2_server->server_id : '',
-      '#required' => TRUE,
-  );
+
 
   $form['oauth2_server']['base_uri'] = array(
       '#type' => 'textfield',
@@ -198,7 +217,7 @@ function oauth2_server_edit_form_submit($form, &$form_state) {
   $return_sid = oauth2_server_update($oauth2_server);
   $form_state['values']['sid'] = $return_sid;
 
-  $form_state['redirect'] = 'oauth2-server/' . $form_state['values']['sid'] . '/edit';
+  $form_state['redirect'] = 'oauth2-server/' . $form_state['values']['server_id'] . '/edit';
   drupal_set_message($form_state['values']['server_id'].t(' saved.'));
 }
 
@@ -216,9 +235,9 @@ function oauth2_server_edit_form_validate($form, &$form_state) {
 
   // Ensure no duplicate server_id.
   if ($form_state['values']['sid'] != NULL) {
-    $result = db_query("SELECT COUNT(*) AS count FROM {oauth2_servers} AS osrv  WHERE osrv.server_id = :s AND osrv.sid != :t ", array(':s' => $form_state['values']['server_id'],':t' => $form_state['values']['sid']));
+    $result = db_query("SELECT COUNT(*) AS count FROM {oauth2_server} AS osrv  WHERE osrv.server_id = :s AND osrv.sid != :t ", array(':s' => $form_state['values']['server_id'],':t' => $form_state['values']['sid']));
   } else {
-    $result = db_query("SELECT COUNT(*) AS count FROM {oauth2_servers} AS osrv  WHERE osrv.server_id = :s ", array(':s' => $form_state['values']['server_id']));
+    $result = db_query("SELECT COUNT(*) AS count FROM {oauth2_server} AS osrv  WHERE osrv.server_id = :s ", array(':s' => $form_state['values']['server_id']));
   }
   foreach($result as $record)
     if ($record->count != 0) {
@@ -237,7 +256,7 @@ function oauth2_server_delete_form($form, &$form_state, $oauth2_server) {
   array(
       'oauth2_server' => array(
           '#type' => 'value',
-          '#value' => $oauth2_server->sid,
+          '#value' => $oauth2_server->server_id,
       ),
   ),
   t('Are you sure you want to delete this Server Identifier?'),

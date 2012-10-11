@@ -121,7 +121,7 @@ function oauth2_server_entity_info() {
   return array(
       'oauth2_server' => array(
           'label' => t('OAuth2.0 Server Identifer'),
-          'base table' => 'oauth2_servers',
+          'base table' => 'oauth2_server',
           'uri callback' => 'oauth2_server_uri',
           'fieldable' => FALSE,
           'entity keys' => array(
@@ -212,10 +212,12 @@ function oauth2_server_access($op, $server) {
  * Update/Add a record
  */
 function oauth2_server_update($oauth2_server) {
-  if (!isset($oauth2_server['sid'])) {
-    drupal_write_record('oauth2_servers', $oauth2_server);
+  
+  if (!isset($oauth2_server['server_id'])) {
+    //error_log('here');
+    drupal_write_record('oauth2_server', $oauth2_server);
   } else {
-    drupal_write_record('oauth2_servers', $oauth2_server, 'sid');
+    drupal_write_record('oauth2_server', $oauth2_server, 'server_id');
   }
   return $oauth2_server['sid'];
 }
@@ -223,24 +225,39 @@ function oauth2_server_update($oauth2_server) {
 /**
  * Delete a record
  */
-function oauth2_server_delete($sid) {
-  db_query("DELETE FROM {oauth2_servers} WHERE sid = :d", array(':d' => $sid));
+function oauth2_server_delete($server_id) {
+  db_query("DELETE FROM {oauth2_server} WHERE server_id = :d", array(':d' => $server_id));
 }
 
 /**
  * Load a record
  */
-function oauth2_server_load($sid = NULL, $reset = FALSE) {
-  $sids = (isset($sid) ? array($sid) : array());
-  $oauth2_server = oauth2_server_load_multiple($sids, $reset);
-  return $oauth2_server ? reset ($oauth2_server) : FALSE;
+function oauth2_server_load($server_id) {
+//   $sids = (isset($sid) ? array($sid) : array());
+//   $oauth2_server = oauth2_server_load_multiple($sids);
+//   return $oauth2_server ? reset ($oauth2_server) : FALSE;
+
+  ctools_include('export');
+  $result = ctools_export_load_object('oauth2_server', 'names', array($server_id));
+
+  if (isset($result[$server_id])) {
+    return $result[$server_id];
+  }
 }
 
 /**
  * Load multiple
  */
-function oauth2_server_load_multiple($sids = array(), $conditions = array(), $reset = FALSE) {
-  return entity_load('oauth2_server', $sids, $conditions, $reset);
+function oauth2_server_load_multiple($server_ids = NULL) {
+  ctools_include('export');
+  if ($server_ids === NULL) {
+    $results = ctools_export_load_object('oauth2_server');
+  } else {
+    $results = ctools_export_load_object('oauth2_server', 'names', $server_ids);
+  }
+  return array_filter($results);
+  
+  //return entity_load('oauth2_server', $sids, $conditions, $reset);
 }
 
 /**
@@ -290,6 +307,46 @@ function oauth2_server_block_view($delta = '') {
   }
 }
 
+/**
+ * Implementation of hook_ctools_plugin_api().
+ *
+ * Tell CTools that we support the default_mymodule_presets API.
+ */
+function oauth2_server_ctools_plugin_api($owner, $api) {
+  if ($owner == 'auth2_server' && $api == 'default_auth2_server_presets') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implementation of hook_default_mymodule_preset().
+ *
+ * Provide a couple of default presets.
+ */
+function oauth2_server_default_mymodule_preset() {
+  $export = array();
+
+  $preset = new stdClass;
+  $preset->api_version = 1;
+  $preset->server_id = 'default_server_machine_name';
+  $preset->title = 'Default title';
+  //$preset->mydata = 'x';
+  $export['my_default_preset'] = $preset;
+
+  return $export;
+}
+
+
+/**
+ * Implementation of hook_ctools_plugin_directory().
+ */
+function oauth2_server_ctools_plugin_directory($module, $type) {
+
+  // Load the export_ui plugin.
+  /*if ($type =='export_ui') {
+    return '.';
+  }*/
+}
 
 
 /**

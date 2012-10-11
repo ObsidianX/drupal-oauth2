@@ -16,10 +16,10 @@ function oauth2_consumer_schema() {
   $schema['oauth2_consumers']  = array(
       'description' => t('Stores information about OAuth2.0 consumers.'),
       'fields' => array(
-          'sid' => array(
+          'server_id' => array(
               'description' => 'The primary identifier for a server identifier.',
-              'type' => 'int',
-              'unsigned' => TRUE,
+              'type' => 'varchar',
+              'length' => 64,
               'not null' => TRUE,
           ),
           'expires_in' => array(
@@ -36,7 +36,7 @@ function oauth2_consumer_schema() {
               'description' => 'A serialized array of name value pairs that are related to the consumer username and password.',
           ),
       ),
-      'primary key' => array('sid'),
+      'primary key' => array('server_id'),
   );
 
   return $schema;
