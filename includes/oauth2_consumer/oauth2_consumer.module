@@ -166,7 +166,9 @@ function oauth2_consumer_load($server_id) {
   $result = ctools_export_load_object('oauth2_consumer', 'names', array($server_id));
 
   if (isset($result[$server_id])) {
-    return $result[$server_id];
+    $return = drupal_unpack($result[$server_id]);
+
+    return $return;
   }
 
 }
@@ -180,7 +182,13 @@ function oauth2_consumer_load_multiple($server_ids = NULL) {
   } else {
     $results = ctools_export_load_object('oauth2_consumer', 'names', $server_ids);
   }
-  return array_filter($results);
+  $consumers = array_filter($results);
+  foreach ($consumers as &$consumer) {
+    // Remember to unpack username and password.
+    $consumer = drupal_unpack($consumer);
+  }
+  unset($consumer);
+  return $consumers;
 }
 /**
  * Useless. view not implemented for now
