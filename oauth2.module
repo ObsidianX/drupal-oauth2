@@ -200,7 +200,7 @@ function oauth2_get_server($class_name = NULL, $params = array()) {
 function oauth2_get_client($server_id, $params = array()) {
   static $_oauth2_clients;
 
-  if (!isset($_oauth2_clients[$server_id]) || !$_oauth2_clients[$sid] instanceof DrupalOAuth2Client) {
+  if (!isset($_oauth2_clients[$server_id]) || !$_oauth2_clients[$server_id] instanceof DrupalOAuth2Client) {
     $server_info = (array) oauth2_server_load($server_id);
 
     $params = array_merge($server_info, $params);
