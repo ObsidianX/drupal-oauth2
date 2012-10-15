@@ -214,11 +214,11 @@ function oauth2_server_edit_form_submit($form, &$form_state) {
   if ($form_state['values']['sid'] != NULL) {
     $oauth2_server['sid'] = $form_state['values']['sid'];
   }
-  $return_sid = oauth2_server_update($oauth2_server);
-  $form_state['values']['sid'] = $return_sid;
+  oauth2_server_update($oauth2_server);
+  //$form_state['values']['sid'] = $return_sid;
 
   $form_state['redirect'] = 'oauth2-server/' . $form_state['values']['server_id'] . '/edit';
-  drupal_set_message($form_state['values']['server_id'].t(' saved.'));
+  drupal_set_message($form_state['values']['title'].t(' saved.'));
 }
 
 /**
