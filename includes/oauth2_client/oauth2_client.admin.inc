@@ -10,28 +10,27 @@
  */
 function oauth2_client_admin_callback() {
   $header = array(
-      array('data' => t('Application name'), 'field' => 'n.title'),
-      array('data' => t('Application ID'), 'field' => 'oc.client_id'),
-      array('data' => t('Application secret'), 'field' => 'oc.client_secret'),
-      array('data' => t('Published'), 'field' => 'n.status'),
-      array('data' => t('Updated'), 'field' => 'n.changed', 'sort' => 'desc'),
+      array('data' => t('Application name'), 'field' => 'title'),
+      array('data' => t('Application ID'), 'field' => 'client_id'),
+      array('data' => t('Application secret'), 'field' => 'client_secret'),
+      array('data' => t('Published'), 'field' => 'status'),
+      array('data' => t('Updated'), 'field' => 'changed', 'sort' => 'desc'),
       array('data' => t('Operations'), 'colspan' => 2),
   );
 
-  $result = db_query("SELECT oc.cid, oc.title, oc.client_id, oc.client_secret, oc.status, oc.changed FROM {oauth2_clients} AS oc ");
+  $result = oauth2_client_load_multiple();
 
-
-
+  $output = array();
   $rows = array();
   foreach ($result as $record) {
     $rows[] = array(
-        l($record->title, 'oauth2-client/'. $record->cid),
+        l($record->title, 'oauth2-client/'. $record->client_id),
         $record->client_id,
         $record->client_secret,
         $record->status ? t('Yes') : t('No'),
         format_interval(time() - $record->changed),
-        l(t('edit'), 'oauth2-client/'. $record->cid .'/edit', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-client'))),
-        l(t('delete'), 'oauth2-client/'. $record->cid .'/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-client'))),
+        l(t('edit'), 'oauth2-client/'. $record->client_id .'/edit', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-client'))),
+        l(t('delete'), 'oauth2-client/'. $record->client_id .'/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-client'))),
     );
   }
 
@@ -175,9 +174,9 @@ function oauth2_client_edit_form_submit($form, &$form_state) {
     $oauth2_client['cid'] = $form_state['values']['cid'];
   }
   $return_cid = oauth2_client_update($oauth2_client);
-  $form_state['values']['cid'] = $return_cid;
+  //$form_state['values']['cid'] = $return_cid;
 
-  $form_state['redirect'] = 'oauth2-client/' . $form_state['values']['cid'] . '/edit';
+  $form_state['redirect'] = 'oauth2-client/' . $form_state['values']['client_id'] . '/edit';
   drupal_set_message($form_state['values']['title'].t(' saved.'));
 }
 
@@ -192,7 +191,7 @@ function oauth2_client_delete_form($form, &$form_state, $oauth2_client) {
   array(
       'oauth2_client' => array(
           '#type' => 'value',
-          '#value' => $oauth2_client->cid,
+          '#value' => $oauth2_client->client_id,
       ),
   ),
   t('Are you sure you want to delete this client Identifier: '.$oauth2_client->title.' ?'),

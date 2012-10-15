@@ -10,10 +10,10 @@
  */
 function oauth2_server_admin_callback() {
   $header = array(
-      array('data' => t('Server Name'), 'field' => 'osrv.title'),
-      array('data' => t('Server ID'), 'field' => 'osrv.server_id'),
-      array('data' => t('Published'), 'field' => 'osrv.status'),
-      array('data' => t('Updated'), 'field' => 'osrv.changed', 'sort' => 'desc'),
+      array('data' => t('Server Name'), 'field' => 'title'),
+      array('data' => t('Server ID'), 'field' => 'server_id'),
+      array('data' => t('Published'), 'field' => 'status'),
+      array('data' => t('Updated'), 'field' => 'changed', 'sort' => 'desc'),
       array('data' => t('Operations'), 'colspan' => 2),
   );
 

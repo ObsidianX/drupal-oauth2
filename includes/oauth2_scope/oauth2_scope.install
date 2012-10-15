@@ -10,8 +10,21 @@
 function oauth2_scope_schema() {
   $schema = array();
 
-  $schema['oauth2_scopes'] = array(
+  $schema['oauth2_scope'] = array(
       'description' => t('OAuth2.0 scope information as Drupal entity.'),
+      'export' => array(
+          'key' => 'scope_id',
+          'key name' => 'OAuth2.0 Scope Machine Name',
+          'primary key' => 'sid',
+          'identifier' => 'preset', // Exports will be defined as $preset
+          'default hook' => 'default_oauth2_scope_preset',  // Function hook name.
+          'api' => array(
+              'owner' => 'oauth2_scope',
+              'api' => 'default_oauth2_scope_presets',  // Base name for api include files.
+              'minimum_version' => 1,
+              'current_version' => 1,
+          ),
+      ),
       'fields' => array(
           'sid' => array(
               'description' => 'The primary identifier for an entity.',

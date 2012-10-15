@@ -10,32 +10,32 @@
  */
 function oauth2_scope_admin_callback() {
   $header = array(
-      array('data' => t('Scope name'), 'field' => 'n.title'),
-      array('data' => t('Scope ID'), 'field' => 'os.scope_id'),
-      array('data' => t('Hidded'), 'field' => 'os.hidden'),
-      array('data' => t('Bypass'), 'field' => 'os.bypass'),
-      array('data' => t('Required'), 'field' => 'os.required'),
-      array('data' => t('Published'), 'field' => 'n.status'),
-      array('data' => t('Updated'), 'field' => 'n.changed', 'sort' => 'desc'),
+      array('data' => t('Scope name'), 'field' => 'title'),
+      array('data' => t('Scope ID'), 'field' => 'scope_id'),
+      array('data' => t('Hidded'), 'field' => 'hidden'),
+      array('data' => t('Bypass'), 'field' => 'bypass'),
+      array('data' => t('Required'), 'field' => 'required'),
+      array('data' => t('Published'), 'field' => 'status'),
+      array('data' => t('Updated'), 'field' => 'changed', 'sort' => 'desc'),
       array('data' => t('Operations'), 'colspan' => 2),
   );
 
-  $result = db_query("SELECT os.sid, os.scope_id, os.hidden, os.bypass, os.required, os.status, os.changed FROM {oauth2_scopes} AS os ");
+  $result = oauth2_scope_load_multiple();
 
   $output = array();
   $rows = array();
 
   foreach($result as $scope) {
     $rows[] = array(
-        l($scope->title, 'oauth2-scope/'. $scope->sid),
+        l($scope->title, 'oauth2-scope/'. $scope->scope_id),
         $scope->scope_id,
         $scope->hidden ? t('Yes') : t('No'),
         $scope->bypass ? t('Yes') : t('No'),
         $scope->required ? t('Yes') : t('No'),
         $scope->status ? t('Yes') : t('No'),
         format_interval(time() - $scope->changed),
-        l(t('edit'), 'oauth2-scope/'. $scope->sid .'/edit', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-scope'))),
-        l(t('delete'), 'oauth2-scope/'. $scope->sid .'/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-scope'))),
+        l(t('edit'), 'oauth2-scope/'. $scope->scope_id .'/edit', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-scope'))),
+        l(t('delete'), 'oauth2-scope/'. $scope->scope_id .'/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-scope'))),
     );
   }
   $output['add_link'] = array(
@@ -158,9 +158,9 @@ function oauth2_scope_edit_form_submit($form, &$form_state) {
     $oauth2_scope['sid'] = $form_state['values']['sid'];
   }
   $return_sid = oauth2_scope_update($oauth2_scope);
-  $form_state['values']['sid'] = $return_sid;
+  //$form_state['values']['sid'] = $return_sid;
 
-  $form_state['redirect'] = 'oauth2-scope/' . $form_state['values']['sid'] .'/edit';
+  $form_state['redirect'] = 'oauth2-scope/' . $form_state['values']['scope_id'] .'/edit';
   drupal_set_message($form_state['values']['scope_id'].t(' saved.'));
 
 }
@@ -176,9 +176,9 @@ function oauth2_scope_edit_form_validate($form, &$form_state) {
 
   // Ensure no duplicate scope_id.
   if ($form_state['values']['sid'] != NULL) {
-    $result = db_result(db_query("SELECT COUNT(*) AS count FROM {oauth2_scopes} AS os  WHERE os.scope_id = :s AND os.sid <> :d", array(':s' => $form_state['values']['scope_id'], ':d' => $form_state['values']['sid'])));
+    $result = db_result(db_query("SELECT COUNT(*) AS count FROM {oauth2_scope} AS os  WHERE os.scope_id = :s AND os.sid <> :d", array(':s' => $form_state['values']['scope_id'], ':d' => $form_state['values']['sid'])));
   } else {
-    $result = db_result(db_query("SELECT COUNT(*) AS count FROM {oauth2_scopes} AS os  WHERE os.scope_id = :s", array(':s' => $form_state['values']['scope_id'])));
+    $result = db_result(db_query("SELECT COUNT(*) AS count FROM {oauth2_scope} AS os  WHERE os.scope_id = :s", array(':s' => $form_state['values']['scope_id'])));
   }
   foreach($result as $record) {
     if ($result->count != 0) {

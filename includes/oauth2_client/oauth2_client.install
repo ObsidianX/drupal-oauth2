@@ -11,15 +11,28 @@
  */
 function oauth2_client_schema() {
   $schema = array();
-
-  $schema['oauth2_clients'] = array(
-      'description' => t('OAuth2.0 client indentifier information as Drupal node.'),
+  $schema['oauth2_client'] = array(
+      'description' => t('OAuth2.0 client indentifier information as a Drupal Entity.'),
+      'export' => array(
+          'key' => 'client_id',
+          'key name' => 'OAuth2.0 Client Machine Name',
+          'primary key' => 'cid',
+          'identifier' => 'preset', // Exports will be defined as $preset
+          'default hook' => 'default_oauth2_client_preset',  // Function hook name.
+          'api' => array(
+              'owner' => 'oauth2_server',
+              'api' => 'default_oauth2_client_presets',  // Base name for api include files.
+              'minimum_version' => 1,
+              'current_version' => 1,
+          ),
+      ),
       'fields' => array(
           'cid' => array(
               'description' => 'The primary identifier for a client.',
               'type' => 'serial',
               'unsigned' => TRUE,
               'not null' => TRUE,
+              'no export' => TRUE,
           ),
           'title' => array(
               'description' => t('title.'),
@@ -64,10 +77,10 @@ function oauth2_client_schema() {
               'description' => 'changed',
           ),
       ),
-      'indexes' => array(
-          'client_id' => array('client_id'),
-      ),
       'primary key' => array('cid'),
+      'unique keys' => array(
+          'server_id' => array('client_id'),
+      ),
   );
 
   return $schema;

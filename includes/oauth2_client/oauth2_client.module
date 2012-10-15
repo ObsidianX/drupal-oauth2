@@ -173,9 +173,9 @@ function oauth2_client_access($op, $client) {
  */
 function oauth2_client_update($oauth2_client) {
   if (!isset($oauth2_client['cid'])) {
-    drupal_write_record('oauth2_clients', $oauth2_client);
+    drupal_write_record('oauth2_client', $oauth2_client);
   } else {
-    drupal_write_record('oauth2_clients', $oauth2_client, 'cid');
+    drupal_write_record('oauth2_client', $oauth2_client, 'cid');
   }
   return $oauth2_client['cid'];
 }
@@ -184,30 +184,44 @@ function oauth2_client_update($oauth2_client) {
 /**
  * Delete a record
  */
-function oauth2_client_delete($cid) {
-  db_query("DELETE FROM {oauth2_clients} WHERE cid = :d", array(':d' => $cid));
+function oauth2_client_delete($client_id) {
+  db_query("DELETE FROM {oauth2_client} WHERE client_id = :d", array(':d' => $client_id));
 }
 
 /**
  * Load a record
  */
-function oauth2_client_load($cid = NULL, $reset = FALSE) {
-  $cids = (isset($cid) ? array($cid) : array());
-  $oauth2_client = oauth2_client_load_multiple($cids,$reset);
-  return $oauth2_client ? reset ($oauth2_client) : FALSE;
+function oauth2_client_load($client_id) {
+//   $cids = (isset($cid) ? array($cid) : array());
+//   $oauth2_client = oauth2_client_load_multiple($cids,$reset);
+//   return $oauth2_client ? reset ($oauth2_client) : FALSE;
+
+  ctools_include('export');
+  $result = ctools_export_load_object('oauth2_client', 'names', array($client_id));
+  
+  if (isset($result[$client_id])) {
+    return $result[$client_id];
+  }
 }
 
 /**
  * Load multiple
  */
-function oauth2_client_load_multiple($cids = array(), $conditions = array(), $reset = FALSE) {
-  return entity_load('oauth2_client',$cids,$conditions,$reset);
+function oauth2_client_load_multiple($client_ids = NULL) {
+  ctools_include('export');
+  if ($client_ids === NULL) {
+    $results = ctools_export_load_object('oauth2_client');
+  } else {
+    $results = ctools_export_load_object('oauth2_client', 'names', $client_ids);
+  }
+  return array_filter($results);
 }
 /**
  * Load by client id
  */
 function oauth2_client_load_by_client_id($client_id) {
-  $query = new EntityFieldQuery;
+  return oauth2_client_load($client_id);
+ /*$query = new EntityFieldQuery;
 
   $result = $query
   ->entityCondition('entity_type', 'oauth2_client')
@@ -228,7 +242,7 @@ function oauth2_client_load_by_client_id($client_id) {
     }
   }
   
-  return NULL;
+  return NULL;*/
 }
 
 /**

@@ -90,10 +90,10 @@ function oauth2_admin_settings() {
       );
   
       $options = array();
-      $results = db_query("SELECT osrv.* FROM {oauth2_servers} AS osrv  WHERE osrv.status = 1");
+      $results = oauth2_server_load_multiple();
   
       foreach ($results as $result) {
-        $options[$result->sid] = "{$result->title} ({$result->server_id})";
+        $options[$result->server_id] = "{$result->title} ({$result->server_id})";
       }
       if (count($options) >= 1) {
         $form['oauth2_provider_mode_proxy']['oauth2_proxy_server_identifier'] = array(
@@ -124,10 +124,10 @@ function oauth2_admin_settings() {
       );
       
       $options = array();
-      $results = db_query("SELECT osrv.* FROM {oauth2_servers} AS osrv  WHERE osrv.status = 1");
+      $results = oauth2_server_load_multiple();
       
       foreach ($results as $result) {
-        $options[$result->sid] = "{$result->title} ({$result->server_id})";
+        $options[$result->server_id] = "{$result->title} ({$result->server_id})";
       }
       if (count($options) >= 1) {
         $form['oauth2_provider_mode_client']['oauth2_client_server_identifier'] = array(

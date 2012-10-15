@@ -95,7 +95,6 @@ function oauth2_server_schema() {
           ),
       ),
       'indexes' => array(
-          'oauth2_server_name' => array('server_id'),
           'oauth2_server_status' => array('status'),
       ),
       'primary key' => array('sid'),

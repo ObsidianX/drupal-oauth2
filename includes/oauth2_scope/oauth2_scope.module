@@ -171,9 +171,9 @@ function oauth2_scope_access($op, $scope) {
  */
 function oauth2_scope_update($oauth2_scope) {
   if (!isset($oauth2_scope['sid'])) {
-    drupal_write_record('oauth2_scopes', $oauth2_scope);
+    drupal_write_record('oauth2_scope', $oauth2_scope);
   } else {
-    drupal_write_record('oauth2_scopes', $oauth2_scope, 'sid');
+    drupal_write_record('oauth2_scope', $oauth2_scope, 'sid');
   }
   return $oauth2_scope['sid'];
 }
@@ -206,25 +206,40 @@ break;
 /**
  * Delete a record
  */
-function oauth2_scope_delete($sid) {
+function oauth2_scope_delete($scope_id) {
   // Notice that we're matching all revision, by using the node's nid.
-  db_query("DELETE FROM {oauth2_scopes} WHERE sid = :s", array(':s' => $sid));
+  db_query("DELETE FROM {oauth2_scope} WHERE scope_id = :s", array(':s' => $scope_id));
 }
 
 /**
  * Load a record
  */
-function oauth2_scope_load($sid = NULL, $reset = FALSE) {
-  $sids = (isset($sid) ? array($sid) : array());
-  $oauth2_scope = oauth2_scope_load_multiple($sids,$reset);
-  return $oauth2_scope ? reset ($oauth2_scope) : FALSE;
+function oauth2_scope_load($scope_id) {
+//   $sids = (isset($sid) ? array($sid) : array());
+//   $oauth2_scope = oauth2_scope_load_multiple($sids,$reset);
+//   return $oauth2_scope ? reset ($oauth2_scope) : FALSE;
+
+  ctools_include('export');
+  $result = ctools_export_load_object('oauth2_scope', 'names', array($scope_id));
+
+  if (isset($result[$scope_id])) {
+    return $result[$scope_id];
+  }
 }
 
 /**
  * Load multiple
  */
-function oauth2_scope_load_multiple($sids = array(), $conditions = array(), $reset = FALSE) {
-  return entity_load('oauth2_scope',$sids,$conditions,$reset);
+function oauth2_scope_load_multiple($scope_ids = NULL) {
+  ctools_include('export');
+  if ($scope_ids === NULL) {
+    $results = ctools_export_load_object('oauth2_scope');
+  } else {
+    $results = ctools_export_load_object('oauth2_scope', 'names', $scope_ids);
+  }
+  return array_filter($results);
+  
+  //return entity_load('oauth2_scope',$sids,$conditions,$reset);
 }
 
 /**
