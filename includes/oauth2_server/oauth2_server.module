@@ -16,8 +16,8 @@ function oauth2_server_init() {
  */
 function oauth2_server_user_logout() {
   if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier')) {
-    $sid = variable_get('oauth2_client_server_identifier');
-    $client = oauth2_get_client($sid);
+    $server_id = variable_get('oauth2_client_server_identifier');
+    $client = oauth2_get_client($server_id);
 
     //tell the server to expire the session(access token,etc)
     $client->expireSession();

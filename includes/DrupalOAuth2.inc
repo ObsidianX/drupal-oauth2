@@ -30,7 +30,7 @@ class DrupalOAuth2 extends OAuth2 {
           $result = $this->getAccessToken($_REQUEST['access_token']);
         }
         // Hack to corresponding user if code provided.
-        elseif (isset($_REQUEST['code'])) {error_log('code get');
+        elseif (isset($_REQUEST['code'])) {
           $result = $this->getAuthCode($_REQUEST['code']);
         }
         // Hack to corresponding user if refresh_token provided.
@@ -129,7 +129,7 @@ class DrupalOAuth2 extends OAuth2 {
 
     $extended_permissions = array();
     foreach ($scopes as $scope) {
-      $result = db_query("SELECT os.sid, os.scope_id, os.hidden, os.bypass FROM  {oauth2_scopes} AS os  WHERE os.scope_id = :s ", array(':s' => $scope));
+      $result = oauth2_scope_load($scope);
       $extended_permissions[] = $result;
     }
 
@@ -144,7 +144,7 @@ class DrupalOAuth2 extends OAuth2 {
    *   A list for all hidden scopes.
    */
   public function getHiddenScopes() {
-    $result = db_query("SELECT os.scope_id FROM  {oauth2_scopes} AS os  WHERE os.hidden = 1 ");
+    $result = db_query("SELECT os.scope_id FROM  {oauth2_scope} AS os  WHERE os.hidden = 1 ");
     $scopes = array();
     foreach ($result as $record) {
       $scopes[] = $record['scope_id'];
@@ -259,7 +259,7 @@ class DrupalOAuth2 extends OAuth2 {
         // We hack $_REQUEST['redirect_uri'] so handle it custom logout.
         $result = db_query("SELECT oc.redirect_uri
         FROM {oauth2_access_tokens} AS oat
-        INNER JOIN {oauth2_clients} AS oc ON oat.client_id = oc.client_id
+        INNER JOIN {oauth2_client} AS oc ON oat.client_id = oc.client_id
         WHERE oat.sid = :sid ", array(':sid' =>$sid));
         $record = $result->fetchAssoc();
         $_GET['redirect_uri'] = $record['redirect_uri'];
@@ -321,8 +321,8 @@ class DrupalOAuth2 extends OAuth2 {
    * Implements OAuth2::checkClientCredentials().
    */
   public function checkClientCredentials($client_id, $client_secret = NULL) {
-    $result = db_query("SELECT oc.client_secret FROM {oauth2_clients} AS oc WHERE oc.client_id = :client_id ", array(':client_id' => $client_id));
-    $record_client_secret = $result->fetchField();
+    $result = oauth2_client_load($client_id);
+    $record_client_secret = $result->client_secret;
     return ($client_secret !== NULL && $record_client_secret == $client_secret) ? TRUE : FALSE;
   }
 
@@ -330,8 +330,8 @@ class DrupalOAuth2 extends OAuth2 {
    * Implements OAuth2::getRedirectUri().
    */
   public function getRedirectUri($client_id) {
-    $result = db_query("SELECT oc.redirect_uri FROM {oauth2_clients} AS oc  WHERE oc.client_id = :client_id ", array(':client_id' => $client_id ));
-    $record_redirect_uri = $result->fetchField();
+    $result = oauth2_client_load($client_id);
+    $record_redirect_uri = $result->redirect_uri;
     return $record_redirect_uri !== FALSE ? $record_redirect_uri : NULL;
   }
 
@@ -371,7 +371,7 @@ class DrupalOAuth2 extends OAuth2 {
    * Overrides OAuth2::getSupportedScopes().
    */
   public function getSupportedScopes() {
-    $result = db_query("SELECT os.scope_id FROM {oauth2_scopes} AS os ");
+    $result = db_query("SELECT os.scope_id FROM {oauth2_scope} AS os ");
     $scope_ids = array();
     foreach ($result as $record) {
       $scope_ids[] = $record['scope_id'];
