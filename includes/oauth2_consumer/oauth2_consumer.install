@@ -13,11 +13,23 @@
 function oauth2_consumer_schema() {
   $schema = array();
 
-  $schema['oauth2_consumers']  = array(
+  $schema['oauth2_consumer']  = array(
       'description' => t('Stores information about OAuth2.0 consumers.'),
+      'export' => array(
+          'key' => 'server_id',
+          'key name' => 'OAuth2.0 Consumer Server Machine Name',
+          'identifier' => 'preset', // Exports will be defined as $preset
+          'default hook' => 'default_oauth2_consumer_preset',  // Function hook name.
+          'api' => array(
+              'owner' => 'oauth2_server',
+              'api' => 'default_oauth2_consumer_presets',  // Base name for api include files.
+              'minimum_version' => 1,
+              'current_version' => 1,
+          ),
+      ),
       'fields' => array(
           'server_id' => array(
-              'description' => 'The primary identifier for a server identifier.',
+              'description' => 'The server machine name.',
               'type' => 'varchar',
               'length' => 64,
               'not null' => TRUE,

@@ -49,7 +49,7 @@ function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, &$form_state
       'fields' => array(),
   );
 
-  $form['oauth2_server']['oauth2_consumer']['username'] = array(
+  $form['oauth2_server']['oauth2_consumer']['consumer_username'] = array(
       '#type' => 'textfield',
       '#title' => t('Username'),
       '#description' => t('Your registered consumer account username.'),
@@ -60,7 +60,7 @@ function oauth2_consumer_form_oauth2_server_edit_form_alter(&$form, &$form_state
   // Form element with type password will not pass in with default value
   // and so may flush existing password during form save. Here we
   // manually preserve original password with form hidden value.
-  $form['oauth2_server']['oauth2_consumer']['password'] = array(
+  $form['oauth2_server']['oauth2_consumer']['consumer_password'] = array(
       '#type' => 'password',
       '#title' => t('Password'),
       '#description' => t('Your registered consumer account password. NOTE: This will store as plain text in database.'),
@@ -94,13 +94,13 @@ function oauth2_consumer_form_oauth2_server_edit_form_validate(&$form, &$form_st
  */
 function oauth2_consumer_form_oauth2_server_edit_form_submit(&$form, &$form_state) {
   // Reuse original password if no new password.
-  if (empty($form_state['values']['password'])) {
-    $form_state['values']['password'] =  $form_state['values']['password_orig'];
+  if (empty($form_state['values']['consumer_password'])) {
+    $form_state['values']['consumer_password'] =  $form_state['values']['password_orig'];
   }
 
   $consumer = array(
-      'username'       => $form_state['values']['username'],
-      'password'       => $form_state['values']['password'],
+      'username'       => $form_state['values']['consumer_username'],
+      'password'       => $form_state['values']['consumer_password'],
       'expires_in'     => $form_state['values']['expires_in'],
   );
   if ($form_state['values']['server_id'] != NULL) {
@@ -139,13 +139,15 @@ function oauth2_consumer_update($consumer) {
     //Should not be here
     error_log('server_id not set!');
   } else {
-
-    db_merge('oauth2_consumers')
+    db_merge('oauth2_consumer')
     ->key(array('server_id' => $consumer['server_id']))
     ->fields($consumer)
     ->execute();
+    //drupal_write_record('oauth2_consumer', $consumer, 'server_id');
+    return $consumer['server_id'];
 
   }
+  return NULL;
 }
 
 /**
@@ -153,29 +155,32 @@ function oauth2_consumer_update($consumer) {
  */
 function oauth2_consumer_delete($server_id) {
 
-  db_query("DELETE FROM {oauth2_consumers} WHERE server_id = :s", array(':s' => $server_id));
+  db_query("DELETE FROM {oauth2_consumer} WHERE server_id = :s", array(':s' => $server_id));
 }
 
 /**
  * Load a record
  */
-function oauth2_consumer_load($server_id = NULL, $reset = FALSE) {
-  $server_ids = (isset($server_id) ? array($server_id) : array());
-  $oauth2_consumer = oauth2_consumer_load_multiple($server_ids,$reset);
-  return $oauth2_consumer ? reset ($oauth2_consumer) : FALSE;
+function oauth2_consumer_load($server_id) {
+  ctools_include('export');
+  $result = ctools_export_load_object('oauth2_consumer', 'names', array($server_id));
+
+  if (isset($result[$server_id])) {
+    return $result[$server_id];
+  }
 
 }
 /**
  * Load multiple
  */
-function oauth2_consumer_load_multiple($server_ids = array(), $conditions = array(), $reset = FALSE) {
-  $consumers =  entity_load('oauth2_consumer',$server_ids,$conditions,$reset);
-  foreach ($consumers as &$consumer) {
-    // Remember to unpack username and password.
-    $consumer = drupal_unpack($consumer);
+function oauth2_consumer_load_multiple($server_ids = NULL) {
+  ctools_include('export');
+  if ($server_ids === NULL) {
+    $results = ctools_export_load_object('oauth2_consumer');
+  } else {
+    $results = ctools_export_load_object('oauth2_consumer', 'names', $server_ids);
   }
-  unset($consumer);
-  return $consumers;
+  return array_filter($results);
 }
 /**
  * Useless. view not implemented for now

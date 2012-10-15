@@ -214,7 +214,7 @@ function oauth2_server_access($op, $server) {
 function oauth2_server_update($oauth2_server) {
   
   if (!isset($oauth2_server['sid'])) {
-    //error_log('here');
+
     drupal_write_record('oauth2_server', $oauth2_server);
   } else {
     drupal_write_record('oauth2_server', $oauth2_server, 'sid');
