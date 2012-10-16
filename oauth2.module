@@ -94,13 +94,6 @@ function oauth2_init() {
 
 }
 
-/**
- * Implements hook_boot().
- */
-function oauth2_boot() {
-
-}
-
 
 /**
  * Implements hook_enable().
