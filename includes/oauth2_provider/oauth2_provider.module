@@ -66,6 +66,7 @@ function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
 
   if (isset($form['#submit']) && is_array($form['#submit']) && ($key = array_search('user_login_submit', $form['#submit'])) !== FALSE) {
     $form['#submit'][$key] = 'oauth2_provider_login_submit';
+    // Replace the submit handler of login form.
   }
 
   $server_id = variable_get('oauth2_proxy_server_identifier');
@@ -73,15 +74,16 @@ function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
     //only for proxy mode
 
     $oauth2_server = oauth2_server_load($server_id);
-    $form['#action'] = '/?destination=user&response_type=code&client_id='.$oauth2_server->client_id.'&redirect_uri=user';
-    // Replace the submit handler of login form.
+    if ($form_id == 'user_login_block') {
+      $form['#action'] = '/?destination=user&response_type=code&client_id='.$oauth2_server->client_id.'&redirect_uri=user';
+    } else {
+      $form['#action'] = '/user?destination=user&response_type=code&client_id='.$oauth2_server->client_id.'&redirect_uri=user';
+    }
+    
 
 
     // Replace the drupal authenticate function is it's used as validation.
     if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Proxy'
-    && isset($_GET['response_type'])
-    && isset($_GET['client_id'])
-    && isset($_GET['redirect_uri'])
     && isset($form['#validate'])
     && is_array($form['#validate'])
     && ($key = array_search('user_login_authenticate_validate', $form['#validate']))) {
@@ -92,34 +94,6 @@ function oauth2_provider_form_alter(&$form, &$form_state, $form_id) {
 
 }
 
-// /**
-//  * Implements hook_form_FORM_ID_alter.
-//  */
-// function oauth2_provider_form_user_profile_form_alter(&$form, &$form_state) {
-//   if (isset($_GET['client_id'])) {
-//     $_SESSION['oauth2_from_client_id'] = $_GET['client_id'];
-//   } else {
-//     //unset any old oauth2_from_client_id
-//     unset($_SESSION['oauth2_from_client_id']);
-//   }
-  
-//   $form['#submit'][] = 'oauth2_provider_form_user_profile_form_alter_submit';
-// }
-// /**
-//  * Redirect back to client site.
-//  */
-// function oauth2_provider_form_user_profile_form_alter_submit($form, &$form_state) {
-//   if (!isset($_SESSION['oauth2_from_client_id'])) {
-//     return;
-//   }
-//   $client = oauth2_client_load_by_client_id($_SESSION['oauth2_from_client_id']);
-//   if (!isset($cleint)) {
-//     return;
-//   }
-  
-//   $form_state['redirect'] = array($client->redirect_uri);
-  
-// }
 
 /**
  * Implements hook_cron().
@@ -165,6 +139,7 @@ function oauth2_provider_page() {
  */
 function oauth2_provider_login_submit($form, &$form_state) {
   global $user;
+  //error_log(__FUNCTION__);
   // Redirect user to oauth2/authorize if from OAuth2.0 request pattern.
   if (isset($_GET['response_type']) && isset($_GET['client_id']) && isset($_GET['redirect_uri'])) {
 
@@ -174,6 +149,7 @@ function oauth2_provider_login_submit($form, &$form_state) {
     $form_state['redirect'] = array('oauth2/authorize', $query);
 
   } else {
+    
     $user = user_load($form_state['uid']);
     $form_state['redirect'] = 'user/'. $user->uid;
   }
@@ -186,14 +162,55 @@ function oauth2_provider_login_submit($form, &$form_state) {
  */
 function oauth2_provider_login_authenticate_validate($form, &$form_state) {
   $root_user = user_load(1);
+//error_log(__FUNCTION__);
 
-  if (trim($form_state['values']['name']) == $root_user->name) {
+
+  if (!isset($_GET['response_type'],$_GET['client_id'],$_GET['redirect_uri']) || trim($form_state['values']['name']) == $root_user->name) {
     user_login_authenticate_validate($form,$form_state);
   } else {
 
     $result = oauth2_get_server()->checkUserCredentials($_GET['client_id'], $form_state['values']['name'], $form_state['values']['pass']);
-    if ($result) {
-      $form_state['uid'] = $result['uid'];
+    //error_log(print_r($result,true));
+    //$result: array( 'uid' => <id>, 'name' => <username>, 'sid' => <session_id>, 'scope' => <scope> );
+    if ($result && !empty($result['name'])) {
+      $name = $result['name'];
+      
+      $user = user_external_load($name);
+      if (!$user) {
+        //try to load user from existing user table
+        $user = user_load_by_name($name);
+      
+        if ($user !== FALSE) {
+          //if user exist
+          user_set_authmaps($user, array("authname_oauth2" => $name));
+          
+        } else {
+          //create the user
+          $userinfo = array(
+              'name' => $name,
+              'pass' => user_password(),
+              'init' => $name,
+              'status' => 1,
+              'access' => REQUEST_TIME
+          );
+          $user = user_save(drupal_anonymous_user(), $userinfo);
+          // Terminate if an error occurred during user_save().
+          if (!$user) {
+            drupal_set_message(t("Error saving user account."), 'error');
+            return;
+          }
+          user_set_authmaps($user, array("authname_oauth2" => $name));
+        }
+      } else {
+        
+      
+      }
+      
+      if (isset($user->uid)) {
+
+      //we need the uid in THIS drupal 
+        $form_state['uid'] = $user->uid;
+      }
     }
     else {
       watchdog('oauth2_provider', 'Login attempt failed for %user.', array('%user' => $form_state['values']['name']));
