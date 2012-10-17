@@ -41,7 +41,7 @@ jQuery(document).ready(
 
       document.body.appendChild(ifrm);
       // console.debug(Drupal.settings.oauth2.url);
-      if (!Drupal.settings.oauth2.logged_in
+      if (Drupal.settings.oauth2 && !Drupal.settings.oauth2.logged_in
           && Drupal.settings.oauth2.auto_login_enabled) {
           //&& getCookie('oauth2_check_login') == null) {
         //console.debug('set cookie');
