@@ -197,7 +197,7 @@ function oauth2_get_client($server_id, $params = array()) {
     $server_info = (array) oauth2_server_load($server_id);
 
     $params = array_merge($server_info, $params);
-    if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) != 'DrupalOAuth2Client') {
+    if (module_exists('oauth2_consumer') && variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) != 'DrupalOAuth2Client') {
       $consumer_info = (array) oauth2_consumer_load($server_info['server_id']);
       $params = array_merge($consumer_info,$params);
     }

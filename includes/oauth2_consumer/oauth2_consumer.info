@@ -2,6 +2,7 @@ name = "OAuth2.0 Consumer Support"
 description = "Extend OAuth2.0 Server Identifer with consumer support."
 package = "OAuth2.0"
 dependencies[] = oauth2_server
+dependencies[] = oauth2_provider
 core = 7.x
 
 files[] = oauth2_consumer.test
