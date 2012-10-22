@@ -1,6 +1,0 @@
-name = "OAuth2.0 Authentication"
-description = "Provides OAuth2.0 authentication for the services module."
-package = Services - authentication
-dependencies[] = services
-dependencies[] = oauth2
-core = 6.x

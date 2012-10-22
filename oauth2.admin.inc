@@ -17,9 +17,7 @@ function oauth2_admin_settings() {
     '#after_build' => array('_oauth2_admin_settings_check_library_path'),
   );
 
-  if (module_exists('oauth2_client') && module_exists('oauth2_scope')) {
-    $oauth2_mode_options['DrupalOAuth2'] = t('Standalone mode');
-  }
+
   if (module_exists('oauth2_server')) {
     $oauth2_mode_options['DrupalOAuth2Proxy'] = t('Proxy mode');
   }
@@ -38,38 +36,6 @@ function oauth2_admin_settings() {
     '#required' => TRUE,
   );
 
-  if (module_exists('oauth2_client') && module_exists('oauth2_scope')) {
-    $form['oauth2_provider_mode_standalone'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Standalone mode'),
-      '#collapsible' => TRUE,
-      '#collapsed' => !(variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2'),
-    );
-
-    $form['oauth2_provider_mode_standalone']['oauth2_access_token_lifetime'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Access token lifetime (in seconds)'),
-      '#default_value' => variable_get('oauth2_access_token_lifetime', OAUTH2_DEFAULT_ACCESS_TOKEN_LIFETIME),
-      '#description' => t('A token used by the client to make authenticated requests on behalf of the resource owner.'),
-      '#required' => TRUE,
-    );
-
-    $form['oauth2_provider_mode_standalone']['oauth2_auth_code_lifetime'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Authorization code lifetime (in seconds)'),
-      '#default_value' => variable_get('oauth2_auth_code_lifetime', OAUTH2_DEFAULT_AUTH_CODE_LIFETIME),
-      '#description' => t('A short-lived token representing the access grant provided by the end-user.  The authorization code is used to obtain an access token and a refresh token.'),
-      '#required' => TRUE,
-    );
-
-    $form['oauth2_provider_mode_standalone']['oauth2_refresh_token_lifetime'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Refresh token lifetime (in seconds)'),
-      '#default_value' => variable_get('oauth2_refresh_token_lifetime', OAUTH2_DEFAULT_REFRESH_TOKEN_LIFETIME),
-      '#description' => t('A token used by the client to obtain a new access token without having to involve the resource owner.'),
-      '#required' => TRUE,
-    );
-  }
 
   if (module_exists('oauth2_server')) {
     $form['oauth2_provider_mode_proxy'] = array(
@@ -80,9 +46,9 @@ function oauth2_admin_settings() {
     );
 
     $options = array();
-    $stmt = db_query("SELECT osrv.nid, osrv.server_id, n.title FROM {oauth2_servers} AS osrv INNER JOIN {node} AS n ON osrv.vid = n.vid WHERE n.status = 1");
+    $stmt = db_query("SELECT osrv.server_id, osrv.title FROM {oauth2_server} AS osrv  WHERE osrv.status = 1");
     while ($result = db_fetch_object($stmt)) {
-      $options[$result->nid] = "{$result->title} ({$result->server_id})";
+      $options[$result->server_id] = "{$result->title} ({$result->server_id})";
     }
     if (count($options) >= 1) {
       $form['oauth2_provider_mode_proxy']['oauth2_proxy_server_identifier'] = array(
