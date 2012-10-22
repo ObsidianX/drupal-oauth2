@@ -100,15 +100,15 @@ function oauth2_server_menu() {
       'weight' => 0,
   );
 
-  $items['user/%/oauth2/edit'] = array(
-      'title' => 'Account',
-      'page callback' => 'oauth2_server_user_edit',
-      'page arguments' => array(1),
-      'access callback' => 'user_edit_access',
-      'access arguments' => array(1),
-      'type' => MENU_LOCAL_TASK,
-      'file' => 'oauth2_server.admin.inc',
-  );
+//   $items['user/%/oauth2/edit'] = array(
+//       'title' => 'Account',
+//       'page callback' => 'oauth2_server_user_edit',
+//       'page arguments' => array(1),
+//       'access callback' => 'user_edit_access',
+//       'access arguments' => array(1),
+//       'type' => MENU_LOCAL_TASK,
+//       'file' => 'oauth2_server.admin.inc',
+//   );
 
   return $items;
 }
@@ -337,16 +337,7 @@ function oauth2_server_default_mymodule_preset() {
 }
 
 
-/**
- * Implementation of hook_ctools_plugin_directory().
- */
-function oauth2_server_ctools_plugin_directory($module, $type) {
 
-  // Load the export_ui plugin.
-  /*if ($type =='export_ui') {
-    return '.';
-  }*/
-}
 
 
 /**

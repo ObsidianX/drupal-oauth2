@@ -273,10 +273,3 @@ function oauth2_server_delete_form_submit($form, &$form_state) {
   oauth2_server_delete($form_state['values']['oauth2_server']);
   drupal_set_message(t('Server Identifier deleted'));
 }
-
-/**
- * Special edit page for oauth2 user
- */
-function oauth2_server_user_edit($uid) {
-
-}
