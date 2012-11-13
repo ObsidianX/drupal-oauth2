@@ -12,7 +12,7 @@ function oauth2_server_help($section, $arg) {
   switch ($section) {
     case 'admin/build/oauth2/oauth2_server':
       $help = '<p>'. t("An <a href='!oauth2_server'>OAuth2.0 Server Identifer</a> contain the target OAuth2.0 provider information, including client_id, client_secret, authorize_uri and access_token_uri, etc.", array(
-        '!oauth2_server' => url('admin/build/oauth2/oauth2_server/add'),
+        '!oauth2_server' => url('admin/build/oauth2/oauth2-server/add'),
       )) .'</p>';
       return $help;
   }
@@ -24,7 +24,7 @@ function oauth2_server_help($section, $arg) {
 function oauth2_server_menu() {
   $items = array();
 
-  $items['admin/build/oauth2/oauth2_server'] = array(
+  $items['admin/build/oauth2/oauth2-server'] = array(
     'title' => 'Servers',
     'description' => 'List, add, and edit OAuth2.0 Server Identifer.',
     'page callback' => 'oauth2_server_admin_callback',
@@ -34,7 +34,7 @@ function oauth2_server_menu() {
     'weight' => -10,
   );
 
-  $items['admin/build/oauth2/oauth2_server/%oauth2_server'] = array(
+  $items['admin/build/oauth2/oauth2-server/%oauth2_server'] = array(
       'title' => 'View OAuth2 Server Identifier',
       'page callback' => 'oauth2_server_view_callback',
       'page arguments' => array(1),
@@ -44,7 +44,7 @@ function oauth2_server_menu() {
       'weight' => 0,
   );
   
-  $items['admin/build/oauth2/oauth2_server/add'] = array(
+  $items['admin/build/oauth2/oauth2-server/add'] = array(
       'title' => 'Add OAuth2 Server Identifier',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('oauth2_server_edit_form'),
@@ -54,20 +54,20 @@ function oauth2_server_menu() {
       'weight' => 0,
   );
   
-  $items['admin/build/oauth2/oauth2_server/%oauth2_server/edit'] = array(
+  $items['admin/build/oauth2/oauth2-server/%oauth2_server/edit'] = array(
       'title' => 'Edit OAuth2 Server Identifier',
       'page callback' => 'drupal_get_form',
-      'page arguments' => array('oauth2_server_edit_form', 1),
+      'page arguments' => array('oauth2_server_edit_form', 4),
       'access arguments' => array('edit any oauth2_server'),
       'file' => 'oauth2_server.admin.inc',
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
   
-  $items['admin/build/oauth2/oauth2_server/%oauth2_server/delete'] = array(
+  $items['admin/build/oauth2/oauth2-server/%oauth2_server/delete'] = array(
       'title' => 'Delete OAuth2 Server Identifier',
       'page callback' => 'drupal_get_form',
-      'page arguments' => array('oauth2_server_delete_form', 1),
+      'page arguments' => array('oauth2_server_delete_form', 4),
       'access arguments' => array('delete any oauth2_server'),
       'file' => 'oauth2_server.admin.inc',
       'type' => MENU_LOCAL_TASK,
@@ -101,6 +101,7 @@ function oauth2_server_perm() {
     'create oauth2_server',
     'delete any oauth2_server',
     'edit any oauth2_server',
+    'access oauth2_customblock content',
   );
 }
 
@@ -216,7 +217,7 @@ function oauth2_server_validate($node) {
   }
 
   // Ensure no duplicate server_id.
-  $result = db_result(db_query("SELECT COUNT(*) FROM {oauth2_servers} AS osrv INNER JOIN {node} AS n ON osrv.vid = n.vid WHERE osrv.server_id = '%s' AND n.nid <> %d", $node->server_id, $node->nid));
+  $result = db_result(db_query("SELECT COUNT(*) FROM {oauth2_server} AS osrv INNER JOIN {node} AS n ON osrv.vid = n.vid WHERE osrv.server_id = '%s' AND n.nid <> %d", $node->server_id, $node->nid));
   if ($result != 0) {
     form_set_error('server_id', t('This Server ID had beed used by other server identifer.'));
   }
@@ -226,7 +227,7 @@ function oauth2_server_validate($node) {
 //  * Implementation of hook_insert().
 //  */
 // function oauth2_server_insert($node) {
-//   drupal_write_record('oauth2_servers', $node);
+//   drupal_write_record('oauth2_server', $node);
 // }
 
 // /**
@@ -237,7 +238,7 @@ function oauth2_server_validate($node) {
 //     oauth2_server_insert($node);
 //   }
 //   else {
-//     drupal_write_record('oauth2_servers', $node, 'vid');
+//     drupal_write_record('oauth2_server', $node, 'vid');
 //   }
 // }
 
@@ -262,7 +263,7 @@ function oauth2_server_update($oauth2_server) {
 //   switch ($op) {
 //     case 'delete revision':
 //       // Notice that we're matching a single revision based on the node's vid.
-//       db_query("DELETE FROM {oauth2_servers} WHERE vid = %d", $node->vid);
+//       db_query("DELETE FROM {oauth2_server} WHERE vid = %d", $node->vid);
 //       break;
 //   }
 // }
@@ -270,20 +271,20 @@ function oauth2_server_update($oauth2_server) {
 /**
  * Implementation of hook_delete().
  */
-function oauth2_server_delete(&$node) {
+function oauth2_server_delete($server_id) {
   // Notice that we're matching all revision, by using the node's nid.
-  db_query("DELETE FROM {oauth2_servers} WHERE nid = %d", $node->nid);
+  db_query("DELETE FROM {oauth2_server} WHERE server_id = '%s'", $server_id);
 }
 
 /**
  * Load a record
  */
 function oauth2_server_load($server_id) {
-  /*$additions = db_fetch_object(db_query("SELECT server_id, client_id, client_secret, base_uri, authorize_uri, access_token_uri FROM {oauth2_servers} WHERE vid = %d", $node->vid));
+  /*$additions = db_fetch_object(db_query("SELECT server_id, client_id, client_secret, base_uri, authorize_uri, access_token_uri FROM {oauth2_server} WHERE vid = %d", $node->vid));
   return $additions;*/
   ctools_include('export');
   $result = ctools_export_load_object('oauth2_server', 'names', array($server_id));
-  
+  //error_log('result: '.print_r($result,true).' $server_id: '.print_r($server_id,true));
   if (isset($result[$server_id])) {
     return $result[$server_id];
   }
@@ -303,6 +304,47 @@ function oauth2_server_load_multiple($server_ids = NULL) {
 
   //return entity_load('oauth2_server', $sids, $conditions, $reset);
 }
+
+function oauth2_server_node_info() {
+  return array(
+      'oauth2_customblock' => array(
+          'name' => t('oauth2_server Login Block'),
+          'module' => 'oauth2_server',
+'description' => t('oauth2 login Block.'),
+)
+);
+}
+
+
+/**
+ * Implements hook_block().
+ */
+function oauth2_server_block($op = 'list', $delta = 0, $edit = array()) {
+  global $user;
+  $blocks = array();
+  if ($op == 'list') {
+    if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier',NULL)) {
+      $blocks[0] = array();
+      $blocks[0]['info'] = t('OAuth2 Login');
+    }
+    return $blocks;
+  } elseif ($op == 'view') {
+    if (!$user->uid) {
+      if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier',NULL)) {
+        $sid = variable_get('oauth2_client_server_identifier');
+    
+        $client = oauth2_get_client($sid);
+        $blocks['subject'] = 'oauth2login';
+        $blocks['content'] = '<a href="'.$client->getLoginUri().'">OAuth2 Login Redirect</a>';
+            
+    
+          return $blocks;
+        
+      }
+    }
+  }
+}
+
 
 
 /**

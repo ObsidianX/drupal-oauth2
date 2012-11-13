@@ -17,7 +17,7 @@ function oauth2_server_admin_callback() {
     array('data' => t('Operations'), 'colspan' => 2),
   );
 
-  //$result = db_query("SELECT n.nid, n.title, osrv.server_id, n.status, n.changed FROM {node} AS n INNER JOIN {oauth2_servers} AS osrv ON n.vid = osrv.vid". tablesort_sql($header));
+  //$result = db_query("SELECT n.nid, n.title, osrv.server_id, n.status, n.changed FROM {node} AS n INNER JOIN {oauth2_server} AS osrv ON n.vid = osrv.vid". tablesort_sql($header));
   $result = oauth2_server_load_multiple();
   $rows = array();
   foreach ($result as $server) {
@@ -26,8 +26,8 @@ function oauth2_server_admin_callback() {
       $server->server_id,
       $server->status ? t('Yes') : t('No'),
       format_interval(time() - $server->changed),
-      l(t('edit'), 'oauth2-server/'. $server->server_id .'/edit', array('query' => array('destination' => 'admin/build/oauth2/oauth2-server'))),
-      l(t('delete'), 'oauth2-server/'. $server->server_id .'/delete', array('query' => array('destination' => 'admin/build/oauth2/oauth2-server'))),
+      l(t('edit'), 'admin/build/oauth2/oauth2-server/'. $server->server_id .'/edit', array('query' => array('destination' => 'admin/build/oauth2/oauth2-server'))),
+      l(t('delete'), 'admin/build/oauth2/oauth2-server/'. $server->server_id .'/delete', array('query' => array('destination' => 'admin/build/oauth2/oauth2-server'))),
     );
   }
 
@@ -68,8 +68,9 @@ function oauth2_server_view_callback($oauth2_server) {
  * @see oauth2_server_edit_form_validate()
  * @see oauth2_server_edit_form_submit()
  */
-function oauth2_server_edit_form($form, &$form_state, $oauth2_server = NULL) {
-
+function oauth2_server_edit_form($form_state, $oauth2_server = NULL) {
+  error_log(print_r($oauth2_server,true));
+  $form = array();
   $form['#oauth2_server'] = $oauth2_server;
   $form['oauth2_server'] = array(
       '#type' => 'fieldset',
@@ -151,13 +152,7 @@ function oauth2_server_edit_form($form, &$form_state, $oauth2_server = NULL) {
       '#value' => isset($oauth2_server->sid) ? $oauth2_server->sid : NULL,
   );
 
-  $form['actions'] = array(
-      '#type' => 'actions',
-      'save' => array(
-          '#type' => 'submit',
-          '#value' => t('Save settings'),
-      )
-  );
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Save'));
 
 
   return $form;
@@ -204,9 +199,9 @@ function oauth2_server_edit_form_validate($form, &$form_state) {
 
   // Ensure no duplicate server_id.
   if ($form_state['values']['sid'] != NULL) {
-    $result = db_query("SELECT COUNT(*) AS count FROM {oauth2_server} AS osrv  WHERE osrv.server_id = :s AND osrv.sid != :t ", array(':s' => $form_state['values']['server_id'],':t' => $form_state['values']['sid']));
+    $result = db_query("SELECT COUNT(*) AS count FROM {oauth2_server} AS osrv  WHERE osrv.server_id = '%s' AND osrv.sid <> '%t' ", $form_state['values']['server_id'],$form_state['values']['sid']);
   } else {
-    $result = db_query("SELECT COUNT(*) AS count FROM {oauth2_server} AS osrv  WHERE osrv.server_id = :s ", array(':s' => $form_state['values']['server_id']));
+    $result = db_query("SELECT COUNT(*) AS count FROM {oauth2_server} AS osrv  WHERE osrv.server_id = '%s' ", $form_state['values']['server_id']);
   }
   foreach($result as $record)
     if ($record->count != 0) {
@@ -217,23 +212,36 @@ function oauth2_server_edit_form_validate($form, &$form_state) {
 /**
  * Confirm form for the deletion
  */
-function oauth2_server_delete_form($form, &$form_state, $oauth2_server) {
+function oauth2_server_delete_form($form_state, $oauth2_server) {
   $destination = drupal_get_destination();
-
-  //confirm_form($form, $question, $path, $description = NULL, $yes = NULL, $no = NULL, $name = 'confirm')
-  return confirm_form(
-  array(
+  $form = array(
       'oauth2_server' => array(
           '#type' => 'value',
           '#value' => $oauth2_server->server_id,
       ),
-  ),
-  t('Are you sure you want to delete this Server Identifier?'),
-  $destination['destination'],
-  t('This action cannot be undone.'),
-  t('Delete Server Identifier'),
-  t('Cancel')
   );
+  //confirm_form($form, $question, $path, $description = NULL, $yes = NULL, $no = NULL, $name = 'confirm')
+  if (($oauth2_server->export_type & EXPORT_IN_DATABASE) && ($oauth2_server->export_type & EXPORT_IN_CODE)) {
+    return confirm_form($form
+    ,
+    t('Are you sure you want to revert this Server Identifier?'),
+    $destination['destination'],
+    t('This action cannot be undone.'),
+    t('Revert'),
+    t('Cancel')
+    );
+    
+  }elseif (!($oauth2_server->export_type & EXPORT_IN_CODE)) {
+    return confirm_form($form
+    ,
+    t('Are you sure you want to delete this Server Identifier?'),
+    $destination['destination'],
+    t('This action cannot be undone.'),
+    t('Delete'),
+    t('Cancel')
+    );
+  }
+  
 }
 /**
  * Confirm form submit for the deletion
