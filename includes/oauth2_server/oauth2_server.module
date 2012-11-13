@@ -12,7 +12,7 @@ function oauth2_server_help($section, $arg) {
   switch ($section) {
     case 'admin/build/oauth2/oauth2_server':
       $help = '<p>'. t("An <a href='!oauth2_server'>OAuth2.0 Server Identifer</a> contain the target OAuth2.0 provider information, including client_id, client_secret, authorize_uri and access_token_uri, etc.", array(
-        '!oauth2_server' => url('node/add/oauth2-server'),
+        '!oauth2_server' => url('admin/build/oauth2/oauth2_server/add'),
       )) .'</p>';
       return $help;
   }
@@ -34,45 +34,41 @@ function oauth2_server_menu() {
     'weight' => -10,
   );
 
-  $items['oauth2-server/%oauth2_server'] = array(
+  $items['admin/build/oauth2/oauth2_server/%oauth2_server'] = array(
       'title' => 'View OAuth2 Server Identifier',
       'page callback' => 'oauth2_server_view_callback',
       'page arguments' => array(1),
-      'access callback' => 'oauth2_server_access',
-      'access arguments' => array('edit',1),
+      'access arguments' => array('edit any oauth2_server'),
       'file' => 'oauth2_server.admin.inc',
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
   
-  $items['oauth2-server/add'] = array(
+  $items['admin/build/oauth2/oauth2_server/add'] = array(
       'title' => 'Add OAuth2 Server Identifier',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('oauth2_server_edit_form'),
-      'access callback' => 'oauth2_server_access',
-      'access arguments' => array('create',1),
+      'access arguments' => array('create oauth2_server'),
       'file' => 'oauth2_server.admin.inc',
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
   
-  $items['oauth2-server/%oauth2_server/edit'] = array(
+  $items['admin/build/oauth2/oauth2_server/%oauth2_server/edit'] = array(
       'title' => 'Edit OAuth2 Server Identifier',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('oauth2_server_edit_form', 1),
-      'access callback' => 'oauth2_server_access',
-      'access arguments' => array('edit',1),
+      'access arguments' => array('edit any oauth2_server'),
       'file' => 'oauth2_server.admin.inc',
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
   
-  $items['oauth2-server/%oauth2_server/delete'] = array(
+  $items['admin/build/oauth2/oauth2_server/%oauth2_server/delete'] = array(
       'title' => 'Delete OAuth2 Server Identifier',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('oauth2_server_delete_form', 1),
-      'access callback' => 'oauth2_server_access',
-      'access arguments' => array('delete',1),
+      'access arguments' => array('delete any oauth2_server'),
       'file' => 'oauth2_server.admin.inc',
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
@@ -103,9 +99,7 @@ function oauth2_server_menu() {
 function oauth2_server_perm() {
   return array(
     'create oauth2_server',
-    'delete own oauth2_server',
     'delete any oauth2_server',
-    'edit own oauth2_server',
     'edit any oauth2_server',
   );
 }
@@ -120,16 +114,17 @@ function oauth2_server_access($op, $node, $account) {
   }
 
   if ($op == 'update') {
-    if (user_access('edit any oauth2_server', $account) || (user_access('edit own oauth2_server', $account) && ($account->uid == $node->uid))) {
+    if (user_access('edit any oauth2_server', $account)) {
       return TRUE;
     }
   }
 
   if ($op == 'delete') {
-    if (user_access('delete any oauth2_server', $account) || (user_access('delete own oauth2_server', $account) && ($account->uid == $node->uid))) {
+    if (user_access('delete any oauth2_server', $account)) {
       return TRUE;
     }
   }
+  return NULL;
 }
 
 /**

@@ -30,7 +30,7 @@ function oauth2_server_schema() {
     'export' => array(
           'key' => 'server_id',
           'key name' => 'OAuth2.0 Server Machine Name',
-          'primary key' => 'nid',
+          'primary key' => 'sid',
           'identifier' => 'preset', // Exports will be defined as $preset
           'default hook' => 'default_oauth2_server_preset',  // Function hook name.
           'api' => array(
