@@ -109,28 +109,22 @@ function oauth2_menu() {
   return $items;
 }
 
-/**
- * Implementation of hook_cron().
- */
-function oauth2_cron() {
-  if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2') {
-    // Clear legacy tokens.
-    db_query("DELETE FROM {oauth2_access_tokens} WHERE expires < %d", time());
-    db_query("DELETE FROM {oauth2_auth_codes} WHERE expires < %d", time());
-    db_query("DELETE FROM {oauth2_refresh_tokens} WHERE expires < %d", time());
-  }
-}
 
 /**
  * Implementation of hook_user().
  */
 function oauth2_user($op, &$edit, &$account, $category = NULL) {
-  if ($op == 'logout') {
-    $session_id = session_id();
-    if (isset($account->sid)) {
-      $session_id = $account->sid;
+  
+  if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier')) {
+  
+  } elseif (variable_get('oauth2_provider_mode') == 'DrupalOAuth2' ) {
+    if ($op == 'logout') {
+      $session_id = session_id();
+      if (isset($account->sid)) {
+        $session_id = $account->sid;
+      }
+      oauth2_get_server()->expireSession($session_id);
     }
-    oauth2_get_server()->expireSession($session_id);
   }
 }
 
@@ -182,14 +176,19 @@ function oauth2_get_server($class_name = NULL, $params = array()) {
  * @return
  *   The OAuth2.0 client-side instance based on $nid.
  */
-function oauth2_get_client($nid, $params = array()) {
+function oauth2_get_client($server_id, $params = array()) {
   static $_oauth2_clients;
 
-  if (!isset($_oauth2_clients[$nid]) || !$_oauth2_clients[$nid] instanceof DrupalOAuth2Client) {
-    $info = (array) node_load($nid);
-    $params = array_merge($info, $params);
-    $_oauth2_clients[$nid] = new DrupalOAuth2Client($params);
+  if (!isset($_oauth2_clients[$server_id]) || !$_oauth2_clients[$server_id] instanceof DrupalOAuth2Client) {
+    $server_info = (array) oauth2_server_load($server_id);
+
+    $params = array_merge($server_info, $params);
+    if (module_exists('oauth2_consumer') && variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) != 'DrupalOAuth2Client') {
+      $consumer_info = (array) oauth2_consumer_load($server_info['server_id']);
+      $params = array_merge($consumer_info,$params);
+    }
+    $_oauth2_clients[$server_id] = new DrupalOAuth2Client($params);
   }
 
-  return $_oauth2_clients[$nid];
+  return $_oauth2_clients[$server_id];
 }

@@ -332,13 +332,11 @@ function oauth2_server_block($op = 'list', $delta = 0, $edit = array()) {
     if (!$user->uid) {
       if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier',NULL)) {
         $sid = variable_get('oauth2_client_server_identifier');
-    
+         error_log('here');
         $client = oauth2_get_client($sid);
         $blocks['subject'] = 'oauth2login';
         $blocks['content'] = '<a href="'.$client->getLoginUri().'">OAuth2 Login Redirect</a>';
-            
-    
-          return $blocks;
+        return $blocks;
         
       }
     }

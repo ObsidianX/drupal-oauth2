@@ -181,7 +181,7 @@ function oauth2_server_edit_form_submit($form, &$form_state) {
   oauth2_server_update($oauth2_server);
   //$form_state['values']['sid'] = $return_sid;
 
-  $form_state['redirect'] = 'oauth2-server/' . $form_state['values']['server_id'] . '/edit';
+  $form_state['redirect'] = 'admin/build/oauth2/oauth2-server/' . $form_state['values']['server_id'] . '/edit';
   drupal_set_message($form_state['values']['title'].t(' saved.'));
 }
 
