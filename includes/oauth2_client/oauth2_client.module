@@ -37,9 +37,9 @@ function oauth2_client_menu() {
   $items['admin/structure/oauth2/oauth2-client/%oauth2_client'] = array(
       'title' => 'View OAuth2 client Identifier',
       'page callback' => 'oauth2_client_view_callback',
-      'page arguments' => array(1),
+      'page arguments' => array(4),
       'access callback' => 'oauth2_client_access',
-      'access arguments' => array('edit',4),
+      'access arguments' => array('edit',1),
       'file' => 'oauth2_client.admin.inc',
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
