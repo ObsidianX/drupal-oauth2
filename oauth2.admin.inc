@@ -141,7 +141,7 @@ function oauth2_admin_settings() {
       }
       else {
         $form['oauth2_provider_mode_client']['oauth2_client_server_identifier'] = array(
-            '#value' => t("<p>To use proxy mode you should first define at least one <a href='@oauth2_server'>OAuth2.0 server indentifier</a> and <a href='@admin'>publish it</a>.</p>", array(
+            '#value' => t("<p>To use client mode you should first define at least one <a href='@oauth2_server'>OAuth2.0 server indentifier</a> and <a href='@admin'>publish it</a>.</p>", array(
                 '@oauth2_server' => url('oauth2-server/add'),
                 '@admin' => url('admin/structure/oauth2/oauth2-server'),
             )),
@@ -152,7 +152,7 @@ function oauth2_admin_settings() {
           '#type' => 'checkbox',
           '#return_value' => TRUE,
           '#title' => t('Enable auto login?'),
-          '#default_value' => variable_get('oauth2_auto_login'),
+          '#default_value' => variable_get('oauth2_auto_login',FALSE),
           '#description' => t('User do not need to click login button if enabled. Remember to clear cache'),
           
       );

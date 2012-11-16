@@ -39,7 +39,7 @@ function oauth2_server_admin_callback() {
   $output['add_link'] = array(
       '#theme'    => 'link',
       '#text'     => 'Add Server Identifier',
-      '#path'     => 'oauth2-server/add',
+      '#path'     => 'admin/structure/oauth2/oauth2-server/add',
       '#options' => array(
           'attributes' => array('class' => array('oauth2-server-add-link'), 'id' => 'oauth2-server-add-link'),
           //REQUIRED:
@@ -50,12 +50,12 @@ function oauth2_server_admin_callback() {
   $output['server_list']['#header'] = $header;
   foreach($result as $server) {
     $rows[] = array(
-        l($server->title, 'oauth2-server/'. $server->server_id),
+        l($server->title, 'admin/structure/oauth2/oauth2-server/'. $server->server_id),
         $server->server_id,
         $server->status ? t('Yes') : t('No'),
         format_interval(time() - $server->changed),
-        l(t('edit'), 'oauth2-server/'. $server->server_id .'/edit', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-server'))),
-        l(t('delete'), 'oauth2-server/'. $server->server_id .'/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-server'))),
+        l(t('edit'), 'admin/structure/oauth2/oauth2-server/'. $server->server_id .'/edit', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-server'))),
+        l(t('delete'), 'admin/structure/oauth2/oauth2-server/'. $server->server_id .'/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-server'))),
     );
   }
   $output['server_list']['#rows'] = $rows;
@@ -217,7 +217,7 @@ function oauth2_server_edit_form_submit($form, &$form_state) {
   oauth2_server_update($oauth2_server);
   //$form_state['values']['sid'] = $return_sid;
 
-  $form_state['redirect'] = 'oauth2-server/' . $form_state['values']['server_id'] . '/edit';
+  $form_state['redirect'] = 'admin/structure/oauth2/oauth2-server/' . $form_state['values']['server_id'] . '/edit';
   drupal_set_message($form_state['values']['title'].t(' saved.'));
 }
 

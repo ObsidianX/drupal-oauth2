@@ -12,7 +12,7 @@ function oauth2_client_help($section, $arg) {
   switch ($section) {
     case 'admin/structure/oauth2/oauth2-client':
       $help = '<p>'. t("An <a href='!oauth2_client'>OAuth2.0 Client Identifer</a> contain the registed OAuth2.0 application information, including client_id, client_secret, redirect_uri and base_domain, etc.", array(
-      '!oauth2_client' => url('oauth2-client/add'),
+      '!oauth2_client' => url('admin/structure/oauth2/oauth2-client/add'),
       )) .'</p>';
       return $help;
   }
@@ -34,18 +34,18 @@ function oauth2_client_menu() {
       'weight' => -8,
   );
 
-  $items['oauth2-client/%oauth2_client'] = array(
+  $items['admin/structure/oauth2/oauth2-client/%oauth2_client'] = array(
       'title' => 'View OAuth2 client Identifier',
       'page callback' => 'oauth2_client_view_callback',
       'page arguments' => array(1),
       'access callback' => 'oauth2_client_access',
-      'access arguments' => array('edit',1),
+      'access arguments' => array('edit',4),
       'file' => 'oauth2_client.admin.inc',
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
   );
 
-  $items['oauth2-client/add'] = array(
+  $items['admin/structure/oauth2/oauth2-client/add'] = array(
       'title' => 'Add OAuth2 client Identifier',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('oauth2_client_edit_form'),
@@ -56,10 +56,10 @@ function oauth2_client_menu() {
       'weight' => 0,
   );
 
-  $items['oauth2-client/%oauth2_client/edit'] = array(
+  $items['admin/structure/oauth2/oauth2-client/%oauth2_client/edit'] = array(
       'title' => 'Edit OAuth2 client Identifier',
       'page callback' => 'drupal_get_form',
-      'page arguments' => array('oauth2_client_edit_form', 1),
+      'page arguments' => array('oauth2_client_edit_form', 4),
       'access callback' => 'oauth2_client_access',
       'access arguments' => array('edit',1),
       'file' => 'oauth2_client.admin.inc',
@@ -67,10 +67,10 @@ function oauth2_client_menu() {
       'weight' => 0,
   );
 
-  $items['oauth2-client/%oauth2_client/delete'] = array(
+  $items['admin/structure/oauth2/oauth2-client/%oauth2_client/delete'] = array(
       'title' => 'Delete OAuth2 client Identifier',
       'page callback' => 'drupal_get_form',
-      'page arguments' => array('oauth2_client_delete_form', 1),
+      'page arguments' => array('oauth2_client_delete_form', 4),
       'access callback' => 'oauth2_client_access',
       'access arguments' => array('delete',1),
       'file' => 'oauth2_client.admin.inc',

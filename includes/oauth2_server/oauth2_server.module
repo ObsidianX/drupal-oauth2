@@ -34,7 +34,7 @@ function oauth2_server_help($section, $arg) {
   switch ($section) {
     case 'admin/structure/oauth2/oauth2-server':
       $help = '<p>'. t("An <a href='!oauth2_server'>OAuth2.0 Server Identifer</a> contain the target OAuth2.0 provider information, including client_id, client_secret, authorize_uri and access_token_uri, etc.", array(
-      '!oauth2_server' => url('oauth2-server/add'),
+      '!oauth2_server' => url('admin/structure/oauth2/oauth2-server/add'),
       )) .'</p>';
       return $help;
   }
@@ -56,7 +56,7 @@ function oauth2_server_menu() {
       'weight' => -10,
   );
 
-  $items['oauth2-server/%oauth2_server'] = array(
+  $items['admin/structure/oauth2/oauth2-server/%oauth2_server'] = array(
       'title' => 'View OAuth2 Server Identifier',
       'page callback' => 'oauth2_server_view_callback',
       'page arguments' => array(1),
@@ -67,7 +67,7 @@ function oauth2_server_menu() {
       'weight' => 0,
   );
 
-  $items['oauth2-server/add'] = array(
+  $items['admin/structure/oauth2/oauth2-server/add'] = array(
       'title' => 'Add OAuth2 Server Identifier',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('oauth2_server_edit_form'),
@@ -78,7 +78,7 @@ function oauth2_server_menu() {
       'weight' => 0,
   );
 
-  $items['oauth2-server/%oauth2_server/edit'] = array(
+  $items['admin/structure/oauth2/oauth2-server/%oauth2_server/edit'] = array(
       'title' => 'Edit OAuth2 Server Identifier',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('oauth2_server_edit_form', 1),

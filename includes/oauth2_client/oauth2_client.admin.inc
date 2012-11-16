@@ -24,13 +24,13 @@ function oauth2_client_admin_callback() {
   $rows = array();
   foreach ($result as $record) {
     $rows[] = array(
-        l($record->title, 'oauth2-client/'. $record->client_id),
+        l($record->title, 'admin/structure/oauth2/oauth2-client/'. $record->client_id),
         $record->client_id,
         $record->client_secret,
         $record->status ? t('Yes') : t('No'),
         format_interval(time() - $record->changed),
-        l(t('edit'), 'oauth2-client/'. $record->client_id .'/edit', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-client'))),
-        l(t('delete'), 'oauth2-client/'. $record->client_id .'/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-client'))),
+        l(t('edit'), 'admin/structure/oauth2/oauth2-client/'. $record->client_id .'/edit', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-client'))),
+        l(t('delete'), 'admin/structure/oauth2/oauth2-client/'. $record->client_id .'/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-client'))),
     );
   }
 
@@ -42,7 +42,7 @@ function oauth2_client_admin_callback() {
       'add_link'    => array(
           '#theme'    => 'link',
           '#text'     => 'Add Client Identifier',
-          '#path'     => 'oauth2-client/add',
+          '#path'     => 'admin/structure/oauth2/oauth2-client/add',
           '#options' => array(
               'attributes' => array('class' => array('oauth2-client-add-link'), 'id' => 'oauth2-client-add-link'),
               //REQUIRED:
@@ -176,7 +176,7 @@ function oauth2_client_edit_form_submit($form, &$form_state) {
   $return_cid = oauth2_client_update($oauth2_client);
   //$form_state['values']['cid'] = $return_cid;
 
-  $form_state['redirect'] = 'oauth2-client/' . $form_state['values']['client_id'] . '/edit';
+  $form_state['redirect'] = 'admin/structure/oauth2/oauth2-client/' . $form_state['values']['client_id'] . '/edit';
   drupal_set_message($form_state['values']['title'].t(' saved.'));
 }
 
