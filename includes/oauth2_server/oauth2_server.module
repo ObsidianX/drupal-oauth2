@@ -59,7 +59,7 @@ function oauth2_server_menu() {
   $items['admin/structure/oauth2/oauth2-server/%oauth2_server'] = array(
       'title' => 'View OAuth2 Server Identifier',
       'page callback' => 'oauth2_server_view_callback',
-      'page arguments' => array(1),
+      'page arguments' => array(4),
       'access callback' => 'oauth2_server_access',
       'access arguments' => array('edit',1),
       'file' => 'oauth2_server.admin.inc',
@@ -81,7 +81,7 @@ function oauth2_server_menu() {
   $items['admin/structure/oauth2/oauth2-server/%oauth2_server/edit'] = array(
       'title' => 'Edit OAuth2 Server Identifier',
       'page callback' => 'drupal_get_form',
-      'page arguments' => array('oauth2_server_edit_form', 1),
+      'page arguments' => array('oauth2_server_edit_form', 4),
       'access callback' => 'oauth2_server_access',
       'access arguments' => array('edit',1),
       'file' => 'oauth2_server.admin.inc',
@@ -89,10 +89,10 @@ function oauth2_server_menu() {
       'weight' => 0,
   );
 
-  $items['oauth2-server/%oauth2_server/delete'] = array(
+  $items['admin/structure/oauth2/oauth2-server/%oauth2_server/delete'] = array(
       'title' => 'Delete OAuth2 Server Identifier',
       'page callback' => 'drupal_get_form',
-      'page arguments' => array('oauth2_server_delete_form', 1),
+      'page arguments' => array('oauth2_server_delete_form', 4),
       'access callback' => 'oauth2_server_access',
       'access arguments' => array('delete',1),
       'file' => 'oauth2_server.admin.inc',
