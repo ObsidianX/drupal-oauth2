@@ -151,7 +151,7 @@ function oauth2_server_entity_info() {
  */
 function oauth2_server_uri($server) {
   return array(
-      'path' => 'oauth2-server/' . $server->sid
+      'path' => 'admin/structure/oauth2/oauth2-server/' . $server->sid
   );
 }
 
