@@ -64,7 +64,7 @@ function oauth2_server_menu() {
       'access arguments' => array('edit',1),
       'file' => 'oauth2_server.admin.inc',
       'type' => MENU_LOCAL_TASK,
-      'weight' => 0,
+      'weight' => -9,
   );
 
   $items['admin/structure/oauth2/oauth2-server/add'] = array(
@@ -75,7 +75,7 @@ function oauth2_server_menu() {
       'access arguments' => array('create',1),
       'file' => 'oauth2_server.admin.inc',
       'type' => MENU_LOCAL_TASK,
-      'weight' => 0,
+      'weight' => -8,
   );
 
   $items['admin/structure/oauth2/oauth2-server/%oauth2_server/edit'] = array(
@@ -86,7 +86,7 @@ function oauth2_server_menu() {
       'access arguments' => array('edit',1),
       'file' => 'oauth2_server.admin.inc',
       'type' => MENU_LOCAL_TASK,
-      'weight' => 0,
+      'weight' => -7,
   );
 
   $items['admin/structure/oauth2/oauth2-server/%oauth2_server/delete'] = array(
@@ -97,7 +97,7 @@ function oauth2_server_menu() {
       'access arguments' => array('delete',1),
       'file' => 'oauth2_server.admin.inc',
       'type' => MENU_LOCAL_TASK,
-      'weight' => 0,
+      'weight' => -6,
   );
 
   return $items;
