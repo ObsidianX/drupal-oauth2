@@ -69,7 +69,7 @@ function oauth2_server_view_callback($oauth2_server) {
  * @see oauth2_server_edit_form_submit()
  */
 function oauth2_server_edit_form($form_state, $oauth2_server = NULL) {
-  error_log(print_r($oauth2_server,true));
+  //error_log(print_r($oauth2_server,true));
   $form = array();
   $form['#oauth2_server'] = $oauth2_server;
   $form['oauth2_server'] = array(

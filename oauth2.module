@@ -115,7 +115,7 @@ function oauth2_menu() {
  */
 function oauth2_user($op, &$edit, &$account, $category = NULL) {
   
-  if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier')) {
+  if (variable_get('oauth2_provider_mode', OAUTH2_DEFAULT_PROVIDER_MODE) == 'DrupalOAuth2Client' && variable_get('oauth2_client_server_identifier',NULL)) {
   
   } elseif (variable_get('oauth2_provider_mode') == 'DrupalOAuth2' ) {
     if ($op == 'logout') {

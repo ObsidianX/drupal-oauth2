@@ -19,7 +19,7 @@ class DrupalOAuth2Client extends OAuth2Client {
   
     parent::__construct($config);
   
-    $oauth2_mode = variable_get('oauth2_provider_mode');
+    $oauth2_mode = variable_get('oauth2_provider_mode', NULL);
     //only for client mode and no need to load if already logged in
     if ($oauth2_mode == 'DrupalOAuth2Client' && !user_is_logged_in()) {
   
@@ -215,29 +215,33 @@ class DrupalOAuth2Client extends OAuth2Client {
     if ($name == $root_user->name) {
       return $user;
     }
-  
+  //error_log('mail: '.$mail);
     //check if exists in authmap
     $user = user_external_load($name);
     if (!$user) {
       //try to load user from existing user table
-      $user = user_load_by_name($name);
-  
+      $user = user_load(array('name'=>$name));
       if ($user !== FALSE) {
         //if user exist
+        //error_log('user exist');
         user_set_authmaps($user, array("authname_oauth2" => $name));
         $temp_form_state = array('uid' => $user->uid);
         user_login_submit(array(), $temp_form_state);
       } else {
+        //create user 
         //error_log('create user: '.$name);
         user_external_login_register($name,'oauth2');
       }
     } else {
       //load it
-  
+      //error_log('user in authmap');
       $temp_form_state = array('uid' => $user->uid);
+      $form_values = array('name' => $name, 'pass' => '');
+      user_authenticate_finalize($form_values);
       user_login_submit(array(), $temp_form_state);
+      
     }
-  
+    drupal_goto($_GET['q']);
     return $user;
   }
   /**
