@@ -12,7 +12,6 @@ function oauth2_server_admin_callback() {
   $header = array(
       array('data' => t('Server Name'), 'field' => 'title'),
       array('data' => t('Server ID'), 'field' => 'server_id'),
-      array('data' => t('Published'), 'field' => 'status'),
       array('data' => t('Updated'), 'field' => 'changed', 'sort' => 'desc'),
       array('data' => t('Operations'), 'colspan' => 2),
   );
@@ -52,7 +51,6 @@ function oauth2_server_admin_callback() {
     $rows[] = array(
         l($server->title, 'admin/structure/oauth2/oauth2-server/'. $server->server_id),
         $server->server_id,
-        $server->status ? t('Yes') : t('No'),
         format_interval(time() - $server->changed),
         l(t('edit'), 'admin/structure/oauth2/oauth2-server/'. $server->server_id .'/edit', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-server'))),
         l(t('delete'), 'admin/structure/oauth2/oauth2-server/'. $server->server_id .'/delete', array('query' => array('destination' => 'admin/structure/oauth2/oauth2-server'))),
