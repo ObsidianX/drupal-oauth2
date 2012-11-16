@@ -113,6 +113,7 @@ function oauth2_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('oauth2_admin_settings'),
     'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
     'file' => 'oauth2.admin.inc',
   );
 
