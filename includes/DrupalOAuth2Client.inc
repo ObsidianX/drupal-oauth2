@@ -238,7 +238,7 @@ class DrupalOAuth2Client extends OAuth2Client {
       $temp_form_state = array('uid' => $user->uid);
       user_login_submit(array(), $temp_form_state);
     }
-
+    drupal_goto($_GET['q']);
     return $user;
   }
   /**
