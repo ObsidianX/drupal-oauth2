@@ -157,6 +157,14 @@ function oauth2_admin_settings() {
           
       );
     }
+    
+    $form['oauth2_mode_enable'] = array(
+        '#type' => 'checkbox',
+          '#return_value' => TRUE,
+          '#title' => t('Enable OAuth2'),
+          '#default_value' => variable_get('oauth2_mode_enable',FALSE),
+          '#description' => t('The trigger to enable OAuth2'),
+    );
   }
 
   $form['#validate'][] = 'oauth2_admin_settings_validate';
