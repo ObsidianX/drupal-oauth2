@@ -364,7 +364,7 @@ class DrupalOAuth2 extends OAuth2 {
    * Overrides OAuth2::getRefreshToken().
    */
   public function getRefreshToken($refresh_token) {
-    $stmt = db_query("SELECT ort.client_id, ort.sid, ort.expires, ort.scope, u.uid, u.name
+    $stmt = db_query("SELECT ort.refresh_token as token, ort.client_id, ort.sid, ort.expires, ort.scope, u.uid, u.name
       FROM {oauth2_refresh_tokens} AS ort
         INNER JOIN {users} AS u ON ort.uid = u.uid
       WHERE ort.refresh_token ='%s'", $refresh_token);
