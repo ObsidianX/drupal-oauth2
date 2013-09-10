@@ -42,7 +42,7 @@ INSTALLATION
 ** WARNING! This version is not suitable for production use yet! 
 
 Before start with module installation please download oauth2-php from
-http://code.google.com/p/oauth2-php/ and extract it under either following
+https://github.com/ObsidianX/php-oauth2 and extract it under either following
 directory:
 
   * oauth2-php under your Drupal oauth2 modules, e.g. OAuth2.inc will therefore
