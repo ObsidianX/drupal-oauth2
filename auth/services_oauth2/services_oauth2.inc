@@ -19,17 +19,8 @@
  *  Returns nothing, or a error message if authentication fails
  */
 function _services_oauth2_authenticate_call($settings, $method, $args) {
-
-  foreach ($args as $key => $arg) {
-    if (is_array($args[$key]) && isset($args[$key]['oauth_token'])) {
-      //unset($args[$key]['oauth_token']);
-    }
-    elseif (is_object($args[$key]) && isset($args[$key]->oauth_token)) {
-      //unset($args[$key]->oauth_token);
-    }
-  }
-
-  oauth2_get_server()->verifyAccessToken();
+    $result = oauth2_get_server()->verifyAccessToken();
+    return $result === TRUE ? NULL : $result;
 }
 
 function _services_oauth2_security_settings() {

@@ -339,7 +339,7 @@ class DrupalOAuth2 extends OAuth2 {
    * Implements OAuth2::getAccessToken().
    */
   public function getAccessToken($oauth_token) {
-    $result = db_query("SELECT oat.client_id, oat.sid, oat.expires, oat.scope, u.uid, u.name, u.mail
+    $result = db_query("SELECT oat.client_id, oat.sid, oat.expires, oat.scope, u.uid as uid, u.name, u.mail
     FROM {oauth2_access_tokens} AS oat
     INNER JOIN {users} AS u ON oat.uid = u.uid
     WHERE oat.oauth_token = :s", array(':s' => $oauth_token));
@@ -409,18 +409,19 @@ class DrupalOAuth2 extends OAuth2 {
 
     $result = NULL;
     if ($uid) {
-      $account = user_load($uid);
+      global $user;
+      $user = user_load($uid);
       // Regenerate the session ID to prevent against session fixation attacks.
       drupal_session_regenerate();
 
       $array = array();
-      user_module_invoke('login', $array, $account);
+      user_module_invoke('login', $array, $user);
 
       $result = array(
-          'uid' => $account->uid,
-          'name' => $account->name,
+          'uid' => $user->uid,
+          'name' => $user->name,
           'sid' => session_id(),
-          'scope' => trim(implode(' ', $this->getAuthorizedScopes($client_id, $account->uid))),
+          'scope' => trim(implode(' ', $this->getAuthorizedScopes($client_id, $user->uid))),
       );
     }
 
@@ -431,7 +432,7 @@ class DrupalOAuth2 extends OAuth2 {
    * Overrides OAuth2::getRefreshToken().
    */
   public function getRefreshToken($refresh_token) {
-    $result = db_query("SELECT ort.refresh_token as token, ort.client_id, ort.sid, ort.expires, ort.scope, u.uid, u.name
+    $result = db_query("SELECT ort.refresh_token as token, ort.client_id, ort.sid, ort.expires, ort.scope, u.uid as uid, u.name
     FROM {oauth2_refresh_tokens} AS ort
     INNER JOIN {users} AS u ON ort.uid = u.uid
     WHERE ort.refresh_token = :token", array(':token' => $refresh_token));
@@ -453,5 +454,16 @@ class DrupalOAuth2 extends OAuth2 {
    */
   public function unsetRefreshToken($refresh_token) {
     return db_query("DELETE FROM {oauth2_refresh_tokens} WHERE refresh_token = :s", array(':s' => $refresh_token));
+  }
+
+  public function verifyAccessToken($scope = NULL, $exit_not_present = TRUE, $exit_invalid = TRUE, $exit_expired = TRUE, $exit_scope = TRUE, $realm = NULL) {
+    $result = parent::verifyAccessToken($scope, $exit_not_present, $exit_invalid, $exit_expired, $exit_scope, $realm);
+    if($result === TRUE) {
+        global $user;
+        $token_params = $this->getAccessTokenParams();
+        $token = $this->getAccessToken($token_params);
+        $user = user_load($token['uid']);
+    }   
+    return $result;
   }
 }
