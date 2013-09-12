@@ -192,8 +192,9 @@ function oauth2_admin_settings_validate($form, $form_state) {
       form_set_error('oauth2_auth_code_lifetime', t('The authorization code lifetime should relatively smaller than that of access token.'));
     }
 
-    if ($form_state['values']['oauth2_refresh_token_lifetime'] < $form_state['values']['oauth2_access_token_lifetime']) {
-      form_set_error('oauth2_refresh_token_lifetime', t('The refresh token lifetime should relatively larger than that of access token.'));
+    if ($form_state['values']['oauth2_refresh_token_lifetime'] < $form_state['values']['oauth2_access_token_lifetime'] &&
+        $form_state['values']['oauth2_refresh_token_lifetime'] != -1) {
+      form_set_error('oauth2_refresh_token_lifetime', t('The refresh token lifetime should relatively larger than that of access token, or -1 for immortal.'));
     }
   }
 }
